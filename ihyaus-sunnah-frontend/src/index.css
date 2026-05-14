@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================
+   GLOBAL RESET
+========================= */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-cream text-dark font-sans antialiased overflow-x-hidden;
+}
+
+/* =========================
+   TYPOGRAPHY
+========================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-heading tracking-tight;
+}
+
+p {
+  @apply leading-relaxed;
+}
+
+/* =========================
+   REUSABLE CONTAINERS
+========================= */
+
+.container-custom {
+  @apply max-w-7xl mx-auto px-4 sm:px-8 lg:px-10;
+}
+
+/* =========================
+   BUTTON SYSTEM
+========================= */
+
+.btn-primary {
+  @apply inline-flex items-center justify-center
+  bg-gold text-primary
+  px-7 py-3
+  rounded-2xl
+  font-semibold
+  shadow-card
+  transition-all duration-300
+  hover:scale-105
+  hover:shadow-glow;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center
+  bg-primary text-white
+  px-7 py-3
+  rounded-2xl
+  font-semibold
+  transition-all duration-300
+  hover:bg-primaryLight
+  hover:scale-105;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center
+  border border-white
+  text-white
+  px-7 py-3
+  rounded-2xl
+  font-semibold
+  transition-all duration-300
+  hover:bg-white
+  hover:text-primary;
+}
+
+.btn-dark-outline {
+  @apply inline-flex items-center justify-center
+  border border-primary
+  text-primary
+  px-7 py-3
+  rounded-2xl
+  font-semibold
+  transition-all duration-300
+  hover:bg-primary
+  hover:text-white;
+}
+
+/* =========================
+   CARD SYSTEM
+========================= */
+
+.card {
+  @apply bg-white
+  rounded-3xl
+  border border-gray-100
+  overflow-hidden
+  transition-all duration-500
+  hover:-translate-y-2;
+}
+
+/* =========================
+   INPUT SYSTEM
+========================= */
+
+.input-primary {
+  @apply w-full
+  px-5 py-4
+  rounded-2xl
+  border border-gray-200
+  bg-gray-50/80
+  text-dark
+  transition-all duration-300
+  focus:outline-none
+  focus:ring-2
+  focus:ring-secondary
+  focus:ring-opacity-30
+  focus:border-secondary;
+}
+
+/* =========================
+   GLASS EFFECT
+========================= */
+
+.glass-card {
+  @apply bg-white/10
+  backdrop-blur-xl
+  border border-white/20;
+}
+
+/* =========================
+   SECTION SPACING
+========================= */
+
+.section-padding {
+  @apply py-24 md:py-28;
+}
+
+/* =========================
+   SECTION HEADERS
+========================= */
+
+.section-subtitle {
+  @apply inline-block
+  text-secondary
+  font-semibold
+  uppercase
+  tracking-[0.2em]
+  mb-4;
+}
+
+.section-title {
+  @apply text-4xl md:text-5xl lg:text-6xl
+  font-heading
+  font-bold
+  text-primary
+  leading-tight
+  mb-6;
+}
+
+.section-description {
+  @apply text-lg
+  text-gray-600
+  leading-relaxed
+  max-w-3xl;
+}
+
+/* =========================
+   ARABIC TEXT
+========================= */
+
+.font-arabic {
+  font-family: "Amiri", serif;
+}
+
+/* =========================
+   SHADOW SYSTEM
+========================= */
+
+.shadow-soft {
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.05),
+    0 2px 10px rgba(0, 0, 0, 0.03);
+}
+
+.shadow-premium {
+  box-shadow:
+    0 25px 50px rgba(0, 0, 0, 0.08),
+    0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* =========================
+   CUSTOM BACKGROUND GRADIENTS
+========================= */
+
+.hero-overlay {
+  background:
+    linear-gradient(
+      to right,
+      rgba(11, 61, 46, 0.92),
+      rgba(11, 61, 46, 0.75)
+    );
+}
+
+.gold-gradient {
+  background:
+    linear-gradient(
+      135deg,
+      #D4AF37 0%,
+      #E6C766 100%
+    );
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+.fade-up {
+  animation: fadeUp 0.8s ease forwards;
+}
+
+.float-animation {
+  animation: float 4s ease-in-out infinite;
+}
+
+.slow-spin {
+  animation: slowSpin 18s linear infinite;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-12px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes slowSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   IMAGE EFFECTS
+========================= */
+
+.image-hover {
+  @apply overflow-hidden;
+}
+
+.image-hover img {
+  @apply transition-transform duration-700;
+}
+
+.image-hover:hover img {
+  transform: scale(1.08);
+}
+
+/* =========================
+   SCROLLBAR
+========================= */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f3f4f6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0B3D2E;
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #145A45;
+}
+
+/* =========================
+   TEXT SELECTION
+========================= */
+
+::selection {
+  background: rgba(212, 175, 55, 0.25);
+  color: #0B3D2E;
+}
