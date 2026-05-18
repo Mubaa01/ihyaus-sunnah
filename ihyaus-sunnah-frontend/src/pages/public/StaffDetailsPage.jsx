@@ -40,7 +40,7 @@ const StaffDetailsPage = () => {
   const member =
     staff.find(
       (item) =>
-        item.id?.toString() === id
+        item._id?.toString() === id
     )
 
   // =========================

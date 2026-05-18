@@ -399,9 +399,7 @@ const StaffDirectoryPage = () => {
                         ) => (
 
                           <motion.div
-                            key={
-                              member.id
-                            }
+                            key={member.id ?? `staff-member-${section.key}-${index}`}
 
                             initial={{
                               opacity: 0,
@@ -511,7 +509,7 @@ const StaffDirectoryPage = () => {
 
                               {/* BUTTON */}
                               <Link
-                                to={`/staff/profile/${member.id}`}
+                                to={`/staff/profile/${member._id}`}
 
                                 className="btn-primary w-full block text-center"
                               >
