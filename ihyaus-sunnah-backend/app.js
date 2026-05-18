@@ -1,11 +1,11 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
 import dotenv from "dotenv";
+
 dotenv.config();
 
-
+// Routes
 import staffRoutes from "./routes/staffRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -18,17 +18,31 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 
 const app = express();
 
-dotenv.config();
+/* =========================
+   CORS CONFIG
+========================= */
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+    credentials: true,
+  })
+);
 
-app.use(cors({
-	origin: ["http://localhost:3000", "http://localhost:3001"],
-	credentials: true
-}));
+/* =========================
+   BODY PARSERS (FIX APPLIED HERE)
+   THIS FIXES PayloadTooLargeError
+========================= */
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-
-app.use(express.json());
+/* =========================
+   COOKIE PARSER
+========================= */
 app.use(cookieParser());
 
+/* =========================
+   ROUTES
+========================= */
 app.use("/api/staff", staffRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
@@ -36,9 +50,7 @@ app.use("/api/programs", programRoutes);
 app.use("/api/media", mediaRoutes);
 app.use("/api/research", researchRoutes);
 app.use("/api/majlis", majlisRoutes);
-
 app.use("/api/activities", activityRoutes);
 app.use("/api/notifications", notificationRoutes);
-
 
 export default app;
