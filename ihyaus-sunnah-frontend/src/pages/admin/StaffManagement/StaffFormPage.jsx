@@ -54,15 +54,19 @@ const StaffFormPage = () => {
 
   // LOAD EXISTING STAFF (EDIT MODE)
   useEffect(() => {
-    if (!id) return
-
-
-  // TODO: Replace with real API call to fetch staff by ID
-  // useEffect(() => {
-  //   if (!id) return;
-  //   // Implement API fetch for staff by ID
-  // }, [id]);
-  }, [id])
+    if (!id) return;
+    // Find the staff member by _id and set as form data
+    const existing = staff.find((item) => item._id?.toString() === id);
+    if (existing) {
+      setFormData({
+        ...emptyForm,
+        ...existing,
+        image: existing.image || "",
+        sections: existing.sections || [],
+      });
+      setImagePreview(existing.image || "");
+    }
+  }, [id, staff]);
 
   const handleChange = (e) => {
     const { name, value } = e.target
