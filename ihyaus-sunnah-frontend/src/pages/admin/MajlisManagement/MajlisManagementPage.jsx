@@ -16,14 +16,14 @@ import {
   FaTrophy,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import useMajlis from "../../../hooks/useMajlis";
-import useCompletedSeries from "../../../hooks/useCompletedSeries";
+import useMajlisAPI from "../../../hooks/useMajlisAPI";
+import useCompletedSeriesAPI from "../../../hooks/useCompletedSeriesAPI";
 import ConfirmationModal from "../../../components/common/ConfirmationModal";
 import MajlisForm from "./MajlisForm";
 
 const MajlisManagementPage = () => {
-  const { majlis, stats, updateEnrollment, deleteMajlisData } = useMajlis();
-  const { series: completedSeries, stats: seriesStats, deleteSeriesData } = useCompletedSeries();
+  const { majlis, stats, updateEnrollment, deleteMajlisData } = useMajlisAPI();
+  const { series: completedSeries, stats: seriesStats, deleteSeriesData } = useCompletedSeriesAPI();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // all, public, private
   const [selectedMajlis, setSelectedMajlis] = useState(null);

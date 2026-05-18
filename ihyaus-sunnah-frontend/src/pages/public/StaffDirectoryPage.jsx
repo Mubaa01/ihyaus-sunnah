@@ -14,14 +14,14 @@ import {
 
 import StaffHero from "../../components/staff/StaffHero"
 
-import useStaff from "../../hooks/useStaff"
+import useStaffAPI from "../../hooks/useStaffAPI"
 
 const StaffDirectoryPage = () => {
 
   const {
     staff,
     groupedStaff,
-  } = useStaff()
+  } = useStaffAPI()
 
   const [search, setSearch] =
     useState("")

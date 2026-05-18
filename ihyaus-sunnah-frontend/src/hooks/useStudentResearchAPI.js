@@ -1,9 +1,9 @@
 // src/hooks/useStudentResearchAPI.js
 // Updated hook using real API instead of mock data
 
+
 import { useEffect, useState } from "react";
 import { researchAPI } from "../services/api";
-import { logActivity } from "../data/mock/activityStore";
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
@@ -42,12 +42,6 @@ const useStudentResearchAPI = () => {
   const addResearch = async (data, secretKey) => {
     try {
       const response = await researchAPI.create(data, secretKey);
-      logActivity({
-        type: "research",
-        action: "Added research",
-        details: `${data.title} by ${data.author} was added`,
-        reference: response.data?._id || null,
-      });
       await refreshResearch();
       dispatchAdminDataUpdate({ research: true });
       return response;
@@ -60,12 +54,6 @@ const useStudentResearchAPI = () => {
   const editResearch = async (id, data, secretKey) => {
     try {
       const response = await researchAPI.update(id, data, secretKey);
-      logActivity({
-        type: "research",
-        action: "Updated research",
-        details: `${data.title} was updated`,
-        reference: id,
-      });
       await refreshResearch();
       dispatchAdminDataUpdate({ research: true });
       return response;

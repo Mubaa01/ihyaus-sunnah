@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom"
 import { FaArrowRight, FaCogs, FaShieldAlt, FaUserCircle, FaExternalLinkAlt } from "react-icons/fa"
-import { getAdminProfile } from "../../../data/mock/adminStore"
+// TODO: Replace with real admin profile API
 
 const SettingsPage = () => {
-  const profile = getAdminProfile()
+  // TODO: Fetch admin profile from backend API
+  const profile = { name: "Admin", email: "admin@email.com" }
 
   return (
     <div className="space-y-10">

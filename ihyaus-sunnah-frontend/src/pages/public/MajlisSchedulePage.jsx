@@ -23,11 +23,11 @@ import {
 } from "react-icons/fa";
 import { IoMdPeople } from "react-icons/io";
 import { GiBookCover, GiOpenBook } from "react-icons/gi";
-import useMajlis from "../../hooks/useMajlis";
-import useCompletedSeries from "../../hooks/useCompletedSeries";
+import useMajlisAPI from "../../hooks/useMajlisAPI";
+import useCompletedSeriesAPI from "../../hooks/useCompletedSeriesAPI";
 
 const CompletedSeriesSection = () => {
-  const { series: completedSeries, stats } = useCompletedSeries();
+  const { series: completedSeries, stats } = useCompletedSeriesAPI();
 
   return (
     <div className="space-y-12">
@@ -144,7 +144,7 @@ const CompletedSeriesSection = () => {
 
 const MajlisSchedulePage = () => {
   const [activeTab, setActiveTab] = useState("public-majlis");
-  const { publicMajlis, privateMajlis } = useMajlis();
+  const { publicMajlis, privateMajlis } = useMajlisAPI();
 
   const tabs = [
     {

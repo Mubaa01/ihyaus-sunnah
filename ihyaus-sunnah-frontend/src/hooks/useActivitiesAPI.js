@@ -1,16 +1,25 @@
 import { useEffect, useState, useMemo } from "react"
-import { getActivities, logActivity, clearActivities } from "../data/mock/activityStore"
+// TODO: Replace all activities mock logic with real API
+
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync"
+import { activitiesAPI } from "../services/api"
 
 const useActivities = () => {
   const [activities, setActivities] = useState([])
 
-  const refreshActivities = () => {
-    setActivities(getActivities())
-  }
+
+  const refreshActivities = async () => {
+    try {
+      const data = await activitiesAPI.getAll()
+      setActivities(data)
+    } catch (err) {
+      setActivities([])
+    }
+  }                                                                                                 
+
 
   useEffect(() => {
     refreshActivities()
@@ -22,14 +31,17 @@ const useActivities = () => {
     return cleanup
   }, [])
 
-  const addActivity = (entry) => {
-    logActivity(entry)
+
+  const addActivity = async (entry) => {
+    await activitiesAPI.create(entry)
     refreshActivities()
     dispatchAdminDataUpdate({ activities: true })
   }
 
+
+  // Optionally implement resetActivities if needed
   const resetActivities = () => {
-    clearActivities()
+    // Not implemented: depends on backend support
     refreshActivities()
     dispatchAdminDataUpdate({ activities: true })
   }

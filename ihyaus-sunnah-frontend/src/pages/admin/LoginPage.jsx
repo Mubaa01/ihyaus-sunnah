@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
+
 import { useNavigate } from 'react-router-dom';
+import { authAPI } from '../../services/api';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement login logic
-    console.log('Login attempt:', { email, password });
-    // On success, navigate to /admin
-    navigate('/admin');
+    setError('');
+    try {
+      const data = await authAPI.login(email, password);
+      // Save token to localStorage
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        navigate('/admin');
+      } else {
+        setError('Login failed: No token received.');
+      }
+    } catch (err) {
+      setError(err.message || 'Login failed.');
+    }
   };
 
   return (
@@ -23,6 +36,9 @@ const LoginPage = () => {
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+          {error && (
+            <div className="text-red-600 text-center text-sm mb-2">{error}</div>
+          )}
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
               <label htmlFor="email" className="sr-only">

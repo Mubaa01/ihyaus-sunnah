@@ -14,21 +14,17 @@ import {
   FaPlus,
 } from "react-icons/fa"
 
-import {
-  getPlaylists,
-  deletePlaylist,
-  getMediaByPlaylist,
-} from "../../../data/mock/mediaLibraryStore"
+// TODO: Replace all playlist/media mock logic with real API
 import {
   dispatchAdminDataUpdate,
 } from "../../../utils/adminDataSync"
 
-import useStaff from "../../../hooks/useStaff"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
 const PlaylistListPage = () => {
-  const { staff } = useStaff()
+  const { staff } = useStaffAPI()
 
   const [search, setSearch] = useState("")
   const [trusteeFilter, setTrusteeFilter] = useState("All")
@@ -37,38 +33,18 @@ const PlaylistListPage = () => {
   const [selectedId, setSelectedId] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
-  const playlists = useMemo(() => {
-    let filtered = getPlaylists()
-
-    if (trusteeFilter !== "All") {
-      const trusteeId = trusteeFilter === "null" ? null : Number(trusteeFilter)
-      filtered = filtered.filter(p => p.trusteeId === trusteeId)
-    }
-
-    if (typeFilter !== "All") {
-      filtered = filtered.filter(p => p.mediaType === typeFilter)
-    }
-
-    if (search) {
-      const searchLower = search.toLowerCase()
-      filtered = filtered.filter(p =>
-        p.playlistName.toLowerCase().includes(searchLower)
-      )
-    }
-
-    return filtered
-  }, [search, trusteeFilter, typeFilter, refreshKey])
+  // TODO: Fetch playlists from backend API
+  const playlists = []
 
   const handleDeleteClick = (id) => {
     setSelectedId(id)
     setShowModal(true)
   }
 
+  // TODO: Implement playlist delete with backend API
   const confirmDelete = () => {
-    deletePlaylist(selectedId)
     setShowModal(false)
     setRefreshKey((prev) => prev + 1)
-    dispatchAdminDataUpdate({ media: true })
   }
 
   const getTrusteeName = (trusteeId) => {

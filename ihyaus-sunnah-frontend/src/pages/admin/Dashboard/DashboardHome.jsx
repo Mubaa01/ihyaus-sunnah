@@ -20,12 +20,12 @@ import {
 } from "react-icons/fa";
 
 import AdminStatCard from "../../../components/admin/AdminStatCard";
-import usePrograms from "../../../hooks/usePrograms";
-import useStaff from "../../../hooks/useStaff";
-import useMediaLibrary from "../../../hooks/useMediaLibrary";
-import useStudentResearch from "../../../hooks/useStudentResearch";
-import useActivities from "../../../hooks/useActivities";
-import useMajlis from "../../../hooks/useMajlis";
+import useProgramsAPI from "../../../hooks/useProgramsAPI";
+import useStaffAPI from "../../../hooks/useStaffAPI";
+import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI";
+import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI";
+import useActivitiesAPI from "../../../hooks/useActivitiesAPI";
+import useMajlisAPI from "../../../hooks/useMajlisAPI";
 
 const activityColors = {
   staff: "text-blue-600 bg-blue-100",
@@ -52,12 +52,12 @@ const getTimeAgo = (dateString) => {
 }
 
 const DashboardHome = () => {
-  const { programs } = usePrograms();
-  const { staff } = useStaff();
-  const { mediaItems } = useMediaLibrary({});
-  const { researchItems } = useStudentResearch({});
-  const { activities } = useActivities();
-  const { stats: majlisStats } = useMajlis();
+  const { programs = [] } = useProgramsAPI();
+  const { staff = [] } = useStaffAPI();
+  const { mediaItems = [] } = useMediaLibraryAPI({});
+  const { researchItems = [] } = useStudentResearchAPI({});
+  const { activities = [] } = useActivitiesAPI();
+  const { stats: majlisStats = {} } = useMajlisAPI();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update time every minute
@@ -67,11 +67,11 @@ const DashboardHome = () => {
   }, []);
 
   // Calculate dynamic stats
-  const totalStaff = staff.length;
-  const totalPrograms = programs.length;
-  const activePrograms = programs.filter(p => p.status === 'active').length;
-  const totalResearch = researchItems.length;
-  const featuredPrograms = programs.filter(p => p.isFeatured).length;
+  const totalStaff = (staff || []).length;
+  const totalPrograms = (programs || []).length;
+  const activePrograms = (programs || []).filter(p => p.status === 'active').length;
+  const totalResearch = (researchItems || []).length;
+  const featuredPrograms = (programs || []).filter(p => p.isFeatured).length;
 
   const recentActivities = [...activities]
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
@@ -235,7 +235,7 @@ const DashboardHome = () => {
 
         <AdminStatCard
           title="Majlis Sessions"
-          value={majlisStats.totalMajlis.toString()}
+          value={(majlisStats?.totalMajlis ?? 0).toString()}
           icon={<FaMosque />}
           color="bg-red-100 text-red-600"
           trend={{ value: `${majlisStats.publicCount} public`, direction: "up" }}

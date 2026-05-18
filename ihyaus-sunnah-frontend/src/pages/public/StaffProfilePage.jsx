@@ -1,7 +1,7 @@
 // src/pages/public/StaffProfilePage.jsx
 
 import { useParams, Link } from "react-router-dom"
-import useStaff from "../../hooks/useStaff"
+import useStaffAPI from "../../hooks/useStaffAPI"
 
 import {
   FaEnvelope,
@@ -14,12 +14,12 @@ import {
 } from "react-icons/fa"
 
 const StaffProfilePage = () => {
-  const { staff } = useStaff()
+  const { staff } = useStaffAPI()
 
   const { id } = useParams()
 
   const member = staff.find(
-    (item) => item.id === Number(id)
+    (item) => item._id === id
   )
 
   const getHierarchyLabel = (
@@ -364,7 +364,7 @@ const StaffProfilePage = () => {
 
                       <p className="font-semibold text-primary">
                         {getFallback(
-                          member.qualification
+                          member.qualification || member.academicStatus
                         )}
                       </p>
                     </div>

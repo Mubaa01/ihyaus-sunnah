@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { getProgramBySlug } from '../../data/mock/programsStore'
-import { getGalleryItems } from '../../data/mock/programGalleryStore'
+// Removed mock data imports
 
 // Import all section components
 import ProgramHeroSection from '../../components/programs/ProgramHeroSection'
@@ -24,26 +23,18 @@ const ProgramDetailsPage = () => {
   const [galleryModal, setGalleryModal] = useState(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
 
+  // TODO: Replace with real API call to fetch program by slug
   useEffect(() => {
-    try {
-      const data = getProgramBySlug(slug)
-      if (data) {
-        setProgram(data)
-      } else {
-        setError('Program not found')
-      }
-      setLoading(false)
-    } catch (err) {
-      setError('Failed to load program details')
-      setLoading(false)
-    }
-  }, [slug])
+    setLoading(true);
+    setError('API integration needed');
+    setLoading(false);
+  }, [slug]);
 
+  // TODO: Replace with real API call for gallery items
   const openGallery = (categoryId) => {
-    const items = getGalleryItems(program.id, categoryId)
-    setGalleryModal({ categoryId, items })
-    setGalleryIndex(0)
-  }
+    setGalleryModal({ categoryId, items: [] });
+    setGalleryIndex(0);
+  };
 
   const closeGallery = () => {
     setGalleryModal(null)

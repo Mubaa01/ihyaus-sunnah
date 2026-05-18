@@ -16,22 +16,17 @@ import {
   FaUser,
 } from "react-icons/fa"
 
-import {
-  getMediaItems,
-  getMediaCategories,
-  deleteMedia,
-} from "../../../data/mock/mediaLibraryStore"
-import { logActivity } from "../../../data/mock/activityStore"
+// TODO: Replace all media mock logic with real API
 import {
   dispatchAdminDataUpdate,
 } from "../../../utils/adminDataSync"
 
-import useStaff from "../../../hooks/useStaff"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
 const MediaListPage = () => {
-  const { staff } = useStaff()
+  const { staff } = useStaffAPI()
 
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("All")
@@ -41,17 +36,11 @@ const MediaListPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
 
-  const mediaItems = useMemo(() => {
-    return getMediaItems({
-      category: categoryFilter === "All" ? null : categoryFilter,
-      type: typeFilter === "All" ? null : typeFilter,
-      staffId: staffFilter === "All" ? null : Number(staffFilter),
-      visibility: visibilityFilter === "All" ? null : visibilityFilter,
-      search: search || null,
-    })
-  }, [search, categoryFilter, typeFilter, staffFilter, visibilityFilter, refreshKey])
+  // TODO: Fetch media items from backend API
+  const mediaItems = []
 
-  const categories = useMemo(() => getMediaCategories(), [])
+  // TODO: Fetch media categories from backend API
+  const categories = []
 
   const [refreshKey, setRefreshKey] = useState(0)
 
@@ -60,18 +49,10 @@ const MediaListPage = () => {
     setShowModal(true)
   }
 
+  // TODO: Implement media delete with backend API
   const confirmDelete = () => {
-    const existing = getMediaItems().find((item) => item.id === selectedId)
-    deleteMedia(selectedId)
-    logActivity({
-      type: "media",
-      action: "Deleted media item",
-      details: `${existing?.title || "A media item"} was removed from the library`,
-      reference: selectedId,
-    })
     setShowModal(false)
     setRefreshKey((prev) => prev + 1)
-    dispatchAdminDataUpdate({ media: true })
   }
 
   const getStaffName = (staffId) => {

@@ -10,10 +10,10 @@ import {
   FaSitemap,
 } from "react-icons/fa"
 
-import useStaff from "../../hooks/useStaff"
+import useStaffAPI from "../../hooks/useStaffAPI"
 
 const OrganizationPage = () => {
-  const { staff } = useStaff()
+  const { staff } = useStaffAPI()
 
   const directors = staff.filter(
     (item) => item.role === "director"

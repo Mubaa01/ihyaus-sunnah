@@ -1,3 +1,68 @@
+// ==================== COMPLETED SERIES API ====================
+export const completedSeriesAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/completed-series?${params}`);
+  },
+  create: (data, secretKey) =>
+    apiCall("/completed-series", {
+      method: "POST",
+      headers: { "x-secret-key": secretKey },
+      body: JSON.stringify(data),
+    }),
+  update: (id, data, secretKey) =>
+    apiCall(`/completed-series/${id}`, {
+      method: "PATCH",
+      headers: { "x-secret-key": secretKey },
+      body: JSON.stringify(data),
+    }),
+  delete: (id, secretKey) =>
+    apiCall(`/completed-series/${id}`, {
+      method: "DELETE",
+      headers: { "x-secret-key": secretKey },
+    }),
+};
+// ==================== NOTIFICATIONS API ====================
+export const notificationsAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/notifications?${params}`);
+  },
+  markAsRead: (id, secretKey) =>
+    apiCall(`/notifications/${id}/read`, {
+      method: "PATCH",
+      headers: { "x-secret-key": secretKey },
+    }),
+  delete: (id, secretKey) =>
+    apiCall(`/notifications/${id}`, {
+      method: "DELETE",
+      headers: { "x-secret-key": secretKey },
+    }),
+};
+// ==================== ACTIVITIES API ====================
+export const activitiesAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/activities?${params}`);
+  },
+  create: (data, secretKey) =>
+    apiCall("/activities", {
+      method: "POST",
+      headers: { "x-secret-key": secretKey },
+      body: JSON.stringify(data),
+    }),
+  update: (id, data, secretKey) =>
+    apiCall(`/activities/${id}`, {
+      method: "PATCH",
+      headers: { "x-secret-key": secretKey },
+      body: JSON.stringify(data),
+    }),
+  delete: (id, secretKey) =>
+    apiCall(`/activities/${id}`, {
+      method: "DELETE",
+      headers: { "x-secret-key": secretKey },
+    }),
+};
 // src/services/api.js
 // Central API service for all backend communication
 

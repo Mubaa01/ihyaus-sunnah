@@ -14,12 +14,12 @@ import {
   FaUsers,
 } from "react-icons/fa"
 
-import usePrograms from "../../../hooks/usePrograms"
+import useProgramsAPI from "../../../hooks/useProgramsAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
 const ProgramListPage = () => {
-  const { programs, removeProgram } = usePrograms()
+  const { programs, removeProgram } = useProgramsAPI()
 
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("All")

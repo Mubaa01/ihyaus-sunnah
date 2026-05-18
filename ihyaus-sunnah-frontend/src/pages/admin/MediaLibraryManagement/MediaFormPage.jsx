@@ -15,17 +15,10 @@ import {
   FaUpload,
 } from "react-icons/fa"
 
-import {
-  getMediaById,
-  getMediaCategories,
-  createMedia,
-  updateMedia,
-  getPlaylists,
-} from "../../../data/mock/mediaLibraryStore"
-import { logActivity } from "../../../data/mock/activityStore"
+// TODO: Replace all media mock logic with real API
 import { dispatchAdminDataUpdate } from "../../../utils/adminDataSync"
 
-import useStaff from "../../../hooks/useStaff"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -45,7 +38,7 @@ const emptyForm = {
 const MediaFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { staff } = useStaff()
+  const { staff } = useStaffAPI()
 
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
@@ -54,26 +47,11 @@ const MediaFormPage = () => {
   const [filePreview, setFilePreview] = useState("")
   const [thumbnailPreview, setThumbnailPreview] = useState("")
 
-  const categories = getMediaCategories()
+  // TODO: Fetch media categories from backend API
+  const categories = []
 
   // LOAD EXISTING MEDIA (EDIT MODE)
-  useEffect(() => {
-    if (!id) return
-
-    const existingMedia = getMediaById(id)
-
-    if (existingMedia) {
-      setFormData({
-        ...emptyForm,
-        ...existingMedia,
-        tags: existingMedia.tags || [],
-      })
-
-      // Set file previews
-      setFilePreview(existingMedia.file || "")
-      setThumbnailPreview(existingMedia.thumbnail || "")
-    }
-  }, [id])
+  // TODO: Fetch media by ID from backend API for edit mode
 
   // LOAD PLAYLISTS BASED ON TYPE
   useEffect(() => {

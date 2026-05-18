@@ -12,11 +12,9 @@ import {
   FaUpload,
 } from "react-icons/fa"
 
-import useStaff from "../../../hooks/useStaff"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 
-import {
-  getStaffById,
-} from "../../../data/mock/staffStore"
+// Removed mock data import
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -47,7 +45,7 @@ const emptyForm = {
 const StaffFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { staff, addStaff, editStaff } = useStaff()
+  const { staff, addStaff, editStaff } = useStaffAPI()
 
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
@@ -58,16 +56,12 @@ const StaffFormPage = () => {
   useEffect(() => {
     if (!id) return
 
-    const existingStaff = getStaffById(id)
 
-    if (existingStaff) {
-      setFormData({
-        ...emptyForm,
-        ...existingStaff,
-        sections: existingStaff.sections || [],
-      })
-      setImagePreview(existingStaff.image || "")
-    }
+  // TODO: Replace with real API call to fetch staff by ID
+  // useEffect(() => {
+  //   if (!id) return;
+  //   // Implement API fetch for staff by ID
+  // }, [id]);
   }, [id])
 
   const handleChange = (e) => {

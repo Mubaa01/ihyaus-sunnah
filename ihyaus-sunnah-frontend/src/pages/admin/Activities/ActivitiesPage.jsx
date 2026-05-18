@@ -9,7 +9,7 @@ import {
   FaTrashAlt,
 } from "react-icons/fa"
 
-import useActivities from "../../../hooks/useActivities"
+import useActivitiesAPI from "../../../hooks/useActivitiesAPI"
 
 const typeIcon = (type) => {
   switch (type) {
@@ -35,7 +35,7 @@ const getTimeAgo = (dateString) => {
 }
 
 const ActivitiesPage = () => {
-  const { activities, resetActivities } = useActivities()
+  const { activities, resetActivities } = useActivitiesAPI()
 
   const sortedActivities = useMemo(
     () => [...activities].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)),

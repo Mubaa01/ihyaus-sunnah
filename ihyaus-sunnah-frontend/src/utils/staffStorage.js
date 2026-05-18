@@ -1,4 +1,4 @@
-import { staffData as defaultStaffData } from "../data/mock/staffData"
+// TODO: Remove all mock staff data logic and replace with real API
 
 const STORAGE_KEY = "ihyau_staff_data"
 

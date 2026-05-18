@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import useMediaLibrary from '../../hooks/useMediaLibrary'
-import useStaff from '../../hooks/useStaff'
-import { getPlaylists, getMediaByPlaylist } from '../../data/mock/mediaLibraryStore'
+import useMediaLibraryAPI from '../../hooks/useMediaLibraryAPI'
+import useStaffAPI from '../../hooks/useStaffAPI'
+// Removed mock data imports
 import MediaPlayerModal from '../../components/media/MediaPlayerModal'
 import { FiSearch, FiVideo, FiMusic, FiPlay, FiUsers } from 'react-icons/fi'
 
@@ -17,8 +17,8 @@ const MediaLibraryPage = () => {
     search: '',
   })
 
-  const { mediaItems, categories } = useMediaLibrary(filters)
-  const { groupedStaff } = useStaff()
+  const { mediaItems, categories } = useMediaLibraryAPI(filters)
+  const { groupedStaff } = useStaffAPI()
   const boardMembers = groupedStaff.board || []
 
   const handleChange = (field) => (event) => {
@@ -51,13 +51,9 @@ const MediaLibraryPage = () => {
 
   const filteredItems = getFilteredItems()
 
-  const getTrusteePlaylists = (trusteeId) => {
-    return getPlaylists({ trusteeId, mediaType: activeTab })
-  }
-
-  const getPlaylistMedia = (playlistId) => {
-    return getMediaByPlaylist(playlistId)
-  }
+  // TODO: Replace with real API calls for playlists and media
+  const getTrusteePlaylists = (trusteeId) => [];
+  const getPlaylistMedia = (playlistId) => [];
 
   return (
     <div className="overflow-hidden bg-white">

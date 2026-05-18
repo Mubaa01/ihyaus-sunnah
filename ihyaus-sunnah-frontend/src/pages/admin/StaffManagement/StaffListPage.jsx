@@ -1,6 +1,4 @@
-// src/pages/admin/StaffManagement/StaffListPage.jsx
-
-import { useMemo, useState } from "react"
+import { useMemo, useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 
@@ -12,12 +10,22 @@ import {
   FaEye,
 } from "react-icons/fa"
 
-import useStaff from "../../../hooks/useStaff"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
+
 const StaffListPage = () => {
-  const { staff, removeStaff } = useStaff()
+  const { staff, removeStaff, refreshStaff } = useStaffAPI();
+  // Debug: log staff data on every render
+  useEffect(() => {
+    console.log("[StaffListPage] staff:", staff);
+  }, [staff]);
+
+  // Only refresh staff on initial mount
+  useEffect(() => {
+    refreshStaff();
+  }, []);
 
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("All")
@@ -130,7 +138,7 @@ const StaffListPage = () => {
 
         {filteredStaff.map((member, index) => (
           <motion.div
-            key={member.id}
+            key={member._id}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.04 }}
@@ -197,21 +205,21 @@ const StaffListPage = () => {
               <div className="flex gap-3 pt-2 flex-col sm:flex-row">
 
                 <Link
-                  to={`/admin/staff/view/${member.id}`}
+                  to={`/admin/staff/view/${member._id}`}
                   className="flex-1 bg-secondary text-white py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold hover:scale-105 transition"
                 >
                   <FaEye /> View
                 </Link>
 
                 <Link
-                  to={`/admin/staff/${member.id}`}
+                  to={`/admin/staff/${member._id}`}
                   className="flex-1 bg-primary text-white py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold hover:scale-105 transition"
                 >
                   <FaEdit /> Edit
                 </Link>
 
                 <button
-                  onClick={() => handleDeleteClick(member.id)}
+                  onClick={() => handleDeleteClick(member._id)}
                   className="w-full sm:w-14 rounded-2xl border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition"
                 >
                   <FaTrash />

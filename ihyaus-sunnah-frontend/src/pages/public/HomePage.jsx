@@ -9,7 +9,7 @@ import {
   FiAward,
 } from "react-icons/fi";
 
-import usePrograms from "../../hooks/usePrograms";
+import useProgramsAPI from "../../hooks/useProgramsAPI";
 import ProgramCard from "../../components/programs/ProgramCard";
 
 const values = [
@@ -43,7 +43,7 @@ const values = [
 ];
 
 const HomePage = () => {
-  const { programs, loading } = usePrograms()
+  const { programs, loading } = useProgramsAPI()
 
   return (
     <div className="overflow-hidden">

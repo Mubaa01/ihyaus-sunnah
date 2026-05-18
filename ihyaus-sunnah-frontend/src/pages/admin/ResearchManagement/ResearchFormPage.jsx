@@ -3,8 +3,8 @@ import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FaBookOpen, FaUserGraduate, FaUpload, FaFilePdf, FaSave, FaImage } from "react-icons/fa"
 
-import useStudentResearch from "../../../hooks/useStudentResearch"
-import { getResearchById } from "../../../data/mock/studentResearchStore"
+import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
+// Removed mock data import
 import { getResearchImageUrl } from "../../../utils/researchPdfStorage"
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -29,25 +29,16 @@ const defaultForm = {
 const ResearchFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { addResearch, editResearch, categories, types } = useStudentResearch({})
+  const { addResearch, editResearch } = useStudentResearchAPI()
 
   const [formData, setFormData] = useState(defaultForm)
   const [showModal, setShowModal] = useState(false)
 
-  useEffect(() => {
-    if (!id) return
-
-    const existing = getResearchById(id)
-    if (existing) {
-      setFormData({
-        ...defaultForm,
-        ...existing,
-        tags: existing.tags?.join(", ") || "",
-        pdfKey: existing.pdfKey || "",
-        imageKey: existing.imageKey || "",
-      })
-    }
-  }, [id])
+  // TODO: Replace with real API call to fetch research by ID
+  // useEffect(() => {
+  //   if (!id) return;
+  //   // Implement API fetch for research by ID
+  // }, [id]);
 
   const handleChange = (e) => {
     const { name, value } = e.target

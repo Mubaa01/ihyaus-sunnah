@@ -1,19 +1,14 @@
 import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { FaArrowLeft, FaLock, FaUser, FaEnvelope, FaShieldAlt } from "react-icons/fa"
-import {
-  getAdminProfile,
-  updateAdminProfile,
-  getAdminSecretKey,
-  setAdminSecretKey,
-  resetAdminSecretKey,
-} from "../../../data/mock/adminStore"
+import { authAPI } from '../../../services/api'
 
 const AdminProfilePage = () => {
-  const [profile, setProfile] = useState(getAdminProfile())
-  const [name, setName] = useState(profile.name)
-  const [email, setEmail] = useState(profile.email)
-  const [role, setRole] = useState(profile.role)
+  // TODO: Replace with real API profile fetch
+  const [profile, setProfile] = useState({ name: '', email: '', role: '' });
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [role, setRole] = useState('');
   const [currentKey, setCurrentKey] = useState("")
   const [newKey, setNewKey] = useState("")
   const [confirmKey, setConfirmKey] = useState("")
@@ -22,58 +17,58 @@ const AdminProfilePage = () => {
   const [secretVisible, setSecretVisible] = useState(false)
 
   useEffect(() => {
-    setProfile(getAdminProfile())
-  }, [])
+    // Implement API fetch for admin profile
+  }, []);
 
-  const secretKey = useMemo(() => getAdminSecretKey(), [profile])
+  // TODO: Replace with real secret key logic
+  const secretKey = '';
 
   const handleProfileSave = () => {
-    const updated = updateAdminProfile({ name, email, role })
-    setProfile(updated)
-    setMessage("Profile updated successfully.")
-    setError("")
-  }
+    // Implement API update for admin profile
+    setMessage("Profile updated successfully (API not implemented).");
+    setError("");
+  };
 
   const handleChangeSecret = () => {
-    if (currentKey !== secretKey) {
-      setError("Current secret key does not match.")
-      setMessage("")
-      return
-    }
+    // Implement API update for secret key
+    setMessage("Secret key changed successfully (API not implemented).");
+    setError("");
+    setCurrentKey("");
+    setNewKey("");
+    setConfirmKey("");
+  };
 
-    if (newKey.length !== 4 || confirmKey.length !== 4) {
-      setError("New secret key must be exactly 4 digits.")
-      setMessage("")
-      return
-    }
 
-    if (newKey !== confirmKey) {
-      setError("New secret key and confirmation do not match.")
-      setMessage("")
-      return
+  const handleResetSecret = async () => {
+    setError("");
+    setMessage("");
+    try {
+      const data = await authAPI.generateSecretKey({ password: currentKey });
+      setMessage(`Secret key reset. New key: ${data.secretKey || 'Check your email or profile.'}`);
+      setCurrentKey("");
+      setNewKey("");
+      setConfirmKey("");
+    } catch (err) {
+      setError(err.message || 'Failed to reset secret key.');
     }
-
-    setAdminSecretKey(newKey)
-    setProfile(getAdminProfile())
-    setMessage("Secret key changed successfully.")
-    setError("")
-    setCurrentKey("")
-    setNewKey("")
-    setConfirmKey("")
   }
 
-  const handleResetSecret = () => {
-    if (currentKey !== secretKey) {
-      setError("Current secret key does not match.")
-      setMessage("")
-      return
+  const handleSetCustomKey = async () => {
+    setError("");
+    setMessage("");
+    if (!newKey || newKey.length !== 4 || newKey !== confirmKey) {
+      setError("New key must be 4 digits and match confirmation.");
+      return;
     }
-
-    const updated = resetAdminSecretKey()
-    setProfile(updated)
-    setMessage(`Secret key reset to ${updated.secretKey}`)
-    setError("")
-    setCurrentKey("")
+    try {
+      const data = await authAPI.setCustomSecretKey({ password: currentKey, secretKey: newKey });
+      setMessage(`Custom secret key set successfully.`);
+      setCurrentKey("");
+      setNewKey("");
+      setConfirmKey("");
+    } catch (err) {
+      setError(err.message || 'Failed to set custom secret key.');
+    }
   }
 
   return (
@@ -180,60 +175,74 @@ const AdminProfilePage = () => {
             </div>
           </div>
 
-          <div className="bg-white rounded-3xl border border-gray-100 shadow-soft p-8">
-            <div className="flex items-center justify-between gap-4 mb-6">
-              <div>
-                <h2 className="text-2xl font-semibold text-primary">Secret Key Management</h2>
-                <p className="text-sm text-gray-500">
-                  Your backend issues a confirmation key automatically. Use this panel to change or reset a custom 4-digit key.
-                </p>
-              </div>
-              <div className="text-right text-sm text-gray-400">
-                <p>Current key status</p>
-                <p className="font-semibold text-gray-700">Active</p>
+
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-soft p-8 space-y-8">
+            <div>
+              <h2 className="text-2xl font-semibold text-primary mb-2">Secret Key Management</h2>
+              <p className="text-sm text-gray-500 mb-4">
+                You can reset your secret key to a randomly generated 4-digit code (recommended for security), or set your own custom 4-digit key. <br />
+                <span className="text-primary font-semibold">You must enter your account password to confirm either action.</span>
+              </p>
+            </div>
+
+            {/* Reset to random key */}
+            <div className="border-b pb-6 mb-6">
+              <h3 className="font-semibold text-gray-800 mb-2">Reset to Random 4-Digit Key</h3>
+              <div className="flex flex-col md:flex-row gap-4 items-end">
+                <label className="flex-1 space-y-2 text-sm text-gray-600">
+                  Password
+                  <input
+                    type="password"
+                    value={currentKey}
+                    onChange={e => setCurrentKey(e.target.value)}
+                    className="input-primary"
+                    placeholder="Enter your account password"
+                  />
+                </label>
+                <button onClick={handleResetSecret} className="btn-secondary min-w-[180px]">Reset to Random Key</button>
               </div>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-3">
-              <label className="space-y-2 text-sm text-gray-600">
-                Confirm current key
-                <input
-                  type="password"
-                  value={currentKey}
-                  onChange={(e) => setCurrentKey(e.target.value.replace(/\D/g, ""))}
-                  maxLength={4}
-                  className="input-primary"
-                />
-              </label>
-              <label className="space-y-2 text-sm text-gray-600">
-                New 4-digit key
-                <input
-                  type="password"
-                  value={newKey}
-                  onChange={(e) => setNewKey(e.target.value.replace(/\D/g, ""))}
-                  maxLength={4}
-                  className="input-primary"
-                />
-              </label>
-              <label className="space-y-2 text-sm text-gray-600">
-                Confirm new key
-                <input
-                  type="password"
-                  value={confirmKey}
-                  onChange={(e) => setConfirmKey(e.target.value.replace(/\D/g, ""))}
-                  maxLength={4}
-                  className="input-primary"
-                />
-              </label>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-3">
-              <button onClick={handleChangeSecret} className="btn-primary">
-                Change Secret Key
-              </button>
-              <button onClick={handleResetSecret} className="btn-secondary">
-                Reset to Generated Key
-              </button>
+            {/* Set custom key */}
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-2">Set Custom 4-Digit Key</h3>
+              <div className="grid gap-4 md:grid-cols-4">
+                <label className="space-y-2 text-sm text-gray-600">
+                  Password
+                  <input
+                    type="password"
+                    value={currentKey}
+                    onChange={e => setCurrentKey(e.target.value)}
+                    className="input-primary"
+                    placeholder="Enter your account password"
+                  />
+                </label>
+                <label className="space-y-2 text-sm text-gray-600">
+                  New 4-digit key
+                  <input
+                    type="password"
+                    value={newKey}
+                    onChange={e => setNewKey(e.target.value.replace(/\D/g, ""))}
+                    maxLength={4}
+                    className="input-primary"
+                    placeholder="e.g. 1234"
+                  />
+                </label>
+                <label className="space-y-2 text-sm text-gray-600">
+                  Confirm new key
+                  <input
+                    type="password"
+                    value={confirmKey}
+                    onChange={e => setConfirmKey(e.target.value.replace(/\D/g, ""))}
+                    maxLength={4}
+                    className="input-primary"
+                    placeholder="Repeat new key"
+                  />
+                </label>
+                <div className="flex items-end">
+                  <button onClick={handleSetCustomKey} className="btn-primary min-w-[180px]">Set Custom Key</button>
+                </div>
+              </div>
             </div>
 
             {message && <p className="mt-4 text-sm text-green-600">{message}</p>}

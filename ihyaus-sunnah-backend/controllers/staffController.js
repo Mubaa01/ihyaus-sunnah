@@ -98,6 +98,7 @@ export const getStaffById = async (req, res) => {
 export const updateStaff = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log("[updateStaff] Updating staff:", id, req.body);
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ message: "Invalid ID" });
@@ -112,6 +113,8 @@ export const updateStaff = async (req, res) => {
     if (!updated) {
       return res.status(404).json({ message: "Not found" });
     }
+
+    console.log("[updateStaff] Updated staff:", updated);
 
     res.json({
       success: true,

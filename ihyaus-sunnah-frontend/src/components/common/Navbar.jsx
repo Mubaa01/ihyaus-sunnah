@@ -133,7 +133,8 @@ const Navbar = () => {
                   </button>
                 </Link>
 
-                <Link to="/admin">
+
+                <Link to="/login">
                   <button
                     className={`group px-5 py-3 rounded-xl border font-semibold transition duration-300 flex items-center gap-2 ${
                       scrolled

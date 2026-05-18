@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import { FaBell, FaCheckCircle, FaTrashAlt, FaPlus, FaChevronLeft, FaEye, FaTimes } from "react-icons/fa"
-import useNotifications from "../../../hooks/useNotifications"
+import useNotificationsAPI from "../../../hooks/useNotificationsAPI"
 import { Link } from "react-router-dom"
 
 const typeLabel = (type) => {
@@ -24,7 +24,7 @@ const NotificationsPage = () => {
     removeNotification,
     clearAll,
     unreadCount,
-  } = useNotifications()
+  } = useNotificationsAPI()
 
   const [newNotification, setNewNotification] = useState({
     type: "staff",

@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { mediaAPI, playlistsAPI } from "../services/api";
-import { logActivity } from "../data/mock/activityStore";
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
@@ -55,12 +54,6 @@ const useMediaLibraryAPI = () => {
   const addMedia = async (data, secretKey) => {
     try {
       const response = await mediaAPI.create(data, secretKey);
-      logActivity({
-        type: "media",
-        action: "Added media",
-        details: `${data.title} was added to the media library`,
-        reference: response.data?._id || null,
-      });
       await refreshMedia();
       dispatchAdminDataUpdate({ media: true });
       return response;
@@ -73,12 +66,6 @@ const useMediaLibraryAPI = () => {
   const editMedia = async (id, data, secretKey) => {
     try {
       const response = await mediaAPI.update(id, data, secretKey);
-      logActivity({
-        type: "media",
-        action: "Updated media",
-        details: `${data.title} was updated`,
-        reference: id,
-      });
       await refreshMedia();
       dispatchAdminDataUpdate({ media: true });
       return response;
@@ -92,12 +79,6 @@ const useMediaLibraryAPI = () => {
     try {
       const existing = mediaItems.find((item) => item._id === id);
       await mediaAPI.delete(id, secretKey);
-      logActivity({
-        type: "media",
-        action: "Removed media",
-        details: `${existing?.title || "A media item"} was deleted`,
-        reference: id,
-      });
       await refreshMedia();
       dispatchAdminDataUpdate({ media: true });
     } catch (err) {
@@ -109,12 +90,6 @@ const useMediaLibraryAPI = () => {
   const addPlaylist = async (data, secretKey) => {
     try {
       const response = await playlistsAPI.create(data, secretKey);
-      logActivity({
-        type: "playlist",
-        action: "Created playlist",
-        details: `${data.playlistName} was created`,
-        reference: response.data?._id || null,
-      });
       await refreshPlaylists();
       dispatchAdminDataUpdate({ playlists: true });
       return response;

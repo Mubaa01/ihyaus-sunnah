@@ -15,10 +15,10 @@ import {
   FaExternalLinkAlt,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import useStaff from "../../hooks/useStaff";
-import usePrograms from "../../hooks/usePrograms";
-import useMediaLibrary from "../../hooks/useMediaLibrary";
-import useNotifications from "../../hooks/useNotifications";
+import useStaffAPI from "../../hooks/useStaffAPI";
+import useProgramsAPI from "../../hooks/useProgramsAPI";
+import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
+import useNotificationsAPI from "../../hooks/useNotificationsAPI";
 
 const AdminTopbar = ({ setIsOpen }) => {
   const location = useLocation();
@@ -27,9 +27,9 @@ const AdminTopbar = ({ setIsOpen }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const { staff } = useStaff();
-  const { programs } = usePrograms();
-  const { mediaItems } = useMediaLibrary({});
+  const { staff } = useStaffAPI();
+  const { programs } = useProgramsAPI();
+  const { mediaItems } = useMediaLibraryAPI({});
 
   const searchResults = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -101,7 +101,7 @@ const AdminTopbar = ({ setIsOpen }) => {
     }
   }
 
-  const { notifications, unreadCount } = useNotifications()
+  const { notifications, unreadCount } = useNotificationsAPI()
 
   // Generate breadcrumbs from current path
   const generateBreadcrumbs = () => {

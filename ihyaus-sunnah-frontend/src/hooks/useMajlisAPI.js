@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import { majlisAPI } from "../services/api";
-import { logActivity } from "../data/mock/activityStore";
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
@@ -42,12 +41,7 @@ const useMajlisAPI = () => {
   const addMajlis = async (data, secretKey) => {
     try {
       const response = await majlisAPI.create(data, secretKey);
-      logActivity({
-        type: "majlis",
-        action: "Added majlis",
-        details: `${data.title} was added`,
-        reference: response.data?._id || null,
-      });
+      // TODO: Optionally log activity to backend if needed
       await refreshMajlis();
       dispatchAdminDataUpdate({ majlis: true });
       return response;
@@ -60,12 +54,7 @@ const useMajlisAPI = () => {
   const editMajlis = async (id, data, secretKey) => {
     try {
       const response = await majlisAPI.update(id, data, secretKey);
-      logActivity({
-        type: "majlis",
-        action: "Updated majlis",
-        details: `${data.title} was updated`,
-        reference: id,
-      });
+      // TODO: Optionally log activity to backend if needed
       await refreshMajlis();
       dispatchAdminDataUpdate({ majlis: true });
       return response;

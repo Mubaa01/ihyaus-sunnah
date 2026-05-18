@@ -23,12 +23,13 @@ import {
   FiUserCheck,
 } from "react-icons/fi"
 
-import useStaff from "../../hooks/useStaff"
+
+import useStaffAPI from "../../hooks/useStaffAPI"
 
 const StaffDetailsPage = () => {
 
   const { staff } =
-    useStaff()
+    useStaffAPI()
 
   const { id } =
     useParams()
@@ -39,8 +40,7 @@ const StaffDetailsPage = () => {
   const member =
     staff.find(
       (item) =>
-        item.id.toString() ===
-        id
+        item.id?.toString() === id
     )
 
   // =========================

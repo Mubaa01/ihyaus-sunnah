@@ -19,24 +19,24 @@ import {
   FaFilePdf,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import useStaff from "../../hooks/useStaff";
-import usePrograms from "../../hooks/usePrograms";
-import useActivities from "../../hooks/useActivities";
-import useNotifications from "../../hooks/useNotifications";
-import useMediaLibrary from "../../hooks/useMediaLibrary";
-import useMajlis from "../../hooks/useMajlis";
-import useStudentResearch from "../../hooks/useStudentResearch";
+import useStaffAPI from "../../hooks/useStaffAPI";
+import useProgramsAPI from "../../hooks/useProgramsAPI";
+import useActivitiesAPI from "../../hooks/useActivitiesAPI";
+import useNotificationsAPI from "../../hooks/useNotificationsAPI";
+import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
+import useMajlisAPI from "../../hooks/useMajlisAPI";
+import useStudentResearchAPI from "../../hooks/useStudentResearchAPI";
 
 const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
-  const { staff } = useStaff();
-  const { programs } = usePrograms();
-  const { researchItems } = useStudentResearch({});
-  const { mediaItems } = useMediaLibrary({});
-  const { activities } = useActivities();
-  const { unreadCount } = useNotifications();
-  const { stats } = useMajlis();
+  const { staff = [] } = useStaffAPI();
+  const { programs = [] } = useProgramsAPI();
+  const { researchItems = [] } = useStudentResearchAPI({});
+  const { mediaItems = [] } = useMediaLibraryAPI({});
+  const { activities = [] } = useActivitiesAPI();
+  const { unreadCount = 0 } = useNotificationsAPI();
+  const { stats = {} } = useMajlisAPI();
 
   const navItems = useMemo(() => [
     {

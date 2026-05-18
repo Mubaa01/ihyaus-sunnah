@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FaLock, FaTimes, FaCheck } from "react-icons/fa";
-import { getAdminSecretKey } from "../../data/mock/adminStore";
+// TODO: Replace secret key logic with real backend validation
 
 const ConfirmationModal = ({
   isOpen,
@@ -17,7 +17,8 @@ const ConfirmationModal = ({
   const [error, setError] = useState("");
 
   // Get the dynamic admin secret key
-  const requiredKey = getAdminSecretKey();
+  // TODO: Fetch requiredKey from backend or context
+  const requiredKey = "0000";
 
   const handleConfirm = () => {
     if (confirmationKey !== requiredKey) {

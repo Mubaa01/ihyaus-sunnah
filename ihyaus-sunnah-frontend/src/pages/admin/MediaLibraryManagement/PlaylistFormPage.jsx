@@ -10,14 +10,10 @@ import {
   FaPlay,
 } from "react-icons/fa"
 
-import {
-  getPlaylistById,
-  createPlaylist,
-  updatePlaylist,
-} from "../../../data/mock/mediaLibraryStore"
+// TODO: Replace all playlist mock logic with real API
 import { dispatchAdminDataUpdate } from "../../../utils/adminDataSync"
 
-import useStaff from "../../../hooks/useStaff"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -30,25 +26,13 @@ const emptyForm = {
 const PlaylistFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { staff } = useStaff()
+  const { staff } = useStaffAPI()
 
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
 
   // LOAD EXISTING PLAYLIST (EDIT MODE)
-  useEffect(() => {
-    if (!id) return
-
-    const existingPlaylist = getPlaylistById(id)
-
-    if (existingPlaylist) {
-      setFormData({
-        ...emptyForm,
-        ...existingPlaylist,
-        trusteeId: existingPlaylist.trusteeId || "",
-      })
-    }
-  }, [id])
+  // TODO: Fetch playlist by ID from backend API for edit mode
 
   const handleChange = (e) => {
     const { name, value } = e.target

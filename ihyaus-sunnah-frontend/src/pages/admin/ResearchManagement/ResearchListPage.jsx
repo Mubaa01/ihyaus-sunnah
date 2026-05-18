@@ -3,12 +3,12 @@ import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FaSearch, FaFilePdf, FaEdit, FaTrash, FaPlus } from "react-icons/fa"
 
-import useStudentResearch from "../../../hooks/useStudentResearch"
+import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
 import { getResearchPdfUrl, getResearchImageUrl } from "../../../utils/researchPdfStorage"
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
 const ResearchListPage = () => {
-  const { researchItems, removeResearch } = useStudentResearch({})
+  const { research, removeResearch } = useStudentResearchAPI()
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
   const [pdfLinks, setPdfLinks] = useState({})

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import useStudentResearch from '../../hooks/useStudentResearch'
+import useStudentResearchAPI from '../../hooks/useStudentResearchAPI'
 import { getResearchPdfUrl, getResearchImageUrl } from '../../utils/researchPdfStorage'
 import { FiSearch, FiBookOpen, FiUsers, FiTrendingUp } from 'react-icons/fi'
 
@@ -12,7 +12,7 @@ const StudentResearchPage = () => {
     search: '',
   })
 
-  const { researchItems, categories, types } = useStudentResearch(filters)
+  const { research } = useStudentResearchAPI()
   const [pdfLinks, setPdfLinks] = useState({})
   const [imageLinks, setImageLinks] = useState({})
 

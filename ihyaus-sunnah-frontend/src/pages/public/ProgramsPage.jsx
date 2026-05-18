@@ -12,11 +12,11 @@ import {
   FiHeart,
 } from "react-icons/fi"
 
-import usePrograms from "../../hooks/usePrograms"
+import useProgramsAPI from "../../hooks/useProgramsAPI"
 import ProgramCard from "../../components/programs/ProgramCard"
 
 const ProgramsPage = () => {
-  const { programs, loading } = usePrograms()
+  const { programs, loading } = useProgramsAPI()
 
   const floatingAnimation = {
     animate: {

@@ -3,7 +3,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { programsAPI } from "../services/api";
-import { logActivity } from "../data/mock/activityStore";
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
@@ -61,12 +60,7 @@ const useProgramsAPI = () => {
   const addProgram = async (data, secretKey) => {
     try {
       const response = await programsAPI.create(data, secretKey);
-      logActivity({
-        type: "program",
-        action: "Created program",
-        details: `${data.title || data.name} was added to the program lineup`,
-        reference: response.data?._id || null,
-      });
+      // TODO: Optionally log activity to backend if needed
       await refreshPrograms();
       dispatchAdminDataUpdate({ programs: true });
       return response;
@@ -79,12 +73,7 @@ const useProgramsAPI = () => {
   const editProgram = async (id, data, secretKey) => {
     try {
       const response = await programsAPI.update(id, data, secretKey);
-      logActivity({
-        type: "program",
-        action: "Updated program",
-        details: `${data.title || data.name} was updated`,
-        reference: id,
-      });
+      // TODO: Optionally log activity to backend if needed
       await refreshPrograms();
       dispatchAdminDataUpdate({ programs: true });
       return response;
@@ -98,12 +87,7 @@ const useProgramsAPI = () => {
     try {
       const existing = programs.find((item) => item._id === id);
       await programsAPI.delete(id, secretKey);
-      logActivity({
-        type: "program",
-        action: "Removed program",
-        details: `${existing?.title || "A program"} was deleted`,
-        reference: id,
-      });
+      // TODO: Optionally log activity to backend if needed
       await refreshPrograms();
       dispatchAdminDataUpdate({ programs: true });
     } catch (err) {

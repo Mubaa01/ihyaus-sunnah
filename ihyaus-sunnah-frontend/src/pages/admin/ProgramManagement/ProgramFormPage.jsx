@@ -16,11 +16,9 @@ import {
   FaUpload,
 } from "react-icons/fa"
 
-import usePrograms from "../../../hooks/usePrograms"
+import useProgramsAPI from "../../../hooks/useProgramsAPI"
 
-import {
-  getProgramById,
-} from "../../../data/mock/programsStore"
+// TODO: Replace all program mock logic with real API
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -77,7 +75,7 @@ const emptyForm = {
 const ProgramFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { programs, addProgram, editProgram } = usePrograms()
+  const { programs, addProgram, editProgram } = useProgramsAPI()
 
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
@@ -95,41 +93,7 @@ const ProgramFormPage = () => {
   const [newSection, setNewSection] = useState("")
   const [newGalleryImage, setNewGalleryImage] = useState("")
 
-  // LOAD EXISTING PROGRAM (EDIT MODE)
-  useEffect(() => {
-    if (!id) return
-
-    const existingProgram = getProgramById(id)
-
-    if (existingProgram) {
-      setFormData({
-        ...emptyForm,
-        ...existingProgram,
-        sections: existingProgram.sections || [],
-        features: existingProgram.features || [],
-        objectives: existingProgram.objectives || [],
-        gallery: existingProgram.gallery || [],
-        islamicIntegration: existingProgram.islamicIntegration || [],
-        schedule: {
-          ...emptyForm.schedule,
-          ...existingProgram.schedule,
-        },
-        stats: {
-          ...emptyForm.stats,
-          ...existingProgram.stats,
-        },
-      })
-
-      // Set image previews
-      setImagePreviews({
-        thumbnail: existingProgram.thumbnail || "",
-        banner: existingProgram.banner || "",
-        heroImage: existingProgram.heroImage || "",
-        overviewImage: existingProgram.overviewImage || "",
-      })
-      setGalleryPreviews(existingProgram.gallery || [])
-    }
-  }, [id])
+  // TODO: Fetch program by ID from backend API for edit mode
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target

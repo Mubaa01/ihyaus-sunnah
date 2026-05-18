@@ -1,7 +1,12 @@
-import AppRoutes from "../Routes"
+import AppRoutes from "../Routes";
+import { StaffProvider } from "./context/StaffContext";
 
 function App() {
-  return <AppRoutes />
+  return (
+    <StaffProvider>
+      <AppRoutes />
+    </StaffProvider>
+  );
 }
 
-export default App
+export default App;
