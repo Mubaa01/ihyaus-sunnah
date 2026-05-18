@@ -43,7 +43,7 @@ const AdminProfilePage = () => {
     setError("");
     setMessage("");
     try {
-      const data = await authAPI.generateSecretKey({ password: currentKey });
+      const data = await authAPI.generateSecretKey(currentKey);
       setMessage(`Secret key reset. New key: ${data.secretKey || 'Check your email or profile.'}`);
       setCurrentKey("");
       setNewKey("");

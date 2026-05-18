@@ -116,13 +116,13 @@ const StaffFormPage = () => {
     setShowModal(true)
   }
 
-  const confirmSave = () => {
-    if (id) {
-      editStaff(id, formData)
-    } else {
-      addStaff(formData)
-    }
 
+  const confirmSave = (secretKey) => {
+    if (id) {
+      editStaff(id, formData, secretKey)
+    } else {
+      addStaff(formData, secretKey)
+    }
     setShowModal(false)
     navigate("/admin/staff")
   }

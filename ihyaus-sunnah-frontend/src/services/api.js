@@ -251,4 +251,10 @@ export const authAPI = {
       method: "POST",
       body: JSON.stringify({ password }),
     }),
+
+  setCustomSecretKey: ({ password, secretKey }) =>
+    apiCall("/auth/set-custom-secret-key", {
+      method: "POST",
+      body: JSON.stringify({ password, secretKey }),
+    }),
 };
