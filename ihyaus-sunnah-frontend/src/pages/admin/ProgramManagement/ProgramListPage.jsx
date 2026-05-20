@@ -132,7 +132,7 @@ const ProgramListPage = () => {
 
         {filteredPrograms.map((program, index) => (
           <motion.div
-            key={program.id}
+            key={program._id || program.id || program.slug || index}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.04 }}
@@ -207,14 +207,14 @@ const ProgramListPage = () => {
                 </Link>
 
                 <Link
-                  to={`/admin/programs/${program.id}`}
+                  to={`/admin/programs/${program.slug}`}
                   className="flex-1 bg-primary text-white py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold hover:scale-105 transition"
                 >
                   <FaEdit /> Edit
                 </Link>
 
                 <button
-                  onClick={() => handleDeleteClick(program.id)}
+                  onClick={() => handleDeleteClick(program.slug)}
                   className="w-full sm:w-14 rounded-2xl border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition"
                 >
                   <FaTrash />

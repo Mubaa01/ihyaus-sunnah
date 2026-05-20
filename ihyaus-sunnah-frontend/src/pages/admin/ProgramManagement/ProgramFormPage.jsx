@@ -94,6 +94,86 @@ const ProgramFormPage = () => {
   const [newGalleryImage, setNewGalleryImage] = useState("")
 
   // TODO: Fetch program by ID from backend API for edit mode
+  useEffect(() => {
+    if (!id) return; // Only run in edit mode
+
+    // Try to find the program in the loaded programs list first
+    const existing = programs.find((p) => p._id === id || p.id === id || p.slug === id);
+    if (existing) {
+      setFormData(existing);
+      return;
+    }
+
+    // If not found, fetch from API directly
+    import("../../../services/api").then(({ programsAPI }) => {
+      // Try getBySlug first, fallback to getById if you have it
+      programsAPI.getBySlug(id)
+        .then((res) => {
+          setFormData(res.data);
+        })
+        .catch(() => {
+          // Optionally handle error
+        });
+    });
+  }, [id, programs]);
+  // Load program data for edit mode and align with schema
+  useEffect(() => {
+    if (!id) return;
+    const existing = programs.find(
+      (item) => item._id?.toString() === id || item.id === id || item.slug === id
+    );
+    if (existing) {
+      setFormData({
+        ...emptyForm,
+        ...existing,
+        categories: existing.categories || [],
+        features: existing.features || [],
+        objectives: existing.objectives || [],
+        sections: existing.sections || [],
+        gallery: existing.gallery || [],
+        stats: existing.stats || emptyForm.stats,
+        schedule: existing.schedule || emptyForm.schedule,
+        verse: existing.verse || { arabic: "", translation: "", reference: "" },
+      });
+      setImagePreviews({
+        thumbnail: existing.thumbnail || "",
+        banner: existing.banner || "",
+        heroImage: existing.heroImage || "",
+        overviewImage: existing.overviewImage || "",
+      });
+      setGalleryPreviews(existing.gallery || []);
+      return;
+    }
+    // If not found, fetch from API directly
+    import("../../../services/api").then(({ programsAPI }) => {
+      programsAPI.getBySlug(id)
+        .then((res) => {
+          const data = res.data;
+          setFormData({
+            ...emptyForm,
+            ...data,
+            categories: data.categories || [],
+            features: data.features || [],
+            objectives: data.objectives || [],
+            sections: data.sections || [],
+            gallery: data.gallery || [],
+            stats: data.stats || emptyForm.stats,
+            schedule: data.schedule || emptyForm.schedule,
+            verse: data.verse || { arabic: "", translation: "", reference: "" },
+          });
+          setImagePreviews({
+            thumbnail: data.thumbnail || "",
+            banner: data.banner || "",
+            heroImage: data.heroImage || "",
+            overviewImage: data.overviewImage || "",
+          });
+          setGalleryPreviews(data.gallery || []);
+        })
+        .catch(() => {
+          // Optionally handle error
+        });
+    });
+  }, [id, programs]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target
@@ -494,11 +574,11 @@ const ProgramFormPage = () => {
 
           {/* BASIC INFO */}
           <div className="grid md:grid-cols-2 gap-8">
-            <Input label="Program Title" icon={<FaBookOpen />} name="title" value={formData.title} onChange={handleChange} required />
+            <Input label="Program Title" icon={<FaBookOpen />} name="title" value={formData.title || ""} onChange={handleChange} required />
             <Select
               label="Category"
               name="category"
-              value={formData.category}
+              value={formData.category || ""}
               onChange={handleChange}
               options={categoriesList.map(cat => ({ value: cat, label: cat }))}
               required
@@ -506,7 +586,7 @@ const ProgramFormPage = () => {
             <Select
               label="Status"
               name="status"
-              value={formData.status}
+              value={formData.status || ""}
               onChange={handleChange}
               options={[
                 { value: "active", label: "Active" },
@@ -514,9 +594,9 @@ const ProgramFormPage = () => {
                 { value: "completed", label: "Completed" },
               ]}
             />
-            <Input label="Instructor" name="instructor" value={formData.instructor} onChange={handleChange} />
-            <Input label="Duration" icon={<FaClock />} name="duration" value={formData.duration} onChange={handleChange} />
-            <Input label="Location" icon={<FaMapMarkerAlt />} name="location" value={formData.location} onChange={handleChange} />
+            <Input label="Instructor" name="instructor" value={formData.instructor || ""} onChange={handleChange} />
+            <Input label="Duration" icon={<FaClock />} name="duration" value={formData.duration || ""} onChange={handleChange} />
+            <Input label="Location" icon={<FaMapMarkerAlt />} name="location" value={formData.location || ""} onChange={handleChange} />
           </div>
 
           {/* IMAGES */}
@@ -553,7 +633,7 @@ const ProgramFormPage = () => {
                 <Input
                   label="Or enter URL"
                   name="thumbnail"
-                  value={formData.thumbnail}
+                  value={formData.thumbnail || ""}
                   onChange={handleChange}
                   placeholder="https://example.com/thumbnail.jpg"
                 />
@@ -586,7 +666,7 @@ const ProgramFormPage = () => {
                 <Input
                   label="Or enter URL"
                   name="banner"
-                  value={formData.banner}
+                  value={formData.banner || ""}
                   onChange={handleChange}
                   placeholder="https://example.com/banner.jpg"
                 />
@@ -619,7 +699,7 @@ const ProgramFormPage = () => {
                 <Input
                   label="Or enter URL"
                   name="heroImage"
-                  value={formData.heroImage}
+                  value={formData.heroImage || ""}
                   onChange={handleChange}
                   placeholder="https://example.com/hero.jpg"
                 />
@@ -652,7 +732,7 @@ const ProgramFormPage = () => {
                 <Input
                   label="Or enter URL"
                   name="overviewImage"
-                  value={formData.overviewImage}
+                  value={formData.overviewImage || ""}
                   onChange={handleChange}
                   placeholder="https://example.com/overview.jpg"
                 />
@@ -662,7 +742,7 @@ const ProgramFormPage = () => {
 
           {/* DESCRIPTIONS */}
           <div className="space-y-6">
-            <Input label="Tagline" name="tagline" value={formData.tagline} onChange={handleChange} />
+            <Input label="Tagline" name="tagline" value={formData.tagline || ""} onChange={handleChange} />
             <div>
               <label className="font-semibold text-primary flex items-center gap-2 mb-2">
                 <FaAlignLeft /> Short Description
@@ -670,7 +750,7 @@ const ProgramFormPage = () => {
               <textarea
                 rows="3"
                 name="shortDescription"
-                value={formData.shortDescription}
+                value={formData.shortDescription || ""}
                 onChange={handleChange}
                 className="input-primary resize-none"
                 placeholder="Brief description for program cards..."
@@ -683,7 +763,7 @@ const ProgramFormPage = () => {
               <textarea
                 rows="6"
                 name="fullDescription"
-                value={formData.fullDescription}
+                value={formData.fullDescription || ""}
                 onChange={handleChange}
                 className="input-primary resize-none"
                 placeholder="Detailed program description..."
@@ -697,8 +777,8 @@ const ProgramFormPage = () => {
               <FaCalendarAlt /> Schedule Information
             </h3>
             <div className="grid md:grid-cols-2 gap-4">
-              <Input label="Days" name="days" value={formData.schedule.days} onChange={handleScheduleChange} />
-              <Input label="Time" name="time" value={formData.schedule.time} onChange={handleScheduleChange} />
+              <Input label="Days" name="days" value={formData.schedule?.days || ""} onChange={handleScheduleChange} />
+              <Input label="Time" name="time" value={formData.schedule?.time || ""} onChange={handleScheduleChange} />
             </div>
           </div>
 
@@ -708,9 +788,9 @@ const ProgramFormPage = () => {
               <FaUsers /> Program Statistics
             </h3>
             <div className="grid md:grid-cols-3 gap-4">
-              <Input label="Total Students" type="number" name="totalStudents" value={formData.stats.totalStudents} onChange={handleStatsChange} />
-              <Input label="Total Staff" type="number" name="totalStaff" value={formData.stats.totalStaff} onChange={handleStatsChange} />
-              <Input label="Years Running" type="number" name="yearsRunning" value={formData.stats.yearsRunning} onChange={handleStatsChange} />
+              <Input label="Total Students" type="number" name="totalStudents" value={formData.stats?.totalStudents ?? 0} onChange={handleStatsChange} />
+              <Input label="Total Staff" type="number" name="totalStaff" value={formData.stats?.totalStaff ?? 0} onChange={handleStatsChange} />
+              <Input label="Years Running" type="number" name="yearsRunning" value={formData.stats?.yearsRunning ?? 0} onChange={handleStatsChange} />
             </div>
           </div>
 
@@ -1123,14 +1203,14 @@ const ProgramFormPage = () => {
 
           {/* DATES & FEATURED */}
           <div className="grid md:grid-cols-3 gap-4">
-            <Input label="Start Date" type="date" name="startDate" value={formData.startDate} onChange={handleChange} />
-            <Input label="End Date" type="date" name="endDate" value={formData.endDate} onChange={handleChange} />
+            <Input label="Start Date" type="date" name="startDate" value={formData.startDate || ""} onChange={handleChange} />
+            <Input label="End Date" type="date" name="endDate" value={formData.endDate || ""} onChange={handleChange} />
             <div className="flex items-center gap-3 pt-8">
               <input
                 type="checkbox"
                 id="isFeatured"
                 name="isFeatured"
-                checked={formData.isFeatured}
+                checked={!!formData.isFeatured}
                 onChange={handleChange}
                 className="w-5 h-5 text-primary"
               />

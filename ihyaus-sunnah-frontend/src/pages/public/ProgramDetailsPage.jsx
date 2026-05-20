@@ -42,26 +42,21 @@ const ProgramDetailsPage = () => {
 
 
   useEffect(() => {
-  setLoading(true);
-  setError(null);
-  setProgram(null);
+    setLoading(true);
+    setError(null);
+    setProgram(null);
 
-  programsAPI.getBySlug(slug)
-    .then((res) => {
-      // 🔥 FIX: normalize API response
-      const programData =
-        res?.data?.program ||
-        res?.data ||
-        res;
-
-      setProgram(programData);
-      setLoading(false);
-    })
-    .catch((err) => {
-      setError(err.message || "Failed to load program");
-      setLoading(false);
-    });
-}, [slug]);
+    programsAPI.getBySlug(slug)
+      .then((res) => {
+        // Always use res.data for program object
+        setProgram(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || "Failed to load program");
+        setLoading(false);
+      });
+  }, [slug]);
   // TODO: Replace with real API call for gallery items
   const openGallery = (categoryId) => {
     setGalleryModal({ categoryId, items: [] });
