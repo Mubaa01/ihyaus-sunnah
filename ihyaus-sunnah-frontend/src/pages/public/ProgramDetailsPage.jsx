@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-// Removed mock data imports
+import { programsAPI } from '../../services/api'
 
 // Import all section components
 import ProgramHeroSection from '../../components/programs/ProgramHeroSection'
@@ -23,13 +23,45 @@ const ProgramDetailsPage = () => {
   const [galleryModal, setGalleryModal] = useState(null)
   const [galleryIndex, setGalleryIndex] = useState(0)
 
-  // TODO: Replace with real API call to fetch program by slug
-  useEffect(() => {
-    setLoading(true);
-    setError('API integration needed');
-    setLoading(false);
-  }, [slug]);
 
+  // useEffect(() => {
+  //   setLoading(true);
+  //   setError(null);
+  //   setProgram(null);
+  //   programsAPI.getBySlug(slug)
+  //     .then((res) => {
+  //       setProgram(res.data);
+  //       setLoading(false);
+  //     })
+  //     .catch((err) => {
+  //       setError(err.message || 'Failed to load program');
+  //       setLoading(false);
+  //     });
+  // }, [slug]);
+
+
+
+  useEffect(() => {
+  setLoading(true);
+  setError(null);
+  setProgram(null);
+
+  programsAPI.getBySlug(slug)
+    .then((res) => {
+      // 🔥 FIX: normalize API response
+      const programData =
+        res?.data?.program ||
+        res?.data ||
+        res;
+
+      setProgram(programData);
+      setLoading(false);
+    })
+    .catch((err) => {
+      setError(err.message || "Failed to load program");
+      setLoading(false);
+    });
+}, [slug]);
   // TODO: Replace with real API call for gallery items
   const openGallery = (categoryId) => {
     setGalleryModal({ categoryId, items: [] });
@@ -123,5 +155,7 @@ const ProgramDetailsPage = () => {
     </div>
   )
 }
+
+console.log("ProgramCategoriesSection mounted");
 
 export default ProgramDetailsPage

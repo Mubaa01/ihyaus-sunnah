@@ -109,49 +109,85 @@ export const staffAPI = {
 
 // ==================== PROGRAMS API ====================
 
+// export const programsAPI = {
+//   getAll: (filters = {}) => {
+//     const params =
+//       new URLSearchParams(filters).toString();
+
+//     return apiCall(`/programs?${params}`);
+//   },
+
+//   getBySlug: (slug) =>
+//     apiCall(`/programs/${slug}`),
+
+//   create: (data, secretKey) =>
+//     apiCall("/programs", {
+//       method: "POST",
+
+//       headers: {
+//         "x-secret-key": secretKey,
+//       },
+
+//       body: JSON.stringify(data),
+//     }),
+
+//   update: (id, data, secretKey) =>
+//     apiCall(`/programs/${id}`, {
+//       method: "PATCH",
+
+//       headers: {
+//         "x-secret-key": secretKey,
+//       },
+
+//       body: JSON.stringify(data),
+//     }),
+
+//   delete: (id, secretKey) =>
+//     apiCall(`/programs/${id}`, {
+//       method: "DELETE",
+
+//       headers: {
+//         "x-secret-key": secretKey,
+//       },
+//     }),
+// };
+
 export const programsAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
+    const params = new URLSearchParams(filters).toString();
     return apiCall(`/programs?${params}`);
   },
 
-  getBySlug: (slug) =>
-    apiCall(`/programs/${slug}`),
+  getBySlug: (slug) => apiCall(`/programs/${slug}`),
 
   create: (data, secretKey) =>
     apiCall("/programs", {
       method: "POST",
-
       headers: {
+        "Content-Type": "application/json",
         "x-secret-key": secretKey,
       },
-
       body: JSON.stringify(data),
     }),
 
   update: (id, data, secretKey) =>
     apiCall(`/programs/${id}`, {
       method: "PATCH",
-
       headers: {
+        "Content-Type": "application/json",
         "x-secret-key": secretKey,
       },
-
       body: JSON.stringify(data),
     }),
 
   delete: (id, secretKey) =>
     apiCall(`/programs/${id}`, {
       method: "DELETE",
-
       headers: {
         "x-secret-key": secretKey,
       },
     }),
 };
-
 // ==================== MEDIA API ====================
 
 export const mediaAPI = {
