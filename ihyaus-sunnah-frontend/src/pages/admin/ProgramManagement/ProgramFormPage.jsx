@@ -522,33 +522,56 @@ const ProgramFormPage = () => {
     e.preventDefault()
     setShowModal(true)
   }
-
-  const confirmSave = () => {
-    // Generate slug from title if creating new
-    if (!id) {
-      const slug = formData.title
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/(^-|-$)/g, '')
-      formData.slug = slug
-    }
-
-    // Save all image data (including base64) so uploads persist
-    const dataToSave = {
-      ...formData
-      // Optionally, you can still filter gallery if you want only URLs:
-      // gallery: formData.gallery.filter(item => !item.startsWith('data:'))
-    }
-
-    if (id) {
-      editProgram(id, dataToSave)
-    } else {
-      addProgram(dataToSave)
-    }
-
-    setShowModal(false)
-    navigate("/admin/programs")
+// ✅ FIXED - accept secretKey from modal and pass it through
+const confirmSave = (secretKey) => {
+  if (!id) {
+    const slug = formData.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '')
+    formData.slug = slug
   }
+
+  const dataToSave = { ...formData }
+
+  if (id) {
+    editProgram(id, dataToSave, secretKey)   // ✅ key passed
+  } else {
+    addProgram(dataToSave, secretKey)         // ✅ key passed
+  }
+
+  setShowModal(false)
+  navigate("/admin/programs")
+}
+
+
+
+  // const confirmSave = () => {
+  //   // Generate slug from title if creating new
+  //   if (!id) {
+  //     const slug = formData.title
+  //       .toLowerCase()
+  //       .replace(/[^a-z0-9]+/g, '-')
+  //       .replace(/(^-|-$)/g, '')
+  //     formData.slug = slug
+  //   }
+
+  //   // Save all image data (including base64) so uploads persist
+  //   const dataToSave = {
+  //     ...formData
+  //     // Optionally, you can still filter gallery if you want only URLs:
+  //     // gallery: formData.gallery.filter(item => !item.startsWith('data:'))
+  //   }
+
+  //   if (id) {
+  //     editProgram(id, dataToSave)
+  //   } else {
+  //     addProgram(dataToSave)
+  //   }
+
+  //   setShowModal(false)
+  //   navigate("/admin/programs")
+  // }
 
   return (
     <motion.div

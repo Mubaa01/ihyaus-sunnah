@@ -30,9 +30,9 @@ const previewVideoSchema = new mongoose.Schema(
 // ================= CATEGORY =================
 const categorySchema = new mongoose.Schema(
   {
+    // ✅ Removed enum — form allows free-text titles like "Basic Level", "Intermediate Level", etc.
     title: {
       type: String,
-      enum: ["Basic", "Intermediate", "Advanced"],
       required: true,
     },
     titleArabic: String,
@@ -42,10 +42,10 @@ const categorySchema = new mongoose.Schema(
     description: String,
     prerequisites: String,
 
-    // STRICT: max 2 videos
+    // ✅ Fixed: max 3 videos to match the form UI limit
     previewVideos: {
       type: [previewVideoSchema],
-      validate: [(v) => v.length <= 2, "Max 2 preview videos allowed"],
+      validate: [(v) => v.length <= 3, "Max 3 preview videos allowed"],
     },
 
     outcomes: [String],

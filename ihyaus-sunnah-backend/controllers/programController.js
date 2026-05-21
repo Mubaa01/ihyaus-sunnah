@@ -43,8 +43,19 @@ export const getProgramBySlug = async (req, res) => {
 export const updateProgram = async (req, res) => {
   try {
     const { id } = req.params;
-    const updated = await Program.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+
+    // Handle both MongoDB ObjectId and slug
+    const query = mongoose.isValidObjectId(id)
+      ? { _id: id }
+      : { slug: id };
+
+    const updated = await Program.findOneAndUpdate(query, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
     if (!updated) return res.status(404).json({ success: false, message: "Program not found" });
+
     res.json({ success: true, message: "Program updated successfully", data: updated });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -54,8 +65,16 @@ export const updateProgram = async (req, res) => {
 export const deleteProgram = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Program.findByIdAndDelete(id);
+
+    // Handle both MongoDB ObjectId and slug
+    const query = mongoose.isValidObjectId(id)
+      ? { _id: id }
+      : { slug: id };
+
+    const deleted = await Program.findOneAndDelete(query);
+
     if (!deleted) return res.status(404).json({ success: false, message: "Program not found" });
+
     res.json({ success: true, message: "Program deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
