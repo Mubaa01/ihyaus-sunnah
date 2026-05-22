@@ -48,6 +48,8 @@ const apiCall = async (
   options = {}
 ) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
   const defaultOptions = {
     headers: {
@@ -55,6 +57,7 @@ const apiCall = async (
     },
 
     credentials: "include",
+    signal: controller.signal,
   };
 
   // FIXED HEADER MERGING
@@ -69,12 +72,13 @@ const apiCall = async (
   };
 
   try {
-    const response = await fetch(
-      url,
-      mergedOptions
-    );
+    const response = await fetch(url, mergedOptions);
+    const contentType = response.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await response.json()
+      : { message: await response.text() };
 
-    const data = await response.json();
+    window.clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(
@@ -85,10 +89,15 @@ const apiCall = async (
 
     return data;
   } catch (error) {
-    console.error(
-      `API Error (${endpoint}):`,
-      error
-    );
+    window.clearTimeout(timeoutId);
+
+    if (error.name === "AbortError") {
+      throw new Error("Backend request timed out. Please make sure the API server and database are running.");
+    }
+
+    if (error instanceof TypeError) {
+      throw new Error("Backend is not reachable. Please start the API server on port 4000 and check MongoDB.");
+    }
 
     throw error;
   }
