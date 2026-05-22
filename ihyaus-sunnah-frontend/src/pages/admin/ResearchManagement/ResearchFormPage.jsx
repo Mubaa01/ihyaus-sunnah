@@ -37,6 +37,14 @@ const defaultForm = {
 const createFileKey = (prefix, file) =>
   `${prefix}-${Date.now()}-${file.name.replace(/\s+/g, "-").toLowerCase()}`
 
+const readFileAsDataUrl = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(file)
+  })
+
 const ResearchFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
@@ -82,6 +90,18 @@ const ResearchFormPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+
+    if (name === "imageUrl") {
+      setPreviewImage(value)
+      setFormData((prev) => ({
+        ...prev,
+        imageUrl: value,
+        imageFile: null,
+        imageKey: value ? "" : prev.imageKey,
+      }))
+      return
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -104,7 +124,7 @@ const ResearchFormPage = () => {
     }))
   }
 
-  const handleImageUpload = (e) => {
+  const handleImageUpload = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -114,14 +134,20 @@ const ResearchFormPage = () => {
     }
 
     setError("")
-    setPreviewImage(URL.createObjectURL(file))
-    setFormData((prev) => ({
-      ...prev,
-      imageFile: file,
-      imageFileName: file.name,
-      imageKey: prev.imageKey || createFileKey("research-image", file),
-      imageUrl: "",
-    }))
+
+    try {
+      const imageDataUrl = await readFileAsDataUrl(file)
+      setPreviewImage(imageDataUrl)
+      setFormData((prev) => ({
+        ...prev,
+        imageFile: file,
+        imageFileName: file.name,
+        imageKey: prev.imageKey || createFileKey("research-image", file),
+        imageUrl: imageDataUrl,
+      }))
+    } catch (err) {
+      setError("Could not read the selected image. Please try another file.")
+    }
   }
 
   const handleSubmit = (e) => {

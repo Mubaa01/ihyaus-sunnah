@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FaEdit, FaFilePdf, FaPlus, FaSearch, FaTrash } from "react-icons/fa"
@@ -10,6 +10,7 @@ import {
   researchStatusOptions,
 } from "../../../constants/researchOptions"
 import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
+import { getResearchImageUrl } from "../../../utils/researchPdfStorage"
 
 const includesSearch = (item, search) => {
   const term = search.trim().toLowerCase()
@@ -28,6 +29,7 @@ const ResearchListPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [imageLinks, setImageLinks] = useState({})
 
   const filteredResearch = useMemo(() => {
     return research.filter((item) => {
@@ -36,6 +38,25 @@ const ResearchListPage = () => {
       return matchesStatus && matchesCategory && includesSearch(item, search)
     })
   }, [categoryFilter, research, search, statusFilter])
+
+  useEffect(() => {
+    const loadLocalImages = async () => {
+      const urls = {}
+
+      await Promise.all(
+        filteredResearch.map(async (item) => {
+          if (item.imageKey && !item.imageUrl) {
+            const url = await getResearchImageUrl(item.imageKey)
+            if (url) urls[item.id] = url
+          }
+        })
+      )
+
+      setImageLinks(urls)
+    }
+
+    loadLocalImages()
+  }, [filteredResearch])
 
   const handleDeleteClick = (id) => {
     setSelectedId(id)
@@ -134,8 +155,12 @@ const ResearchListPage = () => {
             transition={{ duration: 0.35, delay: index * 0.03 }}
             className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-soft"
           >
-            {item.imageUrl && (
-              <img src={item.imageUrl} alt={item.title} className="h-48 w-full object-cover" />
+            {(item.imageUrl || imageLinks[item.id]) && (
+              <img
+                src={item.imageUrl || imageLinks[item.id]}
+                alt={item.title}
+                className="h-48 w-full object-cover"
+              />
             )}
 
             <div className="space-y-5 p-7">
