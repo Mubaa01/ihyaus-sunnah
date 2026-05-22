@@ -21,15 +21,20 @@ import {
   FiAward,
   FiLayers,
   FiUserCheck,
+  FiDownload,
+  FiFileText,
 } from "react-icons/fi"
 
 
 import useStaffAPI from "../../hooks/useStaffAPI"
+import useStudentResearchAPI from "../../hooks/useStudentResearchAPI"
 
 const StaffDetailsPage = () => {
 
   const { staff } =
     useStaffAPI()
+  const { research } =
+    useStudentResearchAPI()
 
   const { id } =
     useParams()
@@ -41,6 +46,16 @@ const StaffDetailsPage = () => {
     staff.find(
       (item) =>
         item._id?.toString() === id
+    )
+
+  const staffResearch =
+    research.filter(
+      (item) =>
+        item.status === "published" &&
+        (
+          item.staffId?._id?.toString() === id ||
+          item.staffId?.toString?.() === id
+        )
     )
 
   // =========================
@@ -118,6 +133,20 @@ const StaffDetailsPage = () => {
         value ||
         "Not specified"
       )
+    }
+
+  const formatDate =
+    (date) => {
+      if (!date) return "Not specified"
+
+      return new Intl.DateTimeFormat(
+        "en",
+        {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }
+      ).format(new Date(date))
     }
 
   // =========================
@@ -535,6 +564,148 @@ const StaffDetailsPage = () => {
                 </div>
 
               </motion.div>
+
+              {/* RESEARCH */}
+              {staffResearch.length > 0 && (
+                <motion.div
+                  initial={{
+                    opacity: 0,
+                    y: 30,
+                  }}
+
+                  whileInView={{
+                    opacity: 1,
+                    y: 0,
+                  }}
+
+                  viewport={{
+                    once: true,
+                  }}
+
+                  className="space-y-8"
+                >
+
+                  <div className="flex items-center gap-4">
+
+                    <div className="w-16 h-16 rounded-3xl bg-secondary text-white flex items-center justify-center text-2xl">
+                      <FiFileText />
+                    </div>
+
+                    <div>
+
+                      <h3 className="text-3xl font-bold text-primary">
+                        Published Research
+                      </h3>
+
+                      <p className="text-gray-500 mt-1">
+                        Research works conducted or published by {member.name}
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+
+                    {staffResearch.map(
+                      (
+                        item,
+                        index
+                      ) => (
+
+                        <motion.article
+                          key={item.id || item._id}
+                          initial={{
+                            opacity: 0,
+                            y: 20,
+                          }}
+                          whileInView={{
+                            opacity: 1,
+                            y: 0,
+                          }}
+                          viewport={{
+                            once: true,
+                          }}
+                          transition={{
+                            delay: index * 0.06,
+                          }}
+                          className="bg-white rounded-3xl border border-gray-100 shadow-soft overflow-hidden"
+                        >
+
+                          {item.imageUrl && (
+                            <img
+                              src={item.imageUrl}
+                              alt={item.title}
+                              className="h-44 w-full object-cover"
+                            />
+                          )}
+
+                          <div className="p-7 space-y-4">
+
+                            <div className="flex items-center justify-between gap-4">
+
+                              <p
+                                className="font-arabic text-gold font-semibold"
+                                dir="rtl"
+                              >
+                                {item.researchCategory}
+                              </p>
+
+                              <span className="text-xs uppercase tracking-[0.16em] text-gray-400">
+                                {item.researchType}
+                              </span>
+
+                            </div>
+
+                            <h4
+                              className="text-2xl font-bold text-primary leading-snug"
+                              dir="auto"
+                            >
+                              {item.title}
+                            </h4>
+
+                            <p
+                              className="text-gray-600 leading-relaxed line-clamp-3"
+                              dir="auto"
+                            >
+                              {item.summary}
+                            </p>
+
+                            <div className="flex items-center justify-between gap-4 border-t border-gray-100 pt-4">
+
+                              <div className="text-sm text-gray-500">
+                                <p className="font-semibold text-gray-700">
+                                  Published
+                                </p>
+                                <p>
+                                  {formatDate(item.createdAt)}
+                                </p>
+                              </div>
+
+                              {item.pdfUrl && (
+                                <a
+                                  href={item.pdfUrl}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primaryLight transition"
+                                >
+                                  <FiDownload />
+                                  PDF
+                                </a>
+                              )}
+
+                            </div>
+
+                          </div>
+
+                        </motion.article>
+                      )
+                    )}
+
+                  </div>
+
+                </motion.div>
+              )}
 
               {/* SECTIONS */}
               <motion.div

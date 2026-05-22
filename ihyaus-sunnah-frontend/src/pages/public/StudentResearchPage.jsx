@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { motion } from "framer-motion"
+import { Link } from "react-router-dom"
 import {
   FiBookOpen,
   FiDownload,
@@ -344,7 +345,28 @@ const StudentResearchPage = () => {
                         {item.title}
                       </h3>
 
-                      <p className="mt-2 text-sm font-medium text-gray-500">By {item.author}</p>
+                      {item.staffId?._id ? (
+                        <Link
+                          to={`/staff/profile/${item.staffId._id}`}
+                          className="mt-3 flex items-center gap-3 border border-gray-100 bg-gray-50 p-3 transition hover:border-primary/30 hover:bg-primary/5"
+                        >
+                          <img
+                            src={item.staffId.image}
+                            alt={item.staffId.name}
+                            className="h-11 w-11 shrink-0 rounded-full object-cover"
+                          />
+                          <span className="min-w-0">
+                            <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                              Conducted by
+                            </span>
+                            <span className="block truncate text-sm font-bold text-primary">
+                              {item.staffId.name}
+                            </span>
+                          </span>
+                        </Link>
+                      ) : (
+                        <p className="mt-2 text-sm font-medium text-gray-500">By {item.author}</p>
+                      )}
 
                       <p className="mt-4 line-clamp-4 flex-1 text-sm leading-7 text-gray-600" dir="auto">
                         {item.summary}

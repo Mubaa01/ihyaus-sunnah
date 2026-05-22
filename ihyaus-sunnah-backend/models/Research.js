@@ -40,6 +40,7 @@ const researchSchema = new mongoose.Schema(
       required: true,
       enum: researchTypes,
     },
+    staffId: { type: mongoose.Schema.Types.ObjectId, ref: "Staff" },
     programId: { type: mongoose.Schema.Types.ObjectId, ref: "Program" },
     status: {
       type: String,

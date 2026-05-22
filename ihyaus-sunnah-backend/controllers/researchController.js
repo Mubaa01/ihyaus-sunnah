@@ -34,7 +34,9 @@ export const getAllResearch = async (req, res) => {
   try {
     const filter = buildResearchFilter(req.query);
 
-    const research = await Research.find(filter).sort({ createdAt: -1 });
+    const research = await Research.find(filter)
+      .populate("staffId", "name image position role sections")
+      .sort({ createdAt: -1 });
     res.json({
       success: true,
       data: research,
@@ -57,7 +59,7 @@ export const getResearchById = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid research ID" });
     }
 
-    const research = await Research.findById(id);
+    const research = await Research.findById(id).populate("staffId", "name image position role sections");
     if (!research) {
       return res.status(404).json({ success: false, message: "Research not found" });
     }
@@ -79,7 +81,7 @@ export const updateResearch = async (req, res) => {
     const updated = await Research.findByIdAndUpdate(id, req.body, {
       new: true,
       runValidators: true,
-    });
+    }).populate("staffId", "name image position role sections");
     if (!updated) return res.status(404).json({ success: false, message: "Research not found" });
     res.json({ success: true, message: "Research updated successfully", data: updated });
   } catch (error) {

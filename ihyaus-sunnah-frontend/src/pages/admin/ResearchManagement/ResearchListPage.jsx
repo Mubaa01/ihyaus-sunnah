@@ -170,7 +170,23 @@ const ResearchListPage = () => {
                   <h2 className="mt-2 text-2xl font-bold leading-snug text-primary" dir="auto">
                     {item.title}
                   </h2>
-                  <p className="mt-2 text-gray-500">By {item.author}</p>
+                  {item.staffId?._id ? (
+                    <Link
+                      to={`/staff/profile/${item.staffId._id}`}
+                      className="mt-3 flex w-fit items-center gap-3 rounded-2xl bg-gray-50 p-2 pr-4 transition hover:bg-primary/5"
+                    >
+                      <img
+                        src={item.staffId.image}
+                        alt={item.staffId.name}
+                        className="h-10 w-10 rounded-full object-cover"
+                      />
+                      <span className="text-sm font-semibold text-primary">
+                        {item.staffId.name}
+                      </span>
+                    </Link>
+                  ) : (
+                    <p className="mt-2 text-gray-500">By {item.author}</p>
+                  )}
                 </div>
                 <span className="inline-flex w-fit items-center gap-2 rounded-full bg-secondary/10 px-4 py-2 text-sm font-semibold text-secondary">
                   <FaFilePdf />

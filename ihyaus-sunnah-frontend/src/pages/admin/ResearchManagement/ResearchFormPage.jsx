@@ -10,6 +10,7 @@ import {
   researchTypes,
 } from "../../../constants/researchOptions"
 import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
+import useStaffAPI from "../../../hooks/useStaffAPI"
 import {
   getResearchImageUrl,
   saveResearchImage,
@@ -19,6 +20,7 @@ import {
 const defaultForm = {
   title: "",
   author: "",
+  staffId: "",
   researchCategory: "",
   researchType: "بحث التخرج",
   status: "published",
@@ -49,6 +51,7 @@ const ResearchFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { addResearch, editResearch, getResearchById } = useStudentResearchAPI()
+  const { staff } = useStaffAPI()
 
   const [formData, setFormData] = useState(defaultForm)
   const [previewImage, setPreviewImage] = useState("")
@@ -67,6 +70,7 @@ const ResearchFormPage = () => {
         setFormData({
           ...defaultForm,
           ...existing,
+          staffId: existing.staffId?._id || existing.staffId || "",
           tags: existing.tags?.join(", ") || "",
           pdfFile: null,
           imageFile: null,
@@ -90,6 +94,16 @@ const ResearchFormPage = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
+
+    if (name === "staffId") {
+      const selectedStaff = staff.find((member) => member._id === value)
+      setFormData((prev) => ({
+        ...prev,
+        staffId: value,
+        author: selectedStaff?.name || prev.author,
+      }))
+      return
+    }
 
     if (name === "imageUrl") {
       setPreviewImage(value)
@@ -181,6 +195,7 @@ const ResearchFormPage = () => {
 
       const payload = {
         ...rest,
+        staffId: rest.staffId || null,
         tags: formData.tags
           .split(",")
           .map((tag) => tag.trim())
@@ -260,6 +275,26 @@ const ResearchFormPage = () => {
               />
             </label>
           </div>
+
+          <label className="grid gap-2 text-sm font-semibold text-gray-700">
+            Conducted by Staff / Linked staff profile
+            <select
+              name="staffId"
+              value={formData.staffId}
+              onChange={handleChange}
+              className="input-primary"
+            >
+              <option value="">No linked staff profile</option>
+              {staff.map((member) => (
+                <option key={member._id} value={member._id}>
+                  {member.name} - {member.position || member.role}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs font-normal text-gray-500">
+              If selected, research cards will show the staff image/name and link to the profile.
+            </span>
+          </label>
 
           <div className="grid gap-6 md:grid-cols-3">
             <label className="grid gap-2 text-sm font-semibold text-gray-700">
