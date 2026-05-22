@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {
   FaPlus,
+  FaTimes,
   FaEdit,
   FaTrash,
   FaSearch,
@@ -17,13 +18,13 @@ import {
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import useMajlisAPI from "../../../hooks/useMajlisAPI";
-import useCompletedSeriesAPI from "../../../hooks/useCompletedSeriesAPI";
+import useCompletedMajlisAPI from "../../../hooks/useCompletedMajlisAPI";
 import ConfirmationModal from "../../../components/common/ConfirmationModal";
 import MajlisForm from "./MajlisForm";
 
 const MajlisManagementPage = () => {
-  const { majlis, stats, updateEnrollment, deleteMajlisData } = useMajlisAPI();
-  const { series: completedSeries, stats: seriesStats, deleteSeriesData } = useCompletedSeriesAPI();
+  const { majlis, stats = {}, updateEnrollment, deleteMajlisData } = useMajlisAPI();
+  const { completed, loading: completedLoading, removeCompleted } = useCompletedMajlisAPI();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("all"); // all, public, private
   const [selectedMajlis, setSelectedMajlis] = useState(null);
@@ -35,6 +36,10 @@ const MajlisManagementPage = () => {
     title: "",
     message: "",
   });
+  // For Completed Majlis interactivity
+  const [selectedCompleted, setSelectedCompleted] = useState(null);
+  const [showCompletedModal, setShowCompletedModal] = useState(false);
+  const [completedToDelete, setCompletedToDelete] = useState(null);
 
   const filtered = majlis.filter((m) => {
     const matchesSearch = m.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -205,8 +210,8 @@ const MajlisManagementPage = () => {
             </thead>
             <tbody>
               {filtered.length > 0 ? (
-                filtered.map((item) => (
-                  <tr key={item.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                filtered.map((item, idx) => (
+                  <tr key={item.id || item._id || idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <p className="font-semibold text-primary">{item.title}</p>
                     </td>
@@ -285,119 +290,133 @@ const MajlisManagementPage = () => {
         </div>
       </div>
 
-      {/* Completed Series Section */}
-      <div className="space-y-6">
+      {/* Completed Majlis Section */}
+      <div className="space-y-6 mt-12">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-heading font-bold text-primary flex items-center gap-3">
               <FaTrophy className="text-gold" />
-              Completed Series
+              Completed Majlis
             </h2>
-            <p className="text-gray-600 mt-1">Islamic texts and books completed by our community</p>
-          </div>
-          <button className="btn-primary flex items-center gap-2">
-            <FaPlus size={16} />
-            Add Completed Series
-          </button>
-        </div>
-
-        {/* Series Stats */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Series</p>
-                <p className="text-2xl font-bold text-primary">{seriesStats.totalSeries}</p>
-              </div>
-              <FaBook className="text-2xl text-primary/30" />
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Total Volumes</p>
-                <p className="text-2xl font-bold text-blue-600">{seriesStats.totalVolumes}</p>
-              </div>
-              <FaBook className="text-2xl text-blue-600/30" />
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Participants</p>
-                <p className="text-2xl font-bold text-green-600">{seriesStats.totalParticipants}</p>
-              </div>
-              <FaUsers className="text-2xl text-green-600/30" />
-            </div>
-          </div>
-          <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-600">Recent (6 months)</p>
-                <p className="text-2xl font-bold text-gold">{seriesStats.recentCompletions}</p>
-              </div>
-              <FaTrophy className="text-2xl text-gold/30" />
-            </div>
+            <p className="text-gray-600 mt-1">Books and study circles completed by our community</p>
           </div>
         </div>
 
-        {/* Series Grid */}
+        {/* Completed Majlis Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {completedSeries.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="aspect-[3/4] relative overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 right-4 bg-gold text-primary px-3 py-1 rounded-full text-xs font-bold">
-                  Completed
+          {completedLoading ? (
+            <div className="col-span-full text-center py-10 text-gray-400">Loading...</div>
+          ) : completed.length === 0 ? (
+            <div className="col-span-full text-center py-10 text-gray-400">No completed majlis found.</div>
+          ) : (
+            completed.map((item, idx) => (
+              <div key={item._id || idx} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
+                <div className="aspect-[3/4] relative overflow-hidden">
+                  <img
+                    src={item.book?.image}
+                    alt={item.book?.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-4 right-4 bg-gold text-primary px-3 py-1 rounded-full text-xs font-bold">
+                    Completed
+                  </div>
+                </div>
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-primary mb-2">{item.book?.name}</h3>
+                  <p className="text-sm text-gray-600 mb-1">By {item.tutor?.name}</p>
+                  <p className="text-xs text-gray-500 mb-3">{item.book?.category}</p>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Completion Date:</span>
+                      <span className="font-medium">{item.studyPeriod?.completionDate ? new Date(item.studyPeriod.completionDate).toLocaleDateString() : '-'}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-600">Duration:</span>
+                      <span className="font-medium">{item.studyPeriod?.duration || '-'}</span>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-2">
+                    <button
+                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors"
+                      onClick={() => {
+                        setSelectedCompleted(item);
+                        setShowCompletedModal(true);
+                      }}
+                    >
+                      View Details
+                    </button>
+                    <button
+                      onClick={() => setCompletedToDelete(item._id)}
+                      className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                      title="Delete"
+                    >
+                      <FaTrash size={14} />
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="p-6">
-                <h3 className="text-lg font-bold text-primary mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-600 mb-1">By {item.author}</p>
-                <p className="text-xs text-gray-500 mb-3">{item.category}</p>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Completion Date:</span>
-                    <span className="font-medium">{new Date(item.completionDate).toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Volumes:</span>
-                    <span className="font-medium">{item.totalVolumes}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Participants:</span>
-                    <span className="font-medium">{item.participants}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Duration:</span>
-                    <span className="font-medium">{item.duration}</span>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <button className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors">
-                    View Details
-                  </button>
-                  <button
-                    onClick={() => handleDeleteSeries(item.id)}
-                    className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
-                    title="Delete"
-                  >
-                    <FaTrash size={14} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
-      {/* Confirmation Modal */}
+      {/* Completed Majlis Details Modal */}
+      {showCompletedModal && selectedCompleted && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-8 relative">
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
+              onClick={() => setShowCompletedModal(false)}
+            >
+              <FaTimes size={20} />
+            </button>
+            <div className="flex flex-col items-center">
+              <img src={selectedCompleted.book?.image} alt={selectedCompleted.book?.name} className="w-32 h-40 object-cover rounded-lg mb-4" />
+              <h2 className="text-2xl font-bold text-primary mb-2">{selectedCompleted.book?.name}</h2>
+              <p className="text-sm text-gray-600 mb-1">By {selectedCompleted.tutor?.name}</p>
+              <p className="text-xs text-gray-500 mb-3">{selectedCompleted.book?.category}</p>
+              <div className="w-full border-t my-4" />
+              <div className="w-full space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Completion Date:</span>
+                  <span className="font-medium">{selectedCompleted.studyPeriod?.completionDate ? new Date(selectedCompleted.studyPeriod.completionDate).toLocaleDateString() : '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Duration:</span>
+                  <span className="font-medium">{selectedCompleted.studyPeriod?.duration || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Highlights:</span>
+                  <span className="font-medium">{selectedCompleted.book?.highlights?.join(", ") || '-'}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Description:</span>
+                  <span className="font-medium">{selectedCompleted.book?.description || '-'}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Completed Majlis Delete Confirmation */}
+      {completedToDelete && (
+        <ConfirmationModal
+          isOpen={true}
+          onClose={() => setCompletedToDelete(null)}
+          onConfirm={() => {
+            removeCompleted(completedToDelete);
+            setCompletedToDelete(null);
+          }}
+          title="Delete Completed Majlis"
+          message="Are you sure you want to delete this completed majlis record? This action cannot be undone."
+          type="danger"
+        />
+      )}
+
+      {/* Existing Confirmation Modal for Majlis */}
       <ConfirmationModal
         isOpen={confirmationModal.isOpen}
         onClose={() => setConfirmationModal({ ...confirmationModal, isOpen: false })}

@@ -1,3 +1,39 @@
+// ==================== COMPLETED MAJLIS API ====================
+
+export const completedMajlisAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/completed-majlis?${params}`);
+  },
+
+  create: (data, secretKey) =>
+    apiCall("/completed-majlis", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-secret-key": secretKey,
+      },
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data, secretKey) =>
+    apiCall(`/completed-majlis/${id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "x-secret-key": secretKey,
+      },
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id, secretKey) =>
+    apiCall(`/completed-majlis/${id}`, {
+      method: "DELETE",
+      headers: {
+        "x-secret-key": secretKey,
+      },
+    }),
+};
 // src/services/api.js
 // Central API service for all backend communication
 

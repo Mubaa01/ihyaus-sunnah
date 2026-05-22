@@ -15,6 +15,7 @@ import researchRoutes from "./routes/researchRoutes.js";
 import majlisRoutes from "./routes/majlisRoutes.js";
 import activityRoutes from "./routes/activityRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import completedMajlisRoutes from "./routes/completedMajlisRoutes.js";
 
 const app = express();
 
@@ -52,5 +53,6 @@ app.use("/api/research", researchRoutes);
 app.use("/api/majlis", majlisRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/completed-majlis", completedMajlisRoutes);
 
 export default app;

@@ -1,19 +1,19 @@
-// controllers/majlisController.js
+// controllers/completedMajlisController.js
 
-import { Majlis } from "../models/Majlis.js";
+import { CompletedMajlis } from "../models/CompletedMajlis.js";
 
 
 // ========================================
-// CREATE MAJLIS
+// CREATE COMPLETED MAJLIS
 // ========================================
-export const createMajlis = async (req, res) => {
+export const createCompletedMajlis = async (req, res) => {
   try {
-    const majlis = await Majlis.create(req.body);
+    const completedMajlis = await CompletedMajlis.create(req.body);
 
     res.status(201).json({
       success: true,
-      message: "Majlis created successfully",
-      data: majlis,
+      message: "Completed majlis added successfully",
+      data: completedMajlis,
     });
   } catch (error) {
     res.status(400).json({
@@ -25,16 +25,13 @@ export const createMajlis = async (req, res) => {
 
 
 // ========================================
-// GET ALL MAJLIS
+// GET ALL COMPLETED MAJLIS
 // ========================================
-export const getAllMajlis = async (req, res) => {
+export const getAllCompletedMajlis = async (req, res) => {
   try {
     const {
-      type,
-      status,
-      featured,
       category,
-      level,
+      featured,
     } = req.query;
 
     const filter = {};
@@ -42,34 +39,22 @@ export const getAllMajlis = async (req, res) => {
     // =========================
     // FILTERS
     // =========================
-    if (type) {
-      filter.type = type;
-    }
-
-    if (status) {
-      filter.status = status;
+    if (category) {
+      filter["book.category"] = category;
     }
 
     if (featured !== undefined) {
       filter.featured = featured === "true";
     }
 
-    if (category) {
-      filter["book.category"] = category;
-    }
-
-    if (level) {
-      filter.level = level;
-    }
-
-    const majlis = await Majlis.find(filter).sort({
-      createdAt: -1,
+    const completedMajlis = await CompletedMajlis.find(filter).sort({
+      "studyPeriod.completionDate": -1,
     });
 
     res.status(200).json({
       success: true,
-      total: majlis.length,
-      data: majlis,
+      total: completedMajlis.length,
+      data: completedMajlis,
     });
   } catch (error) {
     res.status(500).json({
@@ -81,24 +66,24 @@ export const getAllMajlis = async (req, res) => {
 
 
 // ========================================
-// GET SINGLE MAJLIS
+// GET SINGLE COMPLETED MAJLIS
 // ========================================
-export const getSingleMajlis = async (req, res) => {
+export const getSingleCompletedMajlis = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const majlis = await Majlis.findById(id);
+    const completedMajlis = await CompletedMajlis.findById(id);
 
-    if (!majlis) {
+    if (!completedMajlis) {
       return res.status(404).json({
         success: false,
-        message: "Majlis not found",
+        message: "Completed majlis not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      data: majlis,
+      data: completedMajlis,
     });
   } catch (error) {
     res.status(500).json({
@@ -110,32 +95,33 @@ export const getSingleMajlis = async (req, res) => {
 
 
 // ========================================
-// UPDATE MAJLIS
+// UPDATE COMPLETED MAJLIS
 // ========================================
-export const updateMajlis = async (req, res) => {
+export const updateCompletedMajlis = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const updatedMajlis = await Majlis.findByIdAndUpdate(
-      id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const updatedCompletedMajlis =
+      await CompletedMajlis.findByIdAndUpdate(
+        id,
+        req.body,
+        {
+          new: true,
+          runValidators: true,
+        }
+      );
 
-    if (!updatedMajlis) {
+    if (!updatedCompletedMajlis) {
       return res.status(404).json({
         success: false,
-        message: "Majlis not found",
+        message: "Completed majlis not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Majlis updated successfully",
-      data: updatedMajlis,
+      message: "Completed majlis updated successfully",
+      data: updatedCompletedMajlis,
     });
   } catch (error) {
     res.status(400).json({
@@ -147,24 +133,25 @@ export const updateMajlis = async (req, res) => {
 
 
 // ========================================
-// DELETE MAJLIS
+// DELETE COMPLETED MAJLIS
 // ========================================
-export const deleteMajlis = async (req, res) => {
+export const deleteCompletedMajlis = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const deletedMajlis = await Majlis.findByIdAndDelete(id);
+    const deletedCompletedMajlis =
+      await CompletedMajlis.findByIdAndDelete(id);
 
-    if (!deletedMajlis) {
+    if (!deletedCompletedMajlis) {
       return res.status(404).json({
         success: false,
-        message: "Majlis not found",
+        message: "Completed majlis not found",
       });
     }
 
     res.status(200).json({
       success: true,
-      message: "Majlis deleted successfully",
+      message: "Completed majlis deleted successfully",
     });
   } catch (error) {
     res.status(500).json({
