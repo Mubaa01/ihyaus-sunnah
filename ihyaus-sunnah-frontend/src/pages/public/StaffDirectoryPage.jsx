@@ -20,7 +20,6 @@ const StaffDirectoryPage = () => {
 
   const {
     staff,
-    groupedStaff,
   } = useStaffAPI()
 
   const [search, setSearch] =
@@ -41,10 +40,10 @@ const StaffDirectoryPage = () => {
 
           const matchesSearch =
             member.name
-              .toLowerCase()
+              ?.toLowerCase()
               .includes(
                 search.toLowerCase()
-              )
+              ) ?? false
 
           const matchesFilter =
             filter === "all"
@@ -399,7 +398,7 @@ const StaffDirectoryPage = () => {
                         ) => (
 
                           <motion.div
-                            key={member.id ?? `staff-member-${section.key}-${index}`}
+                            key={member._id || member.id || `staff-member-${section.key}-${index}`}
 
                             initial={{
                               opacity: 0,

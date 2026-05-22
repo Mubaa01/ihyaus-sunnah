@@ -14,11 +14,11 @@ export const staffSchema = z.object({
   email: z.string().email("Invalid email"),
   address: z.string().optional(),
   role: roleEnum,
-  position: z.string().optional(),
+  position: z.string().min(2, "Position is required"),
   department: z.string().optional(),
   sections: z.array(z.string()).optional(),
   bio: z.string().optional(),
-  maritalStatus: z.string().optional(),
+  maritalStatus: z.enum(["Single", "Married", "Divorced", "Widowed"]).optional(),
   image: z.string().optional(),
   occupation: z.string().optional(),
   academicStatus: z.string().optional()

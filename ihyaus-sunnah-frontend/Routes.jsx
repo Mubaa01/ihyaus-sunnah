@@ -12,6 +12,7 @@ import MediaLibraryPage from './src/pages/public/MediaLibraryPage'
 import StaffDirectoryPage from './src/pages/public/StaffDirectoryPage'
 //import OrganizationPage from './src/pages/public/OrganizationPage'
 import MajlisSchedulePage from './src/pages/public/MajlisSchedulePage'
+import MajlisDetailsPage from './src/pages/public/MajlisDetailsPage'
 import DonatePage from './src/pages/public/DonatePage'
 import StaffDetailsPage from './src/pages/public/StaffDetailsPage'
 
@@ -49,6 +50,7 @@ function AppRoutes() {
         <Route path="/staff" element={<StaffDirectoryPage />} />
         {/* <Route path="/organization" element={<OrganizationPage />} /> */}
         <Route path="/lectures" element={<MajlisSchedulePage />} />
+        <Route path="/lectures/:id" element={<MajlisDetailsPage />} />
         <Route path="/donate" element={<DonatePage />} />
         <Route path="/staff/:id" element={<StaffDetailsPage />} />
         <Route path="/staff/profile/:id" element={<StaffDetailsPage />} />

@@ -307,7 +307,7 @@ const ProgramsPage = () => {
               </div>
             ) : (
               programs.map((program) => (
-                <ProgramCard key={program.id} program={program} />
+                <ProgramCard key={program._id || program.id || program.slug} program={program} />
               ))
             )}
           </div>

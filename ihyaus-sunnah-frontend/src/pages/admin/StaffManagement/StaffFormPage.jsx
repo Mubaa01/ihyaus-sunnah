@@ -153,10 +153,10 @@ const StaffFormPage = () => {
           <div className="grid md:grid-cols-2 gap-8">
 
             {/* NAME */}
-            <Input label="Full Name" icon={<FaUserTie />} name="name" value={formData.name} onChange={handleChange} />
+            <Input label="Full Name" icon={<FaUserTie />} name="name" value={formData.name} onChange={handleChange} required />
 
             {/* POSITION */}
-            <Input label="Position" name="position" value={formData.position} onChange={handleChange} />
+            <Input label="Position" name="position" value={formData.position} onChange={handleChange} required />
 
             {/* ROLE */}
             <Select
@@ -164,6 +164,7 @@ const StaffFormPage = () => {
               name="role"
               value={formData.role}
               onChange={handleChange}
+              required
               options={[
                 { value: "director", label: "Director" },
                 { value: "board", label: "Board" },
@@ -174,8 +175,8 @@ const StaffFormPage = () => {
               ]}
             />
 
-            <Input label="Email" name="email" value={formData.email} onChange={handleChange} />
-            <Input label="Phone" name="phone" value={formData.phone} onChange={handleChange} />
+            <Input label="Email" name="email" type="email" value={formData.email} onChange={handleChange} required />
+            <Input label="Phone" name="phone" value={formData.phone} onChange={handleChange} required />
             <Input label="Address" name="address" value={formData.address} onChange={handleChange} />
             <Input label="Academic Status" name="academicStatus" value={formData.academicStatus} onChange={handleChange} />
             <Input label="Occupation" name="occupation" value={formData.occupation} onChange={handleChange} />
@@ -190,6 +191,7 @@ const StaffFormPage = () => {
                 { value: "Single", label: "Single" },
                 { value: "Married", label: "Married" },
                 { value: "Divorced", label: "Divorced" },
+                { value: "Widowed", label: "Widowed" },
               ]}
             />
 

@@ -17,10 +17,6 @@ import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
 const StaffListPage = () => {
   const { staff, removeStaff, refreshStaff } = useStaffAPI();
-  // Debug: log staff data on every render
-  useEffect(() => {
-    console.log("[StaffListPage] staff:", staff);
-  }, [staff]);
 
   // Only refresh staff on initial mount
   useEffect(() => {
@@ -70,8 +66,8 @@ const StaffListPage = () => {
     setShowModal(true)
   }
 
-  const confirmDelete = () => {
-    removeStaff(selectedId)
+  const confirmDelete = (secretKey) => {
+    removeStaff(selectedId, secretKey)
     setShowModal(false)
   }
 

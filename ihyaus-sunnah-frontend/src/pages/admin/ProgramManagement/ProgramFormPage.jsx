@@ -613,7 +613,7 @@ const confirmSave = (secretKey) => {
               onChange={handleChange}
               options={[
                 { value: "active", label: "Active" },
-                { value: "inactive", label: "Inactive" },
+                { value: "upcoming", label: "Upcoming" },
                 { value: "completed", label: "Completed" },
               ]}
             />

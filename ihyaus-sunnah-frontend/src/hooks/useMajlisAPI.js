@@ -95,7 +95,9 @@ const useMajlisAPI = () => {
     totalMajlis: Array.isArray(majlis) ? majlis.length : 0,
     publicCount: Array.isArray(majlis) ? majlis.filter(m => m.type === "public").length : 0,
     privateCount: Array.isArray(majlis) ? majlis.filter(m => m.type === "private").length : 0,
-    totalEnrolled: Array.isArray(majlis) ? majlis.reduce((sum, m) => sum + (m.enrolled || 0), 0) : 0,
+    totalEnrolled: Array.isArray(majlis)
+      ? majlis.reduce((sum, m) => sum + (m.enrollment?.enrolled || 0), 0)
+      : 0,
   };
 
   return {
@@ -106,6 +108,7 @@ const useMajlisAPI = () => {
     addMajlis,
     editMajlis,
     removeMajlis,
+    stats,
   };
 };
 

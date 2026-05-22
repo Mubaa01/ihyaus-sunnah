@@ -342,6 +342,9 @@ export const majlisAPI = {
     return apiCall(`/majlis?${params}`);
   },
 
+  getById: (id) =>
+    apiCall(`/majlis/${id}`),
+
   create: (data, secretKey) =>
     apiCall("/majlis", {
       method: "POST",

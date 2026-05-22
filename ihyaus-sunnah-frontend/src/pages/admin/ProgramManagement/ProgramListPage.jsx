@@ -49,8 +49,8 @@ const ProgramListPage = () => {
     setShowModal(true)
   }
 
-  const confirmDelete = () => {
-    removeProgram(selectedId)
+  const confirmDelete = (secretKey) => {
+    removeProgram(selectedId, secretKey)
     setShowModal(false)
   }
 
@@ -120,7 +120,7 @@ const ProgramListPage = () => {
           >
             <option value="All">All Status</option>
             <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value="upcoming">Upcoming</option>
             <option value="completed">Completed</option>
           </select>
 

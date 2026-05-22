@@ -154,29 +154,36 @@ const ProgramCategoriesSection = ({ program }) => {
                           whileHover={{ y: -6 }}
                           className="relative overflow-hidden rounded-[24px] shadow-lg group"
                         >
-                          <img
-                            src={video.thumbnail}
-                            alt={video.title}
-                            className="w-full h-[220px] object-cover group-hover:scale-110 transition duration-700"
-                          />
+                          <a
+                            href={video.url || undefined}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`block ${video.url ? "" : "pointer-events-none"}`}
+                          >
+                            <img
+                              src={video.thumbnail}
+                              alt={video.title}
+                              className="w-full h-[220px] object-cover group-hover:scale-110 transition duration-700"
+                            />
 
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                          <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 text-white text-xs rounded-full">
-                            {video.duration}
-                          </div>
-
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
-                              <FaPlay className="text-white ml-1" />
+                            <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 text-white text-xs rounded-full">
+                              {video.duration}
                             </div>
-                          </div>
 
-                          <div className="absolute bottom-0 p-4 text-white">
-                            <h4 className="text-sm font-semibold">
-                              {video.title}
-                            </h4>
-                          </div>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+                                <FaPlay className="text-white ml-1" />
+                              </div>
+                            </div>
+
+                            <div className="absolute bottom-0 p-4 text-white">
+                              <h4 className="text-sm font-semibold">
+                                {video.title}
+                              </h4>
+                            </div>
+                          </a>
                         </motion.div>
                       ))}
                     </div>

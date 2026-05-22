@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   FaPlus,
   FaTimes,
@@ -18,14 +18,13 @@ import {
   FaChartLine,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link } from "react-router-dom";
 import useMajlisAPI from "../../../hooks/useMajlisAPI";
 import useCompletedMajlisAPI from "../../../hooks/useCompletedMajlisAPI";
 import SecretKeyModal from "../../../components/admin/SecretKeyModal";
 import MajlisForm from "./MajlisForm";
 
 const MajlisManagementPage = () => {
-  const { majlis, stats = {}, updateEnrollment, deleteMajlisData } = useMajlisAPI();
+  const { majlis, stats = {}, addMajlis, editMajlis, removeMajlis } = useMajlisAPI();
   const { completed, loading: completedLoading, removeCompleted } = useCompletedMajlisAPI();
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -40,16 +39,14 @@ const MajlisManagementPage = () => {
   const [selectedCompleted, setSelectedCompleted] = useState(null);
   const [showCompletedModal, setShowCompletedModal] = useState(false);
 
-  // Debug logging
-  useEffect(() => {
-    console.log("[MajlisManagementPage] majlis:", majlis);
-    console.log("[MajlisManagementPage] completed:", completed);
-  }, [majlis, completed]);
-
   // Optimized filtering with useMemo
   const filteredMajlis = useMemo(() => {
     return majlis.filter((m) => {
-      const matchesSearch = m.title?.toLowerCase().includes(searchTerm.toLowerCase());
+      const term = searchTerm.toLowerCase();
+      const matchesSearch =
+        m.title?.toLowerCase().includes(term) ||
+        m.instructor?.name?.toLowerCase().includes(term) ||
+        m.book?.name?.toLowerCase().includes(term);
       const matchesType = filterType === "all" || m.type === filterType;
       return matchesSearch && matchesType;
     });
@@ -73,26 +70,22 @@ const MajlisManagementPage = () => {
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async (secretKey) => {
     if (deleteType === "active") {
-      deleteMajlisData(itemToDelete);
+      await removeMajlis(itemToDelete, secretKey);
     } else if (deleteType === "completed") {
-      removeCompleted(itemToDelete);
+      await removeCompleted(itemToDelete, secretKey);
     }
     setShowDeleteModal(false);
     setItemToDelete(null);
     setDeleteType(null);
   };
 
-  const handleSaveMajlis = (data) => {
-    if (data.id) {
-      if (typeof updateEnrollment === 'function') {
-        updateEnrollment(data.id, data);
-      }
+  const handleSaveMajlis = async (id, data, secretKey) => {
+    if (id) {
+      await editMajlis(id, data, secretKey);
     } else {
-      if (typeof updateEnrollment === 'function') {
-        updateEnrollment(Date.now(), { ...data, id: Date.now() });
-      }
+      await addMajlis(data, secretKey);
     }
     setIsFormOpen(false);
     setSelectedMajlis(null);
@@ -225,10 +218,10 @@ const MajlisManagementPage = () => {
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-primary">
-                        {item.enrolled || 0}
+                        {item.enrollment?.enrolled || 0}
                       </div>
                       <div className="text-xs text-gray-500">
-                        / {item.capacity || 0} enrolled
+                        / {item.enrollment?.capacity || 0} enrolled
                       </div>
                     </div>
                   </div>
@@ -240,9 +233,9 @@ const MajlisManagementPage = () => {
                   <div className="flex items-start gap-3">
                     <FaClock className="text-gold mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-gray-800">{item.day || "TBA"}</p>
+                      <p className="font-semibold text-gray-800">{item.schedule?.day || "TBA"}</p>
                       <p className="text-sm text-gray-500">
-                        {item.time || "TBA"} {item.endTime && `- ${item.endTime}`}
+                        {item.schedule?.startTime || "TBA"} {item.schedule?.endTime && `- ${item.schedule.endTime}`}
                       </p>
                     </div>
                   </div>
@@ -251,7 +244,7 @@ const MajlisManagementPage = () => {
                   <div className="flex items-start gap-3">
                     <FaChalkboardTeacher className="text-gold mt-1 flex-shrink-0" />
                     <div>
-                      <p className="font-semibold text-gray-800">{item.tutor || "TBA"}</p>
+                      <p className="font-semibold text-gray-800">{item.instructor?.name || "TBA"}</p>
                       <p className="text-sm text-gray-500">Lead Instructor</p>
                     </div>
                   </div>
@@ -263,18 +256,18 @@ const MajlisManagementPage = () => {
                   </div>
 
                   {/* Progress Bar */}
-                  {item.capacity && (
+                  {item.enrollment?.capacity > 0 && (
                     <div className="pt-2">
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-gray-600">Enrollment</span>
                         <span className="font-semibold text-primary">
-                          {Math.round(((item.enrolled || 0) / item.capacity) * 100)}%
+                          {Math.round(((item.enrollment?.enrolled || 0) / item.enrollment.capacity) * 100)}%
                         </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
                         <motion.div
                           initial={{ width: 0 }}
-                          animate={{ width: `${((item.enrolled || 0) / item.capacity) * 100}%` }}
+                          animate={{ width: `${((item.enrollment?.enrolled || 0) / item.enrollment.capacity) * 100}%` }}
                           transition={{ duration: 0.8, delay: 0.2 }}
                           className={`h-full rounded-full ${
                             item.type === "public" ? "bg-green-500" : "bg-purple-500"
@@ -297,7 +290,7 @@ const MajlisManagementPage = () => {
                     <FaEdit /> Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(item.id || item._id, "active")}
+                    onClick={() => handleDeleteClick(item._id || item.id, "active")}
                     className="w-full sm:w-14 rounded-2xl border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition"
                   >
                     <FaTrash />
@@ -417,7 +410,7 @@ const MajlisManagementPage = () => {
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Study Duration:</span>
-                      <span className="font-semibold text-gray-800">{item.studyPeriod?.duration || '-'}</span>
+                      <span className="font-semibold text-gray-800">{item.studyPeriod?.durationText || '-'}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-500">Category:</span>
@@ -515,7 +508,7 @@ const MajlisManagementPage = () => {
                     </div>
                     <div className="bg-gray-50 rounded-2xl p-4">
                       <p className="text-sm text-gray-500 mb-1">Study Duration</p>
-                      <p className="font-semibold text-gray-800">{selectedCompleted.studyPeriod?.duration || '-'}</p>
+                      <p className="font-semibold text-gray-800">{selectedCompleted.studyPeriod?.durationText || '-'}</p>
                     </div>
                     <div className="bg-gray-50 rounded-2xl p-4">
                       <p className="text-sm text-gray-500 mb-1">Category</p>

@@ -13,15 +13,12 @@ import ProgramStaffSection from '../../components/programs/ProgramStaffSection'
 import ProgramTestimonialsSection from '../../components/programs/ProgramTestimonialsSection'
 import ProgramIslamicIntegrationSection from '../../components/programs/ProgramIslamicIntegrationSection'
 import ProgramCTASection from '../../components/programs/ProgramCTASection'
-import ProgramGalleryModal from '../../components/programs/ProgramGalleryModal'
 
 const ProgramDetailsPage = () => {
   const { slug } = useParams()
   const [program, setProgram] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [galleryModal, setGalleryModal] = useState(null)
-  const [galleryIndex, setGalleryIndex] = useState(0)
 
 
   // useEffect(() => {
@@ -57,29 +54,6 @@ const ProgramDetailsPage = () => {
         setLoading(false);
       });
   }, [slug]);
-  // TODO: Replace with real API call for gallery items
-  const openGallery = (categoryId) => {
-    setGalleryModal({ categoryId, items: [] });
-    setGalleryIndex(0);
-  };
-
-  const closeGallery = () => {
-    setGalleryModal(null)
-    setGalleryIndex(0)
-  }
-
-  const nextGalleryItem = () => {
-    if (galleryModal && galleryIndex < galleryModal.items.length - 1) {
-      setGalleryIndex(galleryIndex + 1)
-    }
-  }
-
-  const prevGalleryItem = () => {
-    if (galleryModal && galleryIndex > 0) {
-      setGalleryIndex(galleryIndex - 1)
-    }
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -137,20 +111,8 @@ const ProgramDetailsPage = () => {
 
       {/* CTA Section */}
       <ProgramCTASection />
-
-      {/* Gallery Modal */}
-      <ProgramGalleryModal
-        galleryModal={galleryModal}
-        galleryIndex={galleryIndex}
-        onClose={closeGallery}
-        onNext={nextGalleryItem}
-        onPrev={prevGalleryItem}
-        onSelectIndex={setGalleryIndex}
-      />
     </div>
   )
 }
-
-console.log("ProgramCategoriesSection mounted");
 
 export default ProgramDetailsPage
