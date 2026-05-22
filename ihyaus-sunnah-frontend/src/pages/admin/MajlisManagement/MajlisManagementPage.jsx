@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   FaPlus,
   FaTimes,
   FaEdit,
   FaTrash,
   FaSearch,
-  FaFilter,
   FaClock,
   FaUsers,
   FaCalendarAlt,
@@ -15,83 +14,82 @@ import {
   FaCheck,
   FaBook,
   FaTrophy,
+  FaGraduationCap,
+  FaChartLine,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom";
 import useMajlisAPI from "../../../hooks/useMajlisAPI";
 import useCompletedMajlisAPI from "../../../hooks/useCompletedMajlisAPI";
-import ConfirmationModal from "../../../components/common/ConfirmationModal";
+import SecretKeyModal from "../../../components/admin/SecretKeyModal";
 import MajlisForm from "./MajlisForm";
 
 const MajlisManagementPage = () => {
   const { majlis, stats = {}, updateEnrollment, deleteMajlisData } = useMajlisAPI();
   const { completed, loading: completedLoading, removeCompleted } = useCompletedMajlisAPI();
+  
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState("all"); // all, public, private
+  const [filterType, setFilterType] = useState("all");
   const [selectedMajlis, setSelectedMajlis] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [confirmationModal, setConfirmationModal] = useState({
-    isOpen: false,
-    action: null,
-    itemId: null,
-    title: "",
-    message: "",
-  });
-  // For Completed Majlis interactivity
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [deleteType, setDeleteType] = useState(null); // "active" or "completed"
+  
+  // For Completed Majlis modal
   const [selectedCompleted, setSelectedCompleted] = useState(null);
   const [showCompletedModal, setShowCompletedModal] = useState(false);
-  const [completedToDelete, setCompletedToDelete] = useState(null);
 
-  const filtered = majlis.filter((m) => {
-    const matchesSearch = m.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesType = filterType === "all" || m.type === filterType;
-    return matchesSearch && matchesType;
-  });
+  // Debug logging
+  useEffect(() => {
+    console.log("[MajlisManagementPage] majlis:", majlis);
+    console.log("[MajlisManagementPage] completed:", completed);
+  }, [majlis, completed]);
 
-  const handleDeleteMajlis = (id) => {
-    setConfirmationModal({
-      isOpen: true,
-      action: "deleteMajlis",
-      itemId: id,
-      title: "Delete Majlis Session",
-      message: "Are you sure you want to delete this majlis session? This action cannot be undone.",
+  // Optimized filtering with useMemo
+  const filteredMajlis = useMemo(() => {
+    return majlis.filter((m) => {
+      const matchesSearch = m.title?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesType = filterType === "all" || m.type === filterType;
+      return matchesSearch && matchesType;
     });
-  };
+  }, [majlis, searchTerm, filterType]);
 
-  const handleDeleteSeries = (id) => {
-    setConfirmationModal({
-      isOpen: true,
-      action: "deleteSeries",
-      itemId: id,
-      title: "Delete Completed Series",
-      message: "Are you sure you want to delete this completed series record? This action cannot be undone.",
-    });
-  };
-
-  const handleConfirmAction = () => {
-    const { action, itemId } = confirmationModal;
-
-    switch (action) {
-      case "deleteMajlis":
-        deleteMajlisData(itemId);
-        break;
-      case "deleteSeries":
-        deleteSeriesData(itemId);
-        break;
+  // Get role label for consistent styling
+  const getTypeLabel = (type) => {
+    switch (type) {
+      case "public":
+        return "Public Session";
+      case "private":
+        return "Private Class";
       default:
-        break;
+        return "Majlis";
     }
   };
 
-  // Add or update majlis handler
+  const handleDeleteClick = (id, type) => {
+    setItemToDelete(id);
+    setDeleteType(type);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteType === "active") {
+      deleteMajlisData(itemToDelete);
+    } else if (deleteType === "completed") {
+      removeCompleted(itemToDelete);
+    }
+    setShowDeleteModal(false);
+    setItemToDelete(null);
+    setDeleteType(null);
+  };
+
   const handleSaveMajlis = (data) => {
-    // If editing, update existing; else, add new
     if (data.id) {
-      // Update logic (should call your updateMajlisData from useMajlis)
       if (typeof updateEnrollment === 'function') {
         updateEnrollment(data.id, data);
       }
     } else {
-      // Add logic (should call your addMajlisData from useMajlis)
       if (typeof updateEnrollment === 'function') {
         updateEnrollment(Date.now(), { ...data, id: Date.now() });
       }
@@ -101,330 +99,453 @@ const MajlisManagementPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="space-y-10">
+      {/* HEADER - Matching Staff Page style */}
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
         <div>
-          <h1 className="text-3xl font-heading font-bold text-primary">Majlis Management</h1>
-          <p className="text-gray-600 mt-1">Manage all majlis sessions and private classes</p>
+          <h1 className="text-4xl font-bold text-primary">
+            Majlis Management
+          </h1>
+          <p className="text-gray-500 mt-2">
+            Manage study circles, private classes, and track completed sessions.
+          </p>
         </div>
+        
         <button
           onClick={() => {
             setSelectedMajlis(null);
             setIsFormOpen(true);
           }}
-          className="btn-primary flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="btn-primary"
         >
-          <FaPlus size={16} />
-          Add New Majlis
+          + Add Majlis
         </button>
       </div>
 
-      {/* Stats Overview */}
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total Majlis</p>
-              <p className="text-3xl font-bold text-primary">{stats.totalMajlis}</p>
+      {/* STATS OVERVIEW - Enhanced with animations matching Staff Page aesthetics */}
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {[
+          { label: "Total Majlis", value: stats.totalMajlis || 0, icon: FaChalkboardTeacher, color: "primary" },
+          { label: "Public Sessions", value: stats.publicCount || 0, icon: FaUsers, color: "green" },
+          { label: "Private Classes", value: stats.privateCount || 0, icon: FaLock, color: "purple" },
+          { label: "Total Enrolled", value: stats.totalEnrolled || 0, icon: FaGraduationCap, color: "blue" },
+        ].map((stat, idx) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: idx * 0.1 }}
+            whileHover={{ y: -5 }}
+            className="bg-white rounded-3xl border border-gray-100 shadow-soft p-6 transition-all duration-300"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500 mb-1">{stat.label}</p>
+                <p className={`text-3xl font-bold text-${stat.color}-600`}>{stat.value}</p>
+              </div>
+              <stat.icon className={`text-5xl text-${stat.color}-600/20`} />
             </div>
-            <FaChalkboardTeacher className="text-4xl text-gold/30" />
-          </div>
-        </div>
+          </motion.div>
+        ))}
+      </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Public Sessions</p>
-              <p className="text-3xl font-bold text-green-600">{stats.publicCount}</p>
-            </div>
-            <FaUsers className="text-4xl text-green-600/30" />
+      {/* SEARCH & FILTER - Matching Staff Page design */}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-soft p-6">
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* SEARCH */}
+          <div className="relative">
+            <FaSearch className="absolute top-1/2 left-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search majlis by title or instructor..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-5 py-4 rounded-2xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
           </div>
-        </div>
 
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Private Classes</p>
-              <p className="text-3xl font-bold text-purple-600">{stats.privateCount}</p>
-            </div>
-            <FaLock className="text-4xl text-purple-600/30" />
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-600 mb-1">Total Enrolled</p>
-              <p className="text-3xl font-bold text-blue-600">{stats.totalEnrolled}</p>
-            </div>
-            <FaUsers className="text-4xl text-blue-600/30" />
-          </div>
+          {/* TYPE FILTER - Dropdown style matching Staff Page */}
+          <select
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+            className="input-primary"
+          >
+            <option value="all">All Types</option>
+            <option value="public">Public Sessions</option>
+            <option value="private">Private Classes</option>
+          </select>
         </div>
       </div>
 
-      {/* Search & Filter */}
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex-1 relative">
-          <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search majlis by name..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary"
-          />
+      {/* ACTIVE MAJLIS SECTION - Card-based like Staff Page */}
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
+              <FaCalendarAlt className="text-gold" />
+              Active Sessions
+            </h2>
+            <p className="text-gray-500 mt-1">Currently running and upcoming majlis sessions</p>
+          </div>
+          <div className="text-sm text-gray-400">
+            {filteredMajlis.length} session{filteredMajlis.length !== 1 ? 's' : ''}
+          </div>
         </div>
 
-        <div className="flex gap-2">
-          {["all", "public", "private"].map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilterType(type)}
-              className={`px-5 py-3 rounded-2xl font-semibold transition-all ${
-                filterType === type
-                  ? "bg-primary text-white shadow-lg"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
-            >
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Majlis Table */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Title</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Type</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Schedule</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Instructor</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Enrollment</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Level</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-gray-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length > 0 ? (
-                filtered.map((item, idx) => (
-                  <tr key={item.id || item._id || idx} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="font-semibold text-primary">{item.title}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          item.type === "public"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-purple-100 text-purple-700"
-                        }`}
-                      >
-                        {item.type === "public" ? "Public" : "Private"}
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <AnimatePresence>
+            {filteredMajlis.map((item, index) => (
+              <motion.div
+                key={item.id || item._id || index}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, delay: index * 0.04 }}
+                whileHover={{ y: -10 }}
+                className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-soft hover:shadow-premium transition-all duration-500"
+              >
+                {/* HEADER SECTION - Gradient background */}
+                <div className={`relative p-6 ${
+                  item.type === "public" 
+                    ? "bg-gradient-to-br from-green-50 to-green-100/30" 
+                    : "bg-gradient-to-br from-purple-50 to-purple-100/30"
+                }`}>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold text-primary mb-2 line-clamp-2">
+                        {item.title}
+                      </h3>
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${
+                        item.type === "public"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-purple-100 text-purple-700"
+                      }`}>
+                        {getTypeLabel(item.type)}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm">
-                        <p className="font-medium text-gray-700">{item.day}</p>
-                        <p className="text-gray-500 text-xs">
-                          {item.time} - {item.endTime}
-                        </p>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-primary">
+                        {item.enrolled || 0}
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-gray-700">{item.tutor}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="text-sm font-semibold text-gray-700">
-                          {item.enrolled}/{item.capacity}
-                        </p>
-                        <div className="w-16 bg-gray-200 rounded-full h-1.5 mt-2">
-                          <div
-                            className="bg-gold rounded-full h-1.5"
-                            style={{
-                              width: `${(item.enrolled / item.capacity) * 100}%`,
-                            }}
-                          />
-                        </div>
+                      <div className="text-xs text-gray-500">
+                        / {item.capacity || 0} enrolled
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className="text-sm text-gray-600">{item.level}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => {
-                            setSelectedMajlis(item);
-                            setIsFormOpen(true);
-                          }}
-                          className="p-2 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
-                          title="Edit"
-                        >
-                          <FaEdit size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteMajlis(item.id)}
-                          className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <FaTrash size={16} />
-                        </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* CONTENT SECTION */}
+                <div className="p-6 space-y-4">
+                  {/* Schedule */}
+                  <div className="flex items-start gap-3">
+                    <FaClock className="text-gold mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-gray-800">{item.day || "TBA"}</p>
+                      <p className="text-sm text-gray-500">
+                        {item.time || "TBA"} {item.endTime && `- ${item.endTime}`}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Instructor */}
+                  <div className="flex items-start gap-3">
+                    <FaChalkboardTeacher className="text-gold mt-1 flex-shrink-0" />
+                    <div>
+                      <p className="font-semibold text-gray-800">{item.tutor || "TBA"}</p>
+                      <p className="text-sm text-gray-500">Lead Instructor</p>
+                    </div>
+                  </div>
+
+                  {/* Level */}
+                  <div className="flex items-start gap-3">
+                    <FaGraduationCap className="text-gold mt-1 flex-shrink-0" />
+                    <p className="text-gray-700">{item.level || "All levels welcome"}</p>
+                  </div>
+
+                  {/* Progress Bar */}
+                  {item.capacity && (
+                    <div className="pt-2">
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Enrollment</span>
+                        <span className="font-semibold text-primary">
+                          {Math.round(((item.enrolled || 0) / item.capacity) * 100)}%
+                        </span>
                       </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
-                    No majlis found matching your criteria.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${((item.enrolled || 0) / item.capacity) * 100}%` }}
+                          transition={{ duration: 0.8, delay: 0.2 }}
+                          className={`h-full rounded-full ${
+                            item.type === "public" ? "bg-green-500" : "bg-purple-500"
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* ACTIONS - Matching Staff Page button style */}
+                <div className="p-6 pt-0 flex gap-3 flex-col sm:flex-row">
+                  <button
+                    onClick={() => {
+                      setSelectedMajlis(item);
+                      setIsFormOpen(true);
+                    }}
+                    className="flex-1 bg-primary text-white py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold hover:scale-105 transition"
+                  >
+                    <FaEdit /> Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(item.id || item._id, "active")}
+                    className="w-full sm:w-14 rounded-2xl border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
+
+        {/* EMPTY STATE for Active Majlis */}
+        {filteredMajlis.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-white rounded-3xl border border-gray-100 shadow-soft py-24 text-center"
+          >
+            <FaCalendarAlt className="mx-auto text-6xl text-gray-300 mb-5" />
+            <h3 className="text-3xl font-bold text-primary">No Active Sessions</h3>
+            <p className="text-gray-500 mt-3">
+              {searchTerm || filterType !== "all" 
+                ? "Try adjusting your search or filter criteria."
+                : "Click 'Add Majlis' to create your first session."}
+            </p>
+          </motion.div>
+        )}
       </div>
 
-      {/* Completed Majlis Section */}
-      <div className="space-y-6 mt-12">
+      {/* COMPLETED MAJLIS SECTION - Card grid matching Staff Page aesthetics */}
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-heading font-bold text-primary flex items-center gap-3">
+            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
               <FaTrophy className="text-gold" />
-              Completed Majlis
+              Completed Studies
             </h2>
-            <p className="text-gray-600 mt-1">Books and study circles completed by our community</p>
+            <p className="text-gray-500 mt-1">Books and study circles completed by our community</p>
+          </div>
+          <div className="text-sm text-gray-400">
+            {completed.length} completed
           </div>
         </div>
 
-        {/* Completed Majlis Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
           {completedLoading ? (
-            <div className="col-span-full text-center py-10 text-gray-400">Loading...</div>
+            // Loading skeletons matching card style
+            [...Array(3)].map((_, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.1 }}
+                className="bg-white rounded-3xl border border-gray-100 shadow-soft overflow-hidden"
+              >
+                <div className="aspect-[4/3] bg-gray-200 animate-pulse" />
+                <div className="p-6 space-y-3">
+                  <div className="h-6 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
+                  <div className="h-20 bg-gray-200 rounded animate-pulse" />
+                </div>
+              </motion.div>
+            ))
           ) : completed.length === 0 ? (
-            <div className="col-span-full text-center py-10 text-gray-400">No completed majlis found.</div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="col-span-full bg-white rounded-3xl border border-gray-100 shadow-soft py-24 text-center"
+            >
+              <FaBook className="mx-auto text-6xl text-gray-300 mb-5" />
+              <h3 className="text-3xl font-bold text-primary">No Completed Studies</h3>
+              <p className="text-gray-500 mt-3">Completed majlis will appear here once sessions finish.</p>
+            </motion.div>
           ) : (
             completed.map((item, idx) => (
-              <div key={item._id || idx} className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="aspect-[3/4] relative overflow-hidden">
+              <motion.div
+                key={item._id || idx}
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: idx * 0.04 }}
+                whileHover={{ y: -10 }}
+                className="group bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-soft hover:shadow-premium transition-all duration-500"
+              >
+                {/* IMAGE SECTION with gradient overlay */}
+                <div className="relative h-64 overflow-hidden">
                   <img
                     src={item.book?.image}
                     alt={item.book?.name}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                   />
-                  <div className="absolute top-4 right-4 bg-gold text-primary px-3 py-1 rounded-full text-xs font-bold">
-                    Completed
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                  
+                  {/* COMPLETED BADGE */}
+                  <div className="absolute top-5 left-5 px-4 py-2 rounded-full bg-gold/90 backdrop-blur-md border border-white/20 text-primary text-sm font-bold">
+                    <FaCheck className="inline mr-2" /> Completed
                   </div>
                 </div>
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-primary mb-2">{item.book?.name}</h3>
-                  <p className="text-sm text-gray-600 mb-1">By {item.tutor?.name}</p>
-                  <p className="text-xs text-gray-500 mb-3">{item.book?.category}</p>
 
-                  <div className="space-y-2 mb-4">
+                {/* CONTENT SECTION */}
+                <div className="p-6 space-y-4">
+                  <div>
+                    <h3 className="text-xl font-bold text-primary mb-1 line-clamp-2">
+                      {item.book?.name}
+                    </h3>
+                    <p className="text-gold font-medium">
+                      By {item.tutor?.name}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Completion Date:</span>
-                      <span className="font-medium">{item.studyPeriod?.completionDate ? new Date(item.studyPeriod.completionDate).toLocaleDateString() : '-'}</span>
+                      <span className="text-gray-500">Completion Date:</span>
+                      <span className="font-semibold text-gray-800">
+                        {item.studyPeriod?.completionDate 
+                          ? new Date(item.studyPeriod.completionDate).toLocaleDateString() 
+                          : '-'}
+                      </span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Duration:</span>
-                      <span className="font-medium">{item.studyPeriod?.duration || '-'}</span>
+                      <span className="text-gray-500">Study Duration:</span>
+                      <span className="font-semibold text-gray-800">{item.studyPeriod?.duration || '-'}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Category:</span>
+                      <span className="font-semibold text-gray-800">{item.book?.category || '-'}</span>
                     </div>
                   </div>
 
-                  <div className="flex gap-2">
-                    <button
-                      className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-medium transition-colors"
-                      onClick={() => {
-                        setSelectedCompleted(item);
-                        setShowCompletedModal(true);
-                      }}
-                    >
-                      View Details
-                    </button>
-                    <button
-                      onClick={() => setCompletedToDelete(item._id)}
-                      className="p-2 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
-                      title="Delete"
-                    >
-                      <FaTrash size={14} />
-                    </button>
-                  </div>
+                  {/* HIGHLIGHTS TAGS */}
+                  {item.book?.highlights && item.book.highlights.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {item.book.highlights.slice(0, 3).map((highlight, i) => (
+                        <span
+                          key={i}
+                          className="px-2 py-1 rounded-full bg-primary/10 text-primary text-xs"
+                        >
+                          {highlight}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
+
+                {/* ACTIONS */}
+                <div className="p-6 pt-0 flex gap-3 flex-col sm:flex-row">
+                  <button
+                    onClick={() => {
+                      setSelectedCompleted(item);
+                      setShowCompletedModal(true);
+                    }}
+                    className="flex-1 bg-secondary text-white py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold hover:scale-105 transition"
+                  >
+                    <FaEye /> View Details
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(item._id, "completed")}
+                    className="w-full sm:w-14 rounded-2xl border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+              </motion.div>
             ))
           )}
         </div>
       </div>
 
-      {/* Completed Majlis Details Modal */}
-      {showCompletedModal && selectedCompleted && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-8 relative">
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700"
-              onClick={() => setShowCompletedModal(false)}
+      {/* COMPLETED MAJLIS DETAILS MODAL - Redesigned matching Staff Page aesthetics */}
+      <AnimatePresence>
+        {showCompletedModal && selectedCompleted && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            onClick={() => setShowCompletedModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
             >
-              <FaTimes size={20} />
-            </button>
-            <div className="flex flex-col items-center">
-              <img src={selectedCompleted.book?.image} alt={selectedCompleted.book?.name} className="w-32 h-40 object-cover rounded-lg mb-4" />
-              <h2 className="text-2xl font-bold text-primary mb-2">{selectedCompleted.book?.name}</h2>
-              <p className="text-sm text-gray-600 mb-1">By {selectedCompleted.tutor?.name}</p>
-              <p className="text-xs text-gray-500 mb-3">{selectedCompleted.book?.category}</p>
-              <div className="w-full border-t my-4" />
-              <div className="w-full space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Completion Date:</span>
-                  <span className="font-medium">{selectedCompleted.studyPeriod?.completionDate ? new Date(selectedCompleted.studyPeriod.completionDate).toLocaleDateString() : '-'}</span>
+              <div className="relative">
+                <button
+                  onClick={() => setShowCompletedModal(false)}
+                  className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md text-white flex items-center justify-center hover:bg-black/70 transition"
+                >
+                  <FaTimes />
+                </button>
+                
+                <div className="relative h-80 overflow-hidden rounded-t-3xl">
+                  <img
+                    src={selectedCompleted.book?.image}
+                    alt={selectedCompleted.book?.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                  
+                  <div className="absolute bottom-6 left-6 right-6 text-white">
+                    <h2 className="text-3xl font-bold mb-2">{selectedCompleted.book?.name}</h2>
+                    <p className="text-gold text-lg">By {selectedCompleted.tutor?.name}</p>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Duration:</span>
-                  <span className="font-medium">{selectedCompleted.studyPeriod?.duration || '-'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Highlights:</span>
-                  <span className="font-medium">{selectedCompleted.book?.highlights?.join(", ") || '-'}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Description:</span>
-                  <span className="font-medium">{selectedCompleted.book?.description || '-'}</span>
+
+                <div className="p-8 space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-2xl p-4">
+                      <p className="text-sm text-gray-500 mb-1">Completion Date</p>
+                      <p className="font-semibold text-gray-800">
+                        {selectedCompleted.studyPeriod?.completionDate 
+                          ? new Date(selectedCompleted.studyPeriod.completionDate).toLocaleDateString() 
+                          : '-'}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-2xl p-4">
+                      <p className="text-sm text-gray-500 mb-1">Study Duration</p>
+                      <p className="font-semibold text-gray-800">{selectedCompleted.studyPeriod?.duration || '-'}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-2xl p-4">
+                      <p className="text-sm text-gray-500 mb-1">Category</p>
+                      <p className="font-semibold text-gray-800">{selectedCompleted.book?.category || '-'}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-2xl p-4">
+                      <p className="text-sm text-gray-500 mb-1">Highlights</p>
+                      <p className="font-semibold text-gray-800">{selectedCompleted.book?.highlights?.join(", ") || '-'}</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <p className="text-sm text-gray-500 mb-2">Description</p>
+                    <p className="text-gray-700 leading-relaxed">{selectedCompleted.book?.description || 'No description available.'}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Completed Majlis Delete Confirmation */}
-      {completedToDelete && (
-        <ConfirmationModal
-          isOpen={true}
-          onClose={() => setCompletedToDelete(null)}
-          onConfirm={() => {
-            removeCompleted(completedToDelete);
-            setCompletedToDelete(null);
-          }}
-          title="Delete Completed Majlis"
-          message="Are you sure you want to delete this completed majlis record? This action cannot be undone."
-          type="danger"
-        />
-      )}
-
-      {/* Existing Confirmation Modal for Majlis */}
-      <ConfirmationModal
-        isOpen={confirmationModal.isOpen}
-        onClose={() => setConfirmationModal({ ...confirmationModal, isOpen: false })}
-        onConfirm={handleConfirmAction}
-        title={confirmationModal.title}
-        message={confirmationModal.message}
-        type="danger"
+      {/* SECRET KEY MODAL for Delete Confirmation - Matching Staff Page */}
+      <SecretKeyModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
       />
+
+      {/* MAJLIS FORM MODAL */}
       <MajlisForm
         open={isFormOpen}
         onClose={() => {
