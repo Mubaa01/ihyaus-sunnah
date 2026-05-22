@@ -8,6 +8,14 @@ import {
   FaCopy,
   FaCheckCircle,
 } from "react-icons/fa"
+import QuranVersePanel from "../../components/common/QuranVersePanel"
+
+const donateVerse = {
+  arabic: "مَّثَلُ الَّذِينَ يُنفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ كَمَثَلِ حَبَّةٍ",
+  translation:
+    "Those who spend in Allah's way are like a seed that grows seven ears.",
+  reference: "Surah Al-Baqarah 2:261",
+}
 
 const DonatePage = () => {
   const donationCategories = [
@@ -80,11 +88,11 @@ const DonatePage = () => {
               Support Knowledge & Community Development
             </h1>
 
-            <p className="mb-5 text-2xl font-arabic text-gold" dir="rtl">
+            <p className="hidden mb-5 text-2xl font-arabic text-gold" dir="rtl">
               مَّثَلُ الَّذِينَ يُنفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ
             </p>
 
-            <p className="mb-8 text-xl text-gray-200">
+            <p className="hidden mb-8 text-xl text-gray-200">
               “The example of those who spend their wealth in the way of Allah
               is like a seed that grows seven ears...”
             </p>
@@ -94,6 +102,8 @@ const DonatePage = () => {
               families, spread authentic Islamic knowledge, and build a stronger
               community rooted in sincerity and service.
             </p>
+
+            <QuranVersePanel {...donateVerse} className="mt-8 max-w-3xl" />
 
             <div className="mt-10 flex flex-wrap gap-5">
               <button className="btn-primary flex items-center gap-3">

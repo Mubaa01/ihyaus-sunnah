@@ -14,6 +14,13 @@ import {
 
 import useProgramsAPI from "../../hooks/useProgramsAPI"
 import ProgramCard from "../../components/programs/ProgramCard"
+import QuranVersePanel from "../../components/common/QuranVersePanel"
+
+const programsVerse = {
+  arabic: "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",
+  translation: "Read in the name of your Lord who created.",
+  reference: "Surah Al-Alaq 96:1",
+}
 
 const ProgramsPage = () => {
   const { programs, loading } = useProgramsAPI()
@@ -169,33 +176,7 @@ const ProgramsPage = () => {
               through education rooted in sincerity and purpose.
             </motion.p>
 
-            {/* VERSE CARD */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.1 }}
-              className="bg-white/10 backdrop-blur-2xl border border-white/10 rounded-[2rem] p-8 md:p-10 mb-12 max-w-4xl"
-            >
-
-              <p
-                className="font-arabic text-3xl md:text-5xl leading-loose text-goldSoft mb-7 text-center"
-                dir="rtl"
-              >
-                لَا خَيْرَ فِي كَثِيرٍ مِّن نَّجْوَاهُمْ إِلَّا مَنْ أَمَرَ
-                بِصَدَقَةٍ أَوْ مَعْرُوفٍ أَوْ إِصْلَاحٍ بَيْنَ النَّاسِ
-              </p>
-
-              <p className="text-gray-200 text-lg leading-relaxed italic text-center">
-                “There is no خير in much of their private conversation,
-                except for those who encourage charity, goodness,
-                or reconciliation between people.”
-              </p>
-
-              <p className="text-gold mt-5 font-semibold text-center">
-                — Surah An-Nisa 4:114
-              </p>
-
-            </motion.div>
+            <QuranVersePanel {...programsVerse} className="mb-12 max-w-4xl" />
 
             {/* BUTTONS */}
             <motion.div

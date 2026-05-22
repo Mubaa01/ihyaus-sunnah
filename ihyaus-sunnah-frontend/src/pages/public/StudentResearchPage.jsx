@@ -12,6 +12,7 @@ import {
 } from "react-icons/fi"
 
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI"
+import QuranVersePanel from "../../components/common/QuranVersePanel"
 import {
   getResearchStatusLabel,
   researchCategories,
@@ -25,6 +26,12 @@ const defaultFilters = {
   type: "",
   status: "published",
   search: "",
+}
+
+const researchVerse = {
+  arabic: "قُلْ هَلْ يَسْتَوِي الَّذِينَ يَعْلَمُونَ وَالَّذِينَ لَا يَعْلَمُونَ",
+  translation: "Say: Are those who know equal to those who do not know?",
+  reference: "Surah Az-Zumar 39:9",
 }
 
 const matchesText = (item, search) => {
@@ -148,6 +155,8 @@ const StudentResearchPage = () => {
                 A curated library of Arabic student research across Qur'an, Hadith,
                 Fiqh, Arabic language, education, da'wah, family, and community studies.
               </p>
+
+              <QuranVersePanel {...researchVerse} className="mt-8 max-w-3xl" />
             </motion.div>
 
             <motion.div

@@ -67,7 +67,7 @@ const Navbar = () => {
 
               <div>
                 <h1
-                  className={`text-xl md:text-2xl font-heading font-bold leading-tight transition ${
+                  className={`text-lg md:text-xl font-heading font-bold leading-tight whitespace-nowrap transition ${
                     scrolled
                       ? "text-primary"
                       : "text-white"
@@ -77,7 +77,7 @@ const Navbar = () => {
                 </h1>
 
                 <p
-                  className={`text-[10px] md:text-xs uppercase tracking-[0.28em] leading-tight transition ${
+                  className={`text-[9px] md:text-[10px] uppercase tracking-[0.24em] leading-tight whitespace-nowrap transition ${
                     scrolled
                       ? "text-gold"
                       : "text-goldSoft"
@@ -89,14 +89,14 @@ const Navbar = () => {
             </Link>
 
             {/* DESKTOP NAVIGATION */}
-            <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
+            <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
 
               {navLinks.map((link) => (
                 <NavLink
                   key={link.path}
                   to={link.path}
                   className={({ isActive }) =>
-                    `relative text-sm font-medium tracking-wide transition duration-300 ${
+                    `relative text-sm font-medium tracking-wide whitespace-nowrap transition duration-300 ${
                       isActive
                         ? "text-gold"
                         : scrolled
@@ -122,7 +122,7 @@ const Navbar = () => {
               ))}
 
               {/* ACTIONS */}
-              <div className="flex items-center gap-3 ml-3 xl:ml-5">
+              <div className="flex items-center gap-2.5 ml-2 xl:ml-4">
 
                 <Link to="/donate">
                   <button className="btn-primary px-5 py-2.5">

@@ -9,6 +9,7 @@ import {
   FaHeart,
   FaArrowRight,
 } from "react-icons/fa"
+import QuranVersePanel from "../../components/common/QuranVersePanel"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -83,6 +84,12 @@ const timeline = [
   },
 ]
 
+const aboutVerse = {
+  arabic: "وَقُل رَّبِّ زِدْنِي عِلْمًا",
+  translation: "And say: My Lord, increase me in knowledge.",
+  reference: "Surah Taha 20:114",
+}
+
 const AboutPage = () => {
   return (
     <div className="bg-white overflow-hidden">
@@ -117,7 +124,7 @@ const AboutPage = () => {
             </h1>
 
             <p
-              className="font-arabic text-3xl md:text-5xl text-gold mb-5"
+              className="hidden font-arabic text-3xl md:text-5xl text-gold mb-5"
               dir="rtl"
             >
               وَقُل رَّبِّ زِدْنِي عِلْمًا
@@ -128,6 +135,8 @@ const AboutPage = () => {
               upon authentic Islamic knowledge, noble character and
               beneficial service to society.
             </p>
+
+            <QuranVersePanel {...aboutVerse} className="mb-10 max-w-3xl" />
 
             <div className="flex flex-wrap gap-5">
               <Link to="/programs">

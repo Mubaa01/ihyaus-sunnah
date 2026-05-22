@@ -1,6 +1,13 @@
 // src/components/staff/StaffHero.jsx
 
 import { motion } from "framer-motion";
+import QuranVersePanel from "../common/QuranVersePanel";
+
+const staffVerse = {
+  arabic: "وَلْتَكُن مِّنكُمْ أُمَّةٌ يَدْعُونَ إِلَى الْخَيْرِ",
+  translation: "Let there be from you a community inviting to all that is good.",
+  reference: "Surah Ali Imran 3:104",
+}
 
 const StaffHero = () => {
   return (
@@ -19,7 +26,7 @@ const StaffHero = () => {
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="font-arabic text-4xl md:text-5xl text-secondary-light mb-6"
+              className="hidden font-arabic text-4xl md:text-5xl text-secondary-light mb-6"
               dir="rtl"
             >
               إدارة المؤسسة وهيكلها التعليمي
@@ -38,12 +45,14 @@ const StaffHero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-xl text-gray-200 leading-relaxed max-w-3xl"
+              className="text-xl text-gray-200 leading-relaxed max-w-3xl mb-8"
             >
               Meet the dedicated scholars, teachers, administrators, and
               staff members serving the mission of education, sincerity,
               and community development.
             </motion.p>
+
+            <QuranVersePanel {...staffVerse} className="max-w-3xl" />
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-12">
               {[

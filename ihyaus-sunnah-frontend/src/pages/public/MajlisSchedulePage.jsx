@@ -19,6 +19,7 @@ import {
 
 import useMajlisAPI from "../../hooks/useMajlisAPI";
 import useCompletedMajlisAPI from "../../hooks/useCompletedMajlisAPI";
+import QuranVersePanel from "../../components/common/QuranVersePanel";
 
 const FALLBACK_BOOK_IMAGE =
   "https://images.unsplash.com/photo-1542816417-0983c9c9ad53?q=80&w=1200&auto=format&fit=crop";
@@ -28,6 +29,13 @@ const typeTabs = [
   { value: "public", label: "Public", icon: FaUsers },
   { value: "private", label: "Private", icon: FaLock },
 ];
+
+const majlisVerse = {
+  arabic: "يَرْفَعِ اللَّهُ الَّذِينَ آمَنُوا مِنكُمْ وَالَّذِينَ أُوتُوا الْعِلْمَ دَرَجَاتٍ",
+  translation:
+    "Allah raises those who believe and those given knowledge by degrees.",
+  reference: "Surah Al-Mujadilah 58:11",
+};
 
 const statCardClasses = {
   public: "bg-emerald-50 text-emerald-700 border-emerald-100",
@@ -136,6 +144,8 @@ const MajlisSchedulePage = () => {
                 Follow active study circles, see the books currently being taught,
                 and join public or private sessions with qualified instructors.
               </p>
+
+              <QuranVersePanel {...majlisVerse} className="mt-8 max-w-2xl" />
 
               <div className="mt-10 flex flex-wrap gap-4">
                 <a href="#schedule" className="btn-primary px-7 py-4">

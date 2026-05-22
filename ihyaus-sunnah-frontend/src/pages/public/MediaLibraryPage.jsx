@@ -5,8 +5,16 @@ import { FiVideo, FiMusic, FiPlay, FiUsers, FiFolder, FiArrowLeft } from 'react-
 import MediaPlayerModal from '../../components/media/MediaPlayerModal'
 import useMediaLibraryAPI from '../../hooks/useMediaLibraryAPI'
 import useStaffAPI from '../../hooks/useStaffAPI'
+import QuranVersePanel from '../../components/common/QuranVersePanel'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
+
+const mediaVerse = {
+  arabic: 'ادْعُ إِلَىٰ سَبِيلِ رَبِّكَ بِالْحِكْمَةِ وَالْمَوْعِظَةِ الْحَسَنَةِ',
+  translation:
+    'Invite to the way of your Lord with wisdom and beautiful instruction.',
+  reference: 'Surah An-Nahl 16:125',
+}
 
 const MediaLibraryPage = () => {
   const [activeTab, setActiveTab] = useState('video')
@@ -340,10 +348,12 @@ const MediaLibraryPage = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-2xl text-white/90 max-w-3xl leading-relaxed"
+            className="text-lg md:text-2xl text-white/90 max-w-3xl leading-relaxed mb-8"
           >
             Browse senior staff video and audio collections organized into folders such as Tafseer, Seerah, reminders, and lectures. Short videos and student media remain open for quick access.
           </motion.p>
+
+          <QuranVersePanel {...mediaVerse} className="max-w-3xl" />
         </div>
       </section>
 
