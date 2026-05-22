@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "nodemon  server.js",
     "seed": "node seed.js",
+    "seed:research": "node seed-research.js",
     "seed:50": "node seed-50.js",
     "clear": "node clear.js",
     "school_portfolio:dev": "cd ../school_portfolio && npm run dev"

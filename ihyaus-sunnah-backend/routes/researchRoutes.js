@@ -1,6 +1,7 @@
 import express from "express";
 import {
   createResearch,
+  getResearchById,
   getAllResearch,
   updateResearch,
   deleteResearch
@@ -12,6 +13,7 @@ const router = express.Router();
 
 // GET is public
 router.get("/", getAllResearch);
+router.get("/:id", getResearchById);
 
 // POST, PATCH, DELETE require auth
 router.post("/", authenticate, verifyCrudOperation, createResearch);

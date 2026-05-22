@@ -1,96 +1,94 @@
-// src/hooks/useStudentResearchAPI.js
-// Updated hook using real API instead of mock data
-
-
-import { useEffect, useState } from "react";
-import { researchAPI } from "../services/api";
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { researchAPI } from "../services/api"
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
-} from "../utils/adminDataSync";
+} from "../utils/adminDataSync"
 
-const useStudentResearchAPI = () => {
-  const [research, setResearch] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const normalizeResearch = (item) => ({
+  ...item,
+  id: item._id || item.id,
+  tags: Array.isArray(item.tags) ? item.tags : [],
+})
 
-  const refreshResearch = async (filters = {}) => {
+const useStudentResearchAPI = (initialFilters = {}) => {
+  const [research, setResearch] = useState([])
+  const [meta, setMeta] = useState({})
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  const refreshResearch = useCallback(async (filters = initialFilters) => {
     try {
-      setLoading(true);
-      const response = await researchAPI.getAll(filters);
-      setResearch(response.data || []);
-      setError(null);
+      setLoading(true)
+      const response = await researchAPI.getAll(filters)
+      setResearch((response.data || []).map(normalizeResearch))
+      setMeta(response.meta || {})
+      setError(null)
+      return response
     } catch (err) {
-      console.error("Failed to load research:", err);
-      setError(err.message);
-      setResearch([]);
+      setError(err.message || "Failed to load research")
+      setResearch([])
+      throw err
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }, [])
 
   useEffect(() => {
-    refreshResearch();
+    refreshResearch().catch(() => {})
 
-    const cleanup = subscribeAdminDataUpdates(() => {
-      refreshResearch();
-    });
+    const cleanup = subscribeAdminDataUpdates((payload) => {
+      if (!payload || payload.research) {
+        refreshResearch().catch(() => {})
+      }
+    })
 
-    return cleanup;
-  }, []);
+    return cleanup
+  }, [refreshResearch])
+
+  const getResearchById = async (id) => {
+    const response = await researchAPI.getById(id)
+    return normalizeResearch(response.data)
+  }
 
   const addResearch = async (data, secretKey) => {
-    try {
-      const response = await researchAPI.create(data, secretKey);
-      await refreshResearch();
-      dispatchAdminDataUpdate({ research: true });
-      return response;
-    } catch (err) {
-      console.error("Failed to add research:", err);
-      throw err;
-    }
-  };
+    const response = await researchAPI.create(data, secretKey)
+    await refreshResearch()
+    dispatchAdminDataUpdate({ research: true })
+    return response
+  }
 
   const editResearch = async (id, data, secretKey) => {
-    try {
-      const response = await researchAPI.update(id, data, secretKey);
-      await refreshResearch();
-      dispatchAdminDataUpdate({ research: true });
-      return response;
-    } catch (err) {
-      console.error("Failed to edit research:", err);
-      throw err;
-    }
-  };
+    const response = await researchAPI.update(id, data, secretKey)
+    await refreshResearch()
+    dispatchAdminDataUpdate({ research: true })
+    return response
+  }
 
   const removeResearch = async (id, secretKey) => {
-    try {
-      const existing = research.find((item) => item._id === id);
-      await researchAPI.delete(id, secretKey);
-      logActivity({
-        type: "research",
-        action: "Removed research",
-        details: `${existing?.title || "A research item"} was deleted`,
-        reference: id,
-      });
-      await refreshResearch();
-      dispatchAdminDataUpdate({ research: true });
-    } catch (err) {
-      console.error("Failed to remove research:", err);
-      throw err;
-    }
-  };
+    await researchAPI.delete(id, secretKey)
+    await refreshResearch()
+    dispatchAdminDataUpdate({ research: true })
+  }
+
+  const publishedResearch = useMemo(
+    () => research.filter((item) => item.status === "published"),
+    [research]
+  )
 
   return {
     research,
+    researchItems: research,
+    publishedResearch,
+    meta,
     loading,
     error,
-
     refreshResearch,
+    getResearchById,
     addResearch,
     editResearch,
     removeResearch,
-  };
-};
+  }
+}
 
-export default useStudentResearchAPI;
+export default useStudentResearchAPI

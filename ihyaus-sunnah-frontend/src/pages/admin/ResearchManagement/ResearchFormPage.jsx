@@ -1,18 +1,26 @@
 import { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
-import { FaBookOpen, FaUserGraduate, FaUpload, FaFilePdf, FaSave, FaImage } from "react-icons/fa"
+import { FaFilePdf, FaImage, FaSave, FaUpload } from "react-icons/fa"
 
-import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
-// Removed mock data import
-import { getResearchImageUrl } from "../../../utils/researchPdfStorage"
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
+import {
+  researchCategories,
+  researchStatusOptions,
+  researchTypes,
+} from "../../../constants/researchOptions"
+import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
+import {
+  getResearchImageUrl,
+  saveResearchImage,
+  saveResearchPdf,
+} from "../../../utils/researchPdfStorage"
 
 const defaultForm = {
   title: "",
   author: "",
   researchCategory: "",
-  researchType: "Graduation Thesis",
+  researchType: "بحث التخرج",
   status: "published",
   summary: "",
   pdfUrl: "",
@@ -26,19 +34,51 @@ const defaultForm = {
   tags: "",
 }
 
+const createFileKey = (prefix, file) =>
+  `${prefix}-${Date.now()}-${file.name.replace(/\s+/g, "-").toLowerCase()}`
+
 const ResearchFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
-  const { addResearch, editResearch } = useStudentResearchAPI()
+  const { addResearch, editResearch, getResearchById } = useStudentResearchAPI()
 
   const [formData, setFormData] = useState(defaultForm)
+  const [previewImage, setPreviewImage] = useState("")
   const [showModal, setShowModal] = useState(false)
+  const [loading, setLoading] = useState(Boolean(id))
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState("")
 
-  // TODO: Replace with real API call to fetch research by ID
-  // useEffect(() => {
-  //   if (!id) return;
-  //   // Implement API fetch for research by ID
-  // }, [id]);
+  useEffect(() => {
+    const loadResearch = async () => {
+      if (!id) return
+
+      try {
+        setLoading(true)
+        const existing = await getResearchById(id)
+        setFormData({
+          ...defaultForm,
+          ...existing,
+          tags: existing.tags?.join(", ") || "",
+          pdfFile: null,
+          imageFile: null,
+        })
+
+        if (existing.imageUrl) {
+          setPreviewImage(existing.imageUrl)
+        } else if (existing.imageKey) {
+          const localImage = await getResearchImageUrl(existing.imageKey)
+          setPreviewImage(localImage || "")
+        }
+      } catch (err) {
+        setError(err.message || "Failed to load research item")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadResearch()
+  }, [id])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -50,15 +90,16 @@ const ResearchFormPage = () => {
     if (!file) return
 
     if (file.type !== "application/pdf") {
-      alert("Please upload a PDF file.")
+      setError("Please upload a PDF file.")
       return
     }
 
+    setError("")
     setFormData((prev) => ({
       ...prev,
       pdfFile: file,
       pdfFileName: file.name,
-      pdfKey: prev.pdfKey || "",
+      pdfKey: prev.pdfKey || createFileKey("research-pdf", file),
       pdfUrl: "",
     }))
   }
@@ -68,15 +109,17 @@ const ResearchFormPage = () => {
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      alert("Please upload an image file.")
+      setError("Please upload an image file.")
       return
     }
 
+    setError("")
+    setPreviewImage(URL.createObjectURL(file))
     setFormData((prev) => ({
       ...prev,
       imageFile: file,
       imageFileName: file.name,
-      imageKey: prev.imageKey || "",
+      imageKey: prev.imageKey || createFileKey("research-image", file),
       imageUrl: "",
     }))
   }
@@ -86,48 +129,87 @@ const ResearchFormPage = () => {
     setShowModal(true)
   }
 
-  const confirmSave = async () => {
-    console.log('Confirm save called, formData:', formData)
-    const payload = {
-      ...formData,
-      tags: formData.tags
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter(Boolean),
-    }
+  const confirmSave = async (secretKey) => {
+    setSaving(true)
+    setError("")
 
-    if (id) {
-      await editResearch(id, payload)
-    } else {
-      await addResearch(payload)
-    }
+    try {
+      if (formData.pdfFile && formData.pdfKey) {
+        await saveResearchPdf(formData.pdfKey, formData.pdfFile)
+      }
 
-    setShowModal(false)
-    navigate("/admin/research")
+      if (formData.imageFile && formData.imageKey) {
+        await saveResearchImage(formData.imageKey, formData.imageFile)
+      }
+
+      const {
+        pdfFile,
+        imageFile,
+        id: _localId,
+        _id,
+        createdAt,
+        updatedAt,
+        __v,
+        ...rest
+      } = formData
+
+      const payload = {
+        ...rest,
+        tags: formData.tags
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean),
+      }
+
+      if (id) {
+        await editResearch(id, payload, secretKey)
+      } else {
+        await addResearch(payload, secretKey)
+      }
+
+      setShowModal(false)
+      navigate("/admin/research")
+    } catch (err) {
+      setError(err.message || "Failed to save research")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="rounded-2xl border border-gray-100 bg-white p-10 text-center shadow-soft">
+        <p className="font-semibold text-primary">Loading research item...</p>
+      </div>
+    )
   }
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl mx-auto"
+      className="mx-auto max-w-5xl"
     >
-      <div className="bg-white rounded-3xl shadow-premium overflow-hidden">
-        <div className="bg-primary text-white p-10">
-          <h1 className="text-4xl font-bold mb-3">
+      <div className="overflow-hidden rounded-2xl bg-white shadow-premium">
+        <div className="bg-primary p-8 text-white md:p-10">
+          <h1 className="mb-3 text-4xl font-bold">
             {id ? "Edit Research" : "Create Research"}
           </h1>
-          <p className="text-gray-200 max-w-2xl">
-            {id
-              ? "Update research metadata, attach documentation, and publish to the student research repository."
-              : "Add a new research item, attach a PDF, and publish the completed work for public access."}
+          <p className="max-w-2xl text-gray-200">
+            Add Arabic research metadata, optional image, PDF document, and publishing status.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-10 space-y-8">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Title</label>
+        <form onSubmit={handleSubmit} className="space-y-8 p-6 md:p-10">
+          {error && (
+            <div className="rounded-2xl border border-red-100 bg-red-50 p-4 text-sm font-semibold text-red-700">
+              {error}
+            </div>
+          )}
+
+          <div className="grid gap-6 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Title / عنوان البحث
               <input
                 type="text"
                 name="title"
@@ -135,11 +217,12 @@ const ResearchFormPage = () => {
                 onChange={handleChange}
                 className="input-primary"
                 required
+                dir="auto"
               />
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Author</label>
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Author / اسم الباحث
               <input
                 type="text"
                 name="author"
@@ -147,13 +230,14 @@ const ResearchFormPage = () => {
                 onChange={handleChange}
                 className="input-primary"
                 required
+                dir="auto"
               />
-            </div>
+            </label>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+          <div className="grid gap-6 md:grid-cols-3">
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Category / التصنيف
               <select
                 name="researchCategory"
                 value={formData.researchCategory}
@@ -162,171 +246,181 @@ const ResearchFormPage = () => {
                 required
               >
                 <option value="">Select category</option>
-                {categories.map((category) => (
+                {researchCategories.map((category) => (
                   <option key={category} value={category}>
                     {category}
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Research Type</label>
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Research Type / نوع البحث
               <select
                 name="researchType"
                 value={formData.researchType}
                 onChange={handleChange}
                 className="input-primary"
+                required
               >
-                {types.map((type) => (
+                {researchTypes.map((type) => (
                   <option key={type} value={type}>
                     {type}
                   </option>
                 ))}
               </select>
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Status / الحالة
               <select
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
                 className="input-primary"
               >
-                <option value="published">Published</option>
-                <option value="draft">Draft</option>
+                {researchStatusOptions.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
               </select>
-            </div>
+            </label>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Summary</label>
+          <label className="grid gap-2 text-sm font-semibold text-gray-700">
+            Summary / ملخص البحث
             <textarea
               name="summary"
               value={formData.summary}
               onChange={handleChange}
-              rows={5}
+              rows={6}
               className="input-primary"
               required
+              dir="auto"
             />
-          </div>
+          </label>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">PDF Attachment</label>
-              <div className="flex items-center gap-3">
-                <label
-                  htmlFor="pdf-upload"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 cursor-pointer hover:border-primary hover:text-primary transition"
-                >
-                  <FaUpload /> Upload PDF
-                </label>
-                <input
-                  id="pdf-upload"
-                  type="file"
-                  accept="application/pdf"
-                  onChange={handlePdfUpload}
-                  className="hidden"
-                />
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-gray-100 p-5">
+              <div className="mb-4 flex items-center gap-3 text-primary">
+                <FaFilePdf />
+                <h2 className="font-bold">PDF Document</h2>
               </div>
-              <p className="text-sm text-gray-500 mt-2">
-                Select a PDF file to attach, or provide a direct URL below.
+              <label
+                htmlFor="pdf-upload"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 transition hover:border-primary hover:text-primary"
+              >
+                <FaUpload /> Upload PDF
+              </label>
+              <input
+                id="pdf-upload"
+                type="file"
+                accept="application/pdf"
+                onChange={handlePdfUpload}
+                className="hidden"
+              />
+              <p className="mt-3 text-sm text-gray-500">
+                Use upload for local admin storage or paste a public PDF URL below.
               </p>
+              {formData.pdfFileName && (
+                <p className="mt-3 text-sm font-semibold text-green-700">{formData.pdfFileName}</p>
+              )}
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">PDF URL</label>
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              PDF URL
               <input
-                type="text"
+                type="url"
                 name="pdfUrl"
                 value={formData.pdfUrl}
                 onChange={handleChange}
                 className="input-primary"
-                placeholder="https://example.com/research-document.pdf"
+                placeholder="https://example.com/research.pdf"
               />
-            </div>
+              <span className="text-xs font-normal text-gray-500">
+                Public URL is best for visitors on different devices.
+              </span>
+            </label>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">PDF File Name</label>
+          <div className="grid gap-6 md:grid-cols-2">
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              PDF File Name
               <input
                 type="text"
                 name="pdfFileName"
                 value={formData.pdfFileName}
                 onChange={handleChange}
                 className="input-primary"
-                placeholder="Optional filename for display"
+                placeholder="research-file.pdf"
               />
-            </div>
+            </label>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Tags</label>
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Tags / الوسوم
               <input
                 type="text"
                 name="tags"
                 value={formData.tags}
                 onChange={handleChange}
                 className="input-primary"
-                placeholder="e.g. tajweed, youth, hadith"
+                placeholder="الحديث، السنة، التربية"
+                dir="auto"
               />
-            </div>
+            </label>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Research Image</label>
-              <div className="flex items-center gap-3">
-                <label
-                  htmlFor="image-upload"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 cursor-pointer hover:border-primary hover:text-primary transition"
-                >
-                  <FaUpload /> Upload Image
-                </label>
-                <input
-                  id="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="rounded-2xl border border-gray-100 p-5">
+              <div className="mb-4 flex items-center gap-3 text-primary">
+                <FaImage />
+                <h2 className="font-bold">Research Image</h2>
               </div>
-              <p className="text-sm text-gray-500 mt-2">
-                Select an image to represent the research.
-              </p>
-              {formData.imageFileName && (
-                <p className="text-sm text-green-600 mt-2 font-semibold">
-                  ✓ {formData.imageFileName}
-                </p>
+              {previewImage && (
+                <img
+                  src={previewImage}
+                  alt="Research preview"
+                  className="mb-4 h-44 w-full rounded-2xl object-cover"
+                />
               )}
+              <label
+                htmlFor="image-upload"
+                className="inline-flex cursor-pointer items-center gap-2 rounded-2xl border border-dashed border-gray-300 bg-white px-4 py-3 text-sm text-gray-600 transition hover:border-primary hover:text-primary"
+              >
+                <FaUpload /> Upload Image
+              </label>
+              <input
+                id="image-upload"
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <p className="mt-3 text-sm text-gray-500">Optional. Cards still look clean without an image.</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Image URL</label>
+            <label className="grid gap-2 text-sm font-semibold text-gray-700">
+              Image URL
               <input
-                type="text"
+                type="url"
                 name="imageUrl"
                 value={formData.imageUrl}
                 onChange={handleChange}
                 className="input-primary"
                 placeholder="https://example.com/research-image.jpg"
               />
-            </div>
+              <span className="text-xs font-normal text-gray-500">
+                Optional public image URL.
+              </span>
+            </label>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
-            <button
-              type="button"
-              onClick={() => navigate("/admin/research")}
-              className="btn-dark-outline"
-            >
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-gray-100 pt-4 sm:flex-row">
+            <button type="button" onClick={() => navigate("/admin/research")} className="btn-dark-outline">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-primary inline-flex items-center gap-2"
-            >
+            <button type="submit" className="btn-primary inline-flex items-center gap-2">
               <FaSave /> {id ? "Save Updates" : "Publish Research"}
             </button>
           </div>
@@ -337,6 +431,7 @@ const ResearchFormPage = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={confirmSave}
+        loading={saving}
       />
     </motion.div>
   )

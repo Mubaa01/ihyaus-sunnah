@@ -1,20 +1,76 @@
-import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import useStudentResearchAPI from '../../hooks/useStudentResearchAPI'
-import { getResearchPdfUrl, getResearchImageUrl } from '../../utils/researchPdfStorage'
-import { FiSearch, FiBookOpen, FiUsers, FiTrendingUp } from 'react-icons/fi'
+import { useEffect, useMemo, useState } from "react"
+import { motion } from "framer-motion"
+import {
+  FiBookOpen,
+  FiDownload,
+  FiFileText,
+  FiFilter,
+  FiRefreshCw,
+  FiSearch,
+  FiUsers,
+} from "react-icons/fi"
+
+import useStudentResearchAPI from "../../hooks/useStudentResearchAPI"
+import {
+  getResearchStatusLabel,
+  researchCategories,
+  researchStatusOptions,
+  researchTypes,
+} from "../../constants/researchOptions"
+import { getResearchImageUrl, getResearchPdfUrl } from "../../utils/researchPdfStorage"
+
+const defaultFilters = {
+  category: "",
+  type: "",
+  status: "published",
+  search: "",
+}
+
+const matchesText = (item, search) => {
+  const term = search.trim().toLowerCase()
+  if (!term) return true
+
+  return [item.title, item.author, item.summary, ...(item.tags || [])]
+    .filter(Boolean)
+    .some((value) => value.toLowerCase().includes(term))
+}
+
+const formatDate = (date) => {
+  if (!date) return "غير محدد"
+
+  return new Intl.DateTimeFormat("ar", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }).format(new Date(date))
+}
 
 const StudentResearchPage = () => {
-  const [filters, setFilters] = useState({
-    category: '',
-    type: '',
-    status: '',
-    search: '',
-  })
-
-  const { research } = useStudentResearchAPI()
+  const [filters, setFilters] = useState(defaultFilters)
   const [pdfLinks, setPdfLinks] = useState({})
   const [imageLinks, setImageLinks] = useState({})
+
+  const { research, loading, error } = useStudentResearchAPI()
+
+  const filteredResearch = useMemo(() => {
+    return research.filter((item) => {
+      const matchesCategory = !filters.category || item.researchCategory === filters.category
+      const matchesType = !filters.type || item.researchType === filters.type
+      const matchesStatus = !filters.status || item.status === filters.status
+
+      return matchesCategory && matchesType && matchesStatus && matchesText(item, filters.search)
+    })
+  }, [filters, research])
+
+  const authorsCount = useMemo(
+    () => new Set(filteredResearch.map((item) => item.author).filter(Boolean)).size,
+    [filteredResearch]
+  )
+
+  const availablePdfCount = useMemo(
+    () => filteredResearch.filter((item) => item.pdfUrl || item.pdfKey).length,
+    [filteredResearch]
+  )
 
   useEffect(() => {
     const loadFileLinks = async () => {
@@ -22,18 +78,15 @@ const StudentResearchPage = () => {
       const imgUrls = {}
 
       await Promise.all(
-        researchItems.map(async (item) => {
+        filteredResearch.map(async (item) => {
           if (item.pdfKey && !item.pdfUrl) {
             const url = await getResearchPdfUrl(item.pdfKey)
-            if (url) {
-              pdfUrls[item.id] = url
-            }
+            if (url) pdfUrls[item.id] = url
           }
+
           if (item.imageKey && !item.imageUrl) {
             const url = await getResearchImageUrl(item.imageKey)
-            if (url) {
-              imgUrls[item.id] = url
-            }
+            if (url) imgUrls[item.id] = url
           }
         })
       )
@@ -43,7 +96,7 @@ const StudentResearchPage = () => {
     }
 
     loadFileLinks()
-  }, [researchItems])
+  }, [filteredResearch])
 
   const handleChange = (field) => (event) => {
     setFilters((prev) => ({
@@ -52,227 +105,292 @@ const StudentResearchPage = () => {
     }))
   }
 
+  const setCategory = (category) => {
+    setFilters((prev) => ({
+      ...prev,
+      category,
+    }))
+  }
+
+  const resetFilters = () => setFilters(defaultFilters)
+
   return (
-    <div className="overflow-hidden bg-white">
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        <div className="absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2000&auto=format&fit=crop"
-            alt="Student research"
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-primary/70" />
-        </div>
+    <div className="bg-[#f7f4ef] text-dark">
+      <section className="relative min-h-[72vh] overflow-hidden bg-primary">
+        <img
+          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2000&auto=format&fit=crop"
+          alt="Arabic research library"
+          className="absolute inset-0 h-full w-full object-cover opacity-35"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,38,29,0.98),rgba(7,38,29,0.86),rgba(7,38,29,0.54))]" />
 
-        <div className="container-custom relative z-10 py-32 text-white">
-          <motion.span
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-block uppercase tracking-[0.3em] text-goldSoft font-semibold mb-6"
-          >
-            Student Research
-          </motion.span>
+        <div className="container-custom relative z-10 flex min-h-[72vh] items-end py-16 text-white md:py-20">
+          <div className="grid w-full gap-10 lg:grid-cols-[1fr_360px] lg:items-end">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+            >
+              <span className="mb-5 inline-flex items-center gap-2 border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-goldSoft backdrop-blur">
+                <FiBookOpen />
+                Student Research
+              </span>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="text-5xl md:text-6xl font-heading font-bold leading-tight max-w-4xl"
-          >
-            Research & Academic Projects
-            <span className="block text-gold mt-3">
-              by students of Ihyaus Sunnah Foundation
-            </span>
-          </motion.h1>
+              <h1 className="max-w-5xl text-4xl font-heading font-bold leading-tight md:text-6xl">
+                Research & Academic Projects
+                <span className="mt-4 block font-arabic text-gold" dir="rtl">
+                  بحوث الطلاب العلمية
+                </span>
+              </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            className="max-w-3xl text-lg text-gray-200 leading-relaxed mt-8"
-          >
-            Explore scholarly works that reflect our commitment to Islamic knowledge,
-            academic growth, and practical research rooted in Qur'anic and Sunnah studies.
-          </motion.p>
+              <p className="mt-6 max-w-3xl text-base leading-8 text-gray-200 md:text-lg">
+                A curated library of Arabic student research across Qur'an, Hadith,
+                Fiqh, Arabic language, education, da'wah, family, and community studies.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="grid grid-cols-3 border border-white/15 bg-black/20 backdrop-blur-md"
+            >
+              <div className="border-r border-white/10 p-5">
+                <p className="text-xs uppercase tracking-[0.16em] text-gray-300">Works</p>
+                <p className="mt-2 text-3xl font-bold text-white">{filteredResearch.length}</p>
+              </div>
+              <div className="border-r border-white/10 p-5">
+                <p className="text-xs uppercase tracking-[0.16em] text-gray-300">Authors</p>
+                <p className="mt-2 text-3xl font-bold text-white">{authorsCount}</p>
+              </div>
+              <div className="p-5">
+                <p className="text-xs uppercase tracking-[0.16em] text-gray-300">PDFs</p>
+                <p className="mt-2 text-3xl font-bold text-white">{availablePdfCount}</p>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      <section className="section-padding py-20 bg-cream">
-        <div className="container-custom">
-          <div className="grid lg:grid-cols-[1.4fr_2fr] gap-10">
-            <div className="space-y-6">
-              <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-soft">
-                <h2 className="text-3xl font-bold text-primary mb-3">Filter Research</h2>
-                <p className="text-gray-600 leading-relaxed">
-                  Narrow your search by category, project type, or publication status.
-                </p>
+      <section className="border-b border-gray-200 bg-white">
+        <div className="container-custom -mt-10 relative z-20 pb-6">
+          <div className="border border-gray-200 bg-white p-4 shadow-soft md:p-5">
+            <div className="grid gap-4 xl:grid-cols-[1fr_220px_220px_180px]">
+              <label className="relative block">
+                <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="search"
+                  value={filters.search}
+                  onChange={handleChange("search")}
+                  placeholder="Search title, author, summary, or tags"
+                  className="h-12 w-full border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm outline-none transition focus:border-primary focus:bg-white"
+                />
+              </label>
 
-                <div className="mt-8 grid gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                    <select
-                      value={filters.category}
-                      onChange={handleChange('category')}
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3"
-                    >
-                      <option value="">All Categories</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              <select
+                value={filters.type}
+                onChange={handleChange("type")}
+                className="h-12 border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition focus:border-primary focus:bg-white"
+              >
+                <option value="">All Types</option>
+                {researchTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))}
+              </select>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Type</label>
-                    <select
-                      value={filters.type}
-                      onChange={handleChange('type')}
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3"
-                    >
-                      <option value="">All Types</option>
-                      {types.map((type) => (
-                        <option key={type} value={type}>
-                          {type}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+              <select
+                value={filters.status}
+                onChange={handleChange("status")}
+                className="h-12 border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition focus:border-primary focus:bg-white"
+              >
+                <option value="">All Status</option>
+                {researchStatusOptions.map((status) => (
+                  <option key={status.value} value={status.value}>
+                    {status.label}
+                  </option>
+                ))}
+              </select>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Status</label>
-                    <select
-                      value={filters.status}
-                      onChange={handleChange('status')}
-                      className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3"
-                    >
-                      <option value="">All Status</option>
-                      <option value="published">Published</option>
-                      <option value="draft">Draft</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">Search</label>
-                    <div className="relative">
-                      <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-                      <input
-                        type="text"
-                        value={filters.search}
-                        onChange={handleChange('search')}
-                        placeholder="Search research titles, abstracts, or tags"
-                        className="w-full rounded-2xl border border-gray-200 bg-white px-12 py-3"
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4">
-                <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-soft">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="rounded-2xl bg-primary/10 text-primary p-3">
-                      <FiBookOpen />
-                    </div>
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Total research</p>
-                      <p className="text-3xl font-bold text-primary">{researchItems.length}</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600">Relevant works matching your filters.</p>
-                </div>
-
-                <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-soft">
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="rounded-2xl bg-gold/10 text-gold p-3">
-                      <FiTrendingUp />
-                    </div>
-                    <div>
-                      <p className="text-sm uppercase tracking-[0.3em] text-gray-500">Student authors</p>
-                      <p className="text-3xl font-bold text-primary">Active contributors</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600">Showcasing research led by our student community.</p>
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={resetFilters}
+                className="inline-flex h-12 items-center justify-center gap-2 border border-gray-200 bg-white px-4 text-sm font-semibold text-primary transition hover:border-primary hover:bg-primary hover:text-white"
+              >
+                <FiRefreshCw />
+                Reset
+              </button>
             </div>
 
-            <div className="space-y-6">
-              {researchItems.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center shadow-soft">
-                  <p className="text-xl font-semibold text-primary mb-3">No research items found</p>
-                  <p className="text-gray-600">Try widening your filters or search criteria.</p>
-                </div>
-              ) : (
-                <div className="grid gap-6">
-                  {researchItems.map((item) => (
-                    <motion.article
-                      key={item.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-soft"
-                    >
-                      {(item.imageUrl || imageLinks[item.id]) && (
-                        <div className="w-full h-40 overflow-hidden bg-gray-100">
-                          <img
-                            src={item.imageUrl || imageLinks[item.id]}
-                            alt={item.title}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="p-8">
-                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-                          <div>
-                            <p className="text-sm uppercase tracking-[0.3em] text-gold font-semibold">{item.researchType}</p>
-                            <h3 className="text-2xl font-bold text-primary mt-3">{item.title}</h3>
-                          </div>
-                          <div className="text-right">
-                            <p className="text-sm text-gray-500">Status</p>
-                            <p className="font-semibold capitalize">{item.status}</p>
-                          </div>
-                        </div>
-
-                        <p className="text-gray-700 leading-relaxed mb-6">{item.summary}</p>
-
-                        <div className="grid sm:grid-cols-3 gap-4 text-sm text-gray-500">
-                          <div>
-                            <p className="font-semibold text-gray-700">Category</p>
-                            <p>{item.researchCategory}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-700">Author</p>
-                            <p>{item.author}</p>
-                          </div>
-                          <div>
-                            <p className="font-semibold text-gray-700">Submitted</p>
-                            <p>{new Date(item.submittedAt).toLocaleDateString()}</p>
-                          </div>
-                        </div>
-
-                        {(item.pdfUrl || pdfLinks[item.id]) && (
-                          <div className="mt-4 pt-4 border-t border-gray-100">
-                            <a
-                              href={item.pdfUrl || pdfLinks[item.id]}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center gap-2 rounded-full bg-primary/10 text-primary px-4 py-2 text-sm font-medium hover:bg-primary/20 transition"
-                            >
-                              <FiBookOpen />
-                              {item.pdfFileName || 'View PDF Document'}
-                            </a>
-                          </div>
-                        )}
-                      </div>
-                    </motion.article>
-                  ))}
-                </div>
-              )}
+            <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
+              <button
+                type="button"
+                onClick={() => setCategory("")}
+                className={`shrink-0 border px-4 py-2 text-sm font-semibold transition ${
+                  filters.category === ""
+                    ? "border-primary bg-primary text-white"
+                    : "border-gray-200 bg-white text-gray-600 hover:border-primary hover:text-primary"
+                }`}
+              >
+                All Categories
+              </button>
+              {researchCategories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => setCategory(category)}
+                  dir="rtl"
+                  className={`shrink-0 border px-4 py-2 font-arabic text-sm font-semibold transition ${
+                    filters.category === category
+                      ? "border-primary bg-primary text-white"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-primary hover:text-primary"
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      <section className="section-padding py-12 md:py-16">
+        <div className="container-custom">
+          <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <span className="mb-3 inline-flex items-center gap-2 text-sm font-semibold text-gold">
+                <FiFilter />
+                Research Library
+              </span>
+              <h2 className="text-3xl font-bold text-primary md:text-4xl">Browse student works</h2>
+            </div>
+            <p className="max-w-xl text-sm leading-7 text-gray-600 md:text-right">
+              Showing {filteredResearch.length} result{filteredResearch.length === 1 ? "" : "s"}
+              {filters.category ? ` in ${filters.category}` : ""}.
+            </p>
+          </div>
+
+          {loading && (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {[1, 2, 3, 4, 5, 6].map((item) => (
+                <div key={item} className="h-80 animate-pulse border border-gray-200 bg-white p-5">
+                  <div className="mb-5 h-36 bg-gray-100" />
+                  <div className="mb-3 h-4 w-24 bg-gray-100" />
+                  <div className="mb-4 h-6 w-3/4 bg-gray-100" />
+                  <div className="h-4 w-full bg-gray-100" />
+                </div>
+              ))}
+            </div>
+          )}
+
+          {!loading && error && (
+            <div className="border border-red-100 bg-red-50 p-10 text-center text-red-700">
+              {error}
+            </div>
+          )}
+
+          {!loading && !error && filteredResearch.length === 0 && (
+            <div className="border border-gray-200 bg-white p-12 text-center shadow-soft">
+              <FiSearch className="mx-auto mb-4 text-3xl text-primary" />
+              <p className="mb-3 text-xl font-semibold text-primary">No research items found</p>
+              <p className="text-gray-600">Try widening your filters or search criteria.</p>
+            </div>
+          )}
+
+          {!loading && !error && filteredResearch.length > 0 && (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {filteredResearch.map((item, index) => {
+                const imageSrc = item.imageUrl || imageLinks[item.id]
+                const pdfSrc = item.pdfUrl || pdfLinks[item.id]
+
+                return (
+                  <motion.article
+                    key={item.id}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-80px" }}
+                    transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.16) }}
+                    className="group flex min-h-[460px] flex-col overflow-hidden border border-gray-200 bg-white shadow-card transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft"
+                  >
+                    <div className="relative h-44 overflow-hidden bg-primary/5">
+                      {imageSrc ? (
+                        <img
+                          src={imageSrc}
+                          alt={item.title}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#0B3D2E,#C9A646)]">
+                          <FiFileText className="text-5xl text-white/85" />
+                        </div>
+                      )}
+                      <span className="absolute left-4 top-4 bg-white px-3 py-1 text-xs font-bold text-primary shadow-card">
+                        {getResearchStatusLabel(item.status)}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-1 flex-col p-5">
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <span className="font-arabic text-sm font-semibold text-gold" dir="rtl">
+                          {item.researchCategory}
+                        </span>
+                        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">
+                          {item.researchType}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-bold leading-snug text-primary" dir="auto">
+                        {item.title}
+                      </h3>
+
+                      <p className="mt-2 text-sm font-medium text-gray-500">By {item.author}</p>
+
+                      <p className="mt-4 line-clamp-4 flex-1 text-sm leading-7 text-gray-600" dir="auto">
+                        {item.summary}
+                      </p>
+
+                      <div className="mt-5 flex flex-wrap gap-2">
+                        {(item.tags || []).slice(0, 3).map((tag) => (
+                          <span
+                            key={tag}
+                            className="border border-gray-200 bg-gray-50 px-3 py-1 font-arabic text-xs font-semibold text-gray-600"
+                            dir="rtl"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="mt-5 flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
+                        <div className="text-xs text-gray-500">
+                          <p className="font-semibold text-gray-700">Added</p>
+                          <p>{formatDate(item.createdAt)}</p>
+                        </div>
+
+                        {pdfSrc ? (
+                          <a
+                            href={pdfSrc}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primaryLight"
+                          >
+                            <FiDownload />
+                            PDF
+                          </a>
+                        ) : (
+                          <span className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500">
+                            <FiBookOpen />
+                            No PDF
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </motion.article>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
     </div>

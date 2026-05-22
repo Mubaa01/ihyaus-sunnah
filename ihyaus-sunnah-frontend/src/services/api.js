@@ -309,6 +309,9 @@ export const researchAPI = {
     return apiCall(`/research?${params}`);
   },
 
+  getById: (id) =>
+    apiCall(`/research/${id}`),
+
   create: (data, secretKey) =>
     apiCall("/research", {
       method: "POST",
