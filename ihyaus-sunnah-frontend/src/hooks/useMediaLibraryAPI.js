@@ -8,7 +8,7 @@ import {
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync";
 
-const useMediaLibraryAPI = () => {
+const useMediaLibraryAPI = (initialFilters = {}) => {
   const [mediaItems, setMediaItems] = useState([]);
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,16 +40,22 @@ const useMediaLibraryAPI = () => {
   };
 
   useEffect(() => {
-    refreshMedia();
+    refreshMedia(initialFilters);
     refreshPlaylists();
+  }, [JSON.stringify(initialFilters)]);
 
+  useEffect(() => {
     const cleanup = subscribeAdminDataUpdates(() => {
-      refreshMedia();
+      refreshMedia(initialFilters);
       refreshPlaylists();
     });
 
     return cleanup;
   }, []);
+
+  const categories = Array.from(
+    new Set(mediaItems.map((item) => item.mediaCategory).filter(Boolean))
+  ).sort();
 
   const addMedia = async (data, secretKey) => {
     try {
@@ -102,6 +108,7 @@ const useMediaLibraryAPI = () => {
   return {
     mediaItems,
     playlists,
+    categories,
     loading,
     error,
 

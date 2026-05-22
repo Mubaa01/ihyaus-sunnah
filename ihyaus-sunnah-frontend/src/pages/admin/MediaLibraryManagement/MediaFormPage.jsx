@@ -19,6 +19,7 @@ import {
 import { dispatchAdminDataUpdate } from "../../../utils/adminDataSync"
 
 import useStaffAPI from "../../../hooks/useStaffAPI"
+import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -39,6 +40,7 @@ const MediaFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { staff } = useStaffAPI()
+  const { categories } = useMediaLibraryAPI({})
 
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
@@ -46,9 +48,6 @@ const MediaFormPage = () => {
   const [playlists, setPlaylists] = useState([])
   const [filePreview, setFilePreview] = useState("")
   const [thumbnailPreview, setThumbnailPreview] = useState("")
-
-  // TODO: Fetch media categories from backend API
-  const categories = []
 
   // LOAD EXISTING MEDIA (EDIT MODE)
   // TODO: Fetch media by ID from backend API for edit mode
@@ -216,14 +215,20 @@ const MediaFormPage = () => {
               required
             />
 
-            <Select
+            <Input
               label="Category"
+              list="media-category-options"
               name="mediaCategory"
               value={formData.mediaCategory}
               onChange={handleChange}
-              options={categories.map(cat => ({ value: cat, label: cat }))}
+              placeholder="e.g., Tafsir, Aqeedah, Reminder"
               required
             />
+            <datalist id="media-category-options">
+              {categories.map((category) => (
+                <option key={category} value={category} />
+              ))}
+            </datalist>
 
             <Select
               label="Visibility"

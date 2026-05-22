@@ -2,6 +2,10 @@ import express from "express";
 import {
   createMedia,
   getAllMedia,
+  getTelegramMediaUrl,
+  getTelegramThumbnail,
+  getTelegramThumbnailUrl,
+  ingestTelegramMedia,
   updateMedia,
   deleteMedia,
   createPlaylist,
@@ -15,6 +19,10 @@ const router = express.Router();
 // Media routes - GET is public
 router.get("/", getAllMedia);
 router.get("/playlists", getPlaylists);
+router.get("/:id/telegram-url", getTelegramMediaUrl);
+router.get("/:id/telegram-thumbnail", getTelegramThumbnail);
+router.get("/:id/telegram-thumbnail-url", getTelegramThumbnailUrl);
+router.post("/telegram/webhook", ingestTelegramMedia);
 
 // Media routes - POST, PATCH, DELETE require auth
 router.post("/", authenticate, verifyCrudOperation, createMedia);

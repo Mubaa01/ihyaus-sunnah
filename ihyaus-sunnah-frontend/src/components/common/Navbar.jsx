@@ -44,25 +44,22 @@ const Navbar = () => {
       <header
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-white/90 backdrop-blur-xl shadow-navbar py-3"
-            : "bg-primary py-5"
+            ? "bg-white/90 backdrop-blur-xl shadow-navbar py-2"
+            : "bg-primary py-3"
         } `}
       >
-        <div className="py-0 px-16">
+        <div className="px-4 sm:px-8 lg:px-12 xl:px-16">
 
           <div className="flex items-center justify-between">
 
             {/* LOGO */}
             <Link
               to="/"
-              className="flex items-center gap-4 group"
+              className="flex items-center gap-3 group"
             >
               <div className="relative">
-                <div className="w-14 h-14 rounded-2xl  flex items-center justify-center shadow-lg group-hover:scale-105 transition duration-300">
-
-                  
-                    <img className="md:size-16" src="../../../public/ihyau.svg" alt="Logo" />
-                 
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center shadow-md group-hover:scale-105 transition duration-300">
+                    <img className="w-10 h-10 md:w-12 md:h-12 object-contain" src="/ihyau.svg" alt="Logo" />
                 </div>
 
                 <div className="absolute inset-0 blur-2xl bg-gold/30 opacity-0 group-hover:opacity-100 transition"></div>
@@ -70,7 +67,7 @@ const Navbar = () => {
 
               <div>
                 <h1
-                  className={`text-1xl md:text-3xl font-heading font-bold transition ${
+                  className={`text-xl md:text-2xl font-heading font-bold leading-tight transition ${
                     scrolled
                       ? "text-primary"
                       : "text-white"
@@ -80,7 +77,7 @@ const Navbar = () => {
                 </h1>
 
                 <p
-                  className={`text-2xl md:text-lg uppercase tracking-[0.25em] transition ${
+                  className={`text-[10px] md:text-xs uppercase tracking-[0.28em] leading-tight transition ${
                     scrolled
                       ? "text-gold"
                       : "text-goldSoft"
@@ -92,7 +89,7 @@ const Navbar = () => {
             </Link>
 
             {/* DESKTOP NAVIGATION */}
-            <nav className="hidden lg:flex items-center gap-8">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
 
               {navLinks.map((link) => (
                 <NavLink
@@ -125,10 +122,10 @@ const Navbar = () => {
               ))}
 
               {/* ACTIONS */}
-              <div className="flex items-center gap-4 ml-6">
+              <div className="flex items-center gap-3 ml-3 xl:ml-5">
 
                 <Link to="/donate">
-                  <button className="btn-primary">
+                  <button className="btn-primary px-5 py-2.5">
                     Donate
                   </button>
                 </Link>
@@ -136,7 +133,7 @@ const Navbar = () => {
 
                 <Link to="/login">
                   <button
-                    className={`group px-5 py-3 rounded-xl border font-semibold transition duration-300 flex items-center gap-2 ${
+                    className={`group px-4 py-2.5 rounded-lg border font-semibold transition duration-300 flex items-center gap-2 ${
                       scrolled
                         ? "border-primary text-primary hover:bg-primary hover:text-white"
                         : "border-white text-white hover:bg-white hover:text-primary"
@@ -158,11 +155,12 @@ const Navbar = () => {
                   ? "text-primary"
                   : "text-white"
               }`}
+              aria-label="Toggle navigation menu"
             >
               {isOpen ? (
-                <FiX size={30} />
+                <FiX size={26} />
               ) : (
-                <FiMenu size={30} />
+                <FiMenu size={26} />
               )}
             </button>
 
@@ -274,7 +272,7 @@ const Navbar = () => {
 
 
       {/* SPACER */}
-      <div className="h-24"></div>
+      <div className="h-[72px] md:h-[80px]"></div>
     </>
   );
 };

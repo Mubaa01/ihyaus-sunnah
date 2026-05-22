@@ -273,6 +273,9 @@ export const mediaAPI = {
         "x-secret-key": secretKey,
       },
     }),
+
+  getTelegramUrl: (id) =>
+    apiCall(`/media/${id}/telegram-url`),
 };
 
 // ==================== PLAYLISTS API ====================

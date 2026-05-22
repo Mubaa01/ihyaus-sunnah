@@ -16,17 +16,22 @@ import {
   FaUser,
 } from "react-icons/fa"
 
-// TODO: Replace all media mock logic with real API
-import {
-  dispatchAdminDataUpdate,
-} from "../../../utils/adminDataSync"
-
 import useStaffAPI from "../../../hooks/useStaffAPI"
+import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api"
+
 const MediaListPage = () => {
   const { staff } = useStaffAPI()
+  const {
+    mediaItems,
+    categories,
+    loading,
+    error,
+    removeMedia,
+  } = useMediaLibraryAPI({})
 
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("All")
@@ -36,30 +41,55 @@ const MediaListPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
 
-  // TODO: Fetch media items from backend API
-  const mediaItems = []
-
-  // TODO: Fetch media categories from backend API
-  const categories = []
-
-  const [refreshKey, setRefreshKey] = useState(0)
-
   const handleDeleteClick = (id) => {
     setSelectedId(id)
     setShowModal(true)
   }
 
-  // TODO: Implement media delete with backend API
-  const confirmDelete = () => {
+  const confirmDelete = async (secretKey) => {
+    await removeMedia(selectedId, secretKey)
     setShowModal(false)
-    setRefreshKey((prev) => prev + 1)
+    setSelectedId(null)
+  }
+
+  const getId = (item) => item?._id || item?.id
+
+  const normalizeId = (value) => {
+    if (!value) return ""
+    if (typeof value === "object") return value._id || value.id || ""
+    return value
+  }
+
+  const getMediaThumbnail = (item) => {
+    if (item.thumbnail) return item.thumbnail
+    if (item.telegramThumbnailFileId) {
+      return `${API_BASE_URL}/media/${getId(item)}/telegram-thumbnail`
+    }
+    return ""
   }
 
   const getStaffName = (staffId) => {
     if (!staffId) return "Student/Community"
-    const staffMember = staff.find(s => s.id === staffId)
+    const normalizedStaffId = normalizeId(staffId)
+    const staffMember = staff.find(s => getId(s) === normalizedStaffId)
     return staffMember ? staffMember.name : "Unknown"
   }
+
+  const filteredMediaItems = useMemo(() => {
+    return mediaItems.filter((item) => {
+      const matchesSearch = !search.trim() ||
+        item.title?.toLowerCase().includes(search.toLowerCase()) ||
+        item.description?.toLowerCase().includes(search.toLowerCase()) ||
+        item.tags?.some((tag) => tag.toLowerCase().includes(search.toLowerCase()))
+
+      const matchesCategory = categoryFilter === "All" || item.mediaCategory === categoryFilter
+      const matchesType = typeFilter === "All" || item.type === typeFilter
+      const matchesStaff = staffFilter === "All" || normalizeId(item.staffId) === staffFilter
+      const matchesVisibility = visibilityFilter === "All" || item.visibility === visibilityFilter
+
+      return matchesSearch && matchesCategory && matchesType && matchesStaff && matchesVisibility
+    })
+  }, [mediaItems, search, categoryFilter, typeFilter, staffFilter, visibilityFilter])
 
   const getTypeIcon = (type) => {
     switch (type) {
@@ -160,7 +190,7 @@ const MediaListPage = () => {
           >
             <option value="All">All Staff</option>
             {staff.map((member) => (
-              <option key={member.id} value={member.id}>
+              <option key={getId(member)} value={getId(member)}>
                 {member.name}
               </option>
             ))}
@@ -183,9 +213,9 @@ const MediaListPage = () => {
       {/* MEDIA GRID */}
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
 
-        {mediaItems.map((item, index) => (
+        {filteredMediaItems.map((item, index) => (
           <motion.div
-            key={item.id}
+            key={getId(item)}
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.04 }}
@@ -196,11 +226,17 @@ const MediaListPage = () => {
             {/* THUMBNAIL */}
             <div className="relative h-48 overflow-hidden">
 
-              <img
-                src={item.thumbnail}
-                alt={item.title}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-              />
+              {getMediaThumbnail(item) ? (
+                <img
+                  src={getMediaThumbnail(item)}
+                  alt={item.title}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+              ) : (
+                <div className="w-full h-full bg-primary/10 text-primary flex items-center justify-center">
+                  {getTypeIcon(item.type)}
+                </div>
+              )}
 
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
@@ -259,7 +295,7 @@ const MediaListPage = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   <FaCalendarAlt />
-                  <span>{new Date(item.uploadedAt).toLocaleDateString()}</span>
+                  <span>{new Date(item.createdAt || item.uploadedAt).toLocaleDateString()}</span>
                 </div>
               </div>
 
@@ -293,14 +329,14 @@ const MediaListPage = () => {
                 </Link>
 
                 <Link
-                  to={`/admin/media/${item.id}`}
+                  to={`/admin/media/${getId(item)}`}
                   className="flex-1 bg-primary text-white py-3 rounded-2xl flex items-center justify-center gap-2 font-semibold hover:scale-105 transition"
                 >
                   <FaEdit /> Edit
                 </Link>
 
                 <button
-                  onClick={() => handleDeleteClick(item.id)}
+                  onClick={() => handleDeleteClick(getId(item))}
                   className="w-full sm:w-14 rounded-2xl border border-red-200 text-red-500 flex items-center justify-center hover:bg-red-50 transition"
                 >
                   <FaTrash />
@@ -316,7 +352,7 @@ const MediaListPage = () => {
       </div>
 
       {/* EMPTY STATE */}
-      {mediaItems.length === 0 && (
+      {!loading && filteredMediaItems.length === 0 && (
         <div className="bg-white rounded-3xl border border-gray-100 shadow-soft py-24 text-center">
           <FaImages className="mx-auto text-6xl text-gray-300 mb-5" />
 
@@ -327,6 +363,18 @@ const MediaListPage = () => {
           <p className="text-gray-500 mt-3">
             Try adjusting your filters or upload new media content.
           </p>
+        </div>
+      )}
+
+      {loading && (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-soft py-24 text-center text-gray-500">
+          Loading media...
+        </div>
+      )}
+
+      {error && (
+        <div className="bg-red-50 rounded-3xl border border-red-100 p-6 text-red-700">
+          {error}
         </div>
       )}
 

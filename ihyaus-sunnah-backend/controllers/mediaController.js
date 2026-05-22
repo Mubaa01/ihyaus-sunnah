@@ -1,5 +1,6 @@
 import { Media } from "../models/Media.js";
 import { Playlist } from "../models/Playlist.js";
+import { saveTelegramMessageAsMedia } from "../services/telegramMediaService.js";
 
 export const createMedia = async (req, res) => {
   try {
@@ -34,6 +35,117 @@ export const getAllMedia = async (req, res) => {
   }
 };
 
+export const getTelegramMediaUrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const media = await Media.findById(id);
+
+    if (!media) {
+      return res.status(404).json({ success: false, message: "Media not found" });
+    }
+
+    if (media.provider !== "telegram") {
+      return res.json({ success: true, data: { url: media.url, provider: media.provider } });
+    }
+
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      return res.status(500).json({
+        success: false,
+        message: "Telegram bot token is not configured",
+      });
+    }
+
+    const response = await fetch(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${media.telegramFileId}`
+    );
+    const payload = await response.json();
+
+    if (!payload.ok || !payload.result?.file_path) {
+      return res.status(502).json({
+        success: false,
+        message: payload.description || "Unable to get Telegram file URL",
+      });
+    }
+
+    const url = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`;
+
+    res.json({
+      success: true,
+      data: {
+        url,
+        provider: "telegram",
+        expiresInHint: "Telegram file URLs are temporary. Request a fresh URL before playback.",
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getTelegramThumbnail = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const media = await Media.findById(id);
+
+    if (!media) {
+      return res.status(404).json({ success: false, message: "Media not found" });
+    }
+
+    if (media.thumbnail) {
+      return res.redirect(media.thumbnail);
+    }
+
+    if (!media.telegramThumbnailFileId) {
+      return res.status(404).json({ success: false, message: "Thumbnail not found" });
+    }
+
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      return res.status(500).json({
+        success: false,
+        message: "Telegram bot token is not configured",
+      });
+    }
+
+    const response = await fetch(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${media.telegramThumbnailFileId}`
+    );
+    const payload = await response.json();
+
+    if (!payload.ok || !payload.result?.file_path) {
+      return res.status(502).json({
+        success: false,
+        message: payload.description || "Unable to get Telegram thumbnail",
+      });
+    }
+
+    res.redirect(
+      `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`
+    );
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getTelegramThumbnailUrl = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const media = await Media.findById(id);
+
+    if (!media) {
+      return res.status(404).json({ success: false, message: "Media not found" });
+    }
+
+    const thumbnailUrl = getMediaThumbnailUrl(req, media);
+    if (!thumbnailUrl) {
+      return res.status(404).json({ success: false, message: "Thumbnail not found" });
+    }
+
+    res.json({ success: true, data: { url: thumbnailUrl } });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const updateMedia = async (req, res) => {
   try {
     const { id } = req.params;
@@ -53,6 +165,35 @@ export const deleteMedia = async (req, res) => {
     res.json({ success: true, message: "Media deleted successfully" });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const ingestTelegramMedia = async (req, res) => {
+  try {
+    const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
+    const receivedSecret = req.headers["x-telegram-bot-api-secret-token"];
+
+    if (expectedSecret && receivedSecret !== expectedSecret) {
+      return res.status(401).json({ success: false, message: "Invalid Telegram webhook secret" });
+    }
+
+    const message = req.body.channel_post || req.body.message;
+    if (!message) {
+      return res.json({ success: true, message: "No Telegram message to process" });
+    }
+
+    const result = await saveTelegramMessageAsMedia(message);
+    if (result.skipped) {
+      return res.json({ success: true, message: result.message });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: "Telegram media saved successfully",
+      data: result.media,
+    });
+  } catch (error) {
+    res.status(error.statusCode || 500).json({ success: false, message: error.message });
   }
 };
 
@@ -78,4 +219,11 @@ export const getPlaylists = async (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
+};
+
+const getMediaThumbnailUrl = (req, media) => {
+  if (media.thumbnail) return media.thumbnail;
+  if (!media.telegramThumbnailFileId) return "";
+
+  return `${req.protocol}://${req.get("host")}/api/media/${media._id}/telegram-thumbnail`;
 };
