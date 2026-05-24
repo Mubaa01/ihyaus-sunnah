@@ -24,11 +24,20 @@ h3,
 h4,
 h5,
 h6 {
-  @apply font-heading tracking-tight;
+  @apply font-heading font-semibold tracking-normal;
 }
 
 p {
-  @apply leading-relaxed;
+  @apply font-normal leading-relaxed;
+}
+
+button,
+[role="button"],
+a,
+input,
+select,
+textarea {
+  @apply font-sans;
 }
 
 /* =========================
@@ -48,7 +57,7 @@ p {
   bg-primary text-white
   px-7 py-3
   rounded-lg
-  font-semibold
+  font-medium
   shadow-card
   transition-all duration-300
   hover:bg-primaryLight
@@ -61,7 +70,7 @@ p {
   bg-brand-100 text-primary
   px-7 py-3
   rounded-lg
-  font-semibold
+  font-medium
   transition-all duration-300
   hover:bg-brand-50
   hover:scale-105;
@@ -73,7 +82,7 @@ p {
   text-white
   px-7 py-3
   rounded-lg
-  font-semibold
+  font-medium
   transition-all duration-300
   hover:bg-white
   hover:text-primary;
@@ -85,7 +94,7 @@ p {
   text-primary
   px-7 py-3
   rounded-lg
-  font-semibold
+  font-medium
   transition-all duration-300
   hover:bg-primary
   hover:text-white;
@@ -97,7 +106,7 @@ p {
   text-white
   px-7 py-3
   rounded-lg
-  font-semibold
+  font-medium
   transition-all duration-300
   hover:bg-white
   hover:text-primary;
@@ -255,6 +264,12 @@ p {
 
 .font-arabic {
   font-family: "Amiri", serif;
+}
+
+.pull-quote {
+  font-family: "Amiri", serif;
+  font-style: italic;
+  font-weight: 400;
 }
 
 /* =========================

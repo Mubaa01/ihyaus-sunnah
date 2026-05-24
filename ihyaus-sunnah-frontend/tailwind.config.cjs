@@ -34,7 +34,7 @@ module.exports = {
 
         error: {
           100: "#FDDEC9",
-          500: "#C2410C",
+          500: "#F0E68C",
         },
 
         warning: {
@@ -56,14 +56,14 @@ module.exports = {
         },
 
         red: {
-          50: "#FDDEC9",
-          100: "#FDDEC9",
-          200: "#FDDEC9",
-          300: "#C2410C",
-          400: "#C2410C",
-          500: "#C2410C",
-          600: "#C2410C",
-          700: "#C2410C",
+          50: "#F0E68C",
+          100: "#F0E68C",
+          200: "#F0E68C",
+          300: "#F0E68C",
+          400: "#F0E68C",
+          500: "#F0E68C",
+          600: "#F0E68C",
+          700: "#F0E68C",
         },
 
         yellow: {
@@ -104,9 +104,17 @@ module.exports = {
       ========================= */
 
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        heading: ["Playfair Display", "serif"],
+        sans: ["Plus Jakarta Sans", "sans-serif"],
+        heading: ["Plus Jakarta Sans", "sans-serif"],
+        serif: ["Plus Jakarta Sans", "sans-serif"],
         arabic: ["Amiri", "serif"],
+      },
+
+      fontWeight: {
+        normal: "400",
+        medium: "500",
+        semibold: "600",
+        bold: "600",
       },
 
       /* =========================
