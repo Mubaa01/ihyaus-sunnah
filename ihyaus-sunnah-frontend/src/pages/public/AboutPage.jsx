@@ -112,19 +112,19 @@ const AboutPage = () => {
             variants={fadeUp}
             className="max-w-4xl"
           >
-            <span className="inline-block bg-gold/20 border border-gold/30 text-gold px-5 py-2 rounded-full text-sm tracking-widest uppercase mb-8">
+            <span className="inline-block bg-yellow-400/20 border border-yellow-400/30 text-yellow-400 px-5 py-2 rounded-full text-sm tracking-widest uppercase mb-8">
               About The Foundation
             </span>
 
             <h1 className="text-5xl md:text-7xl font-heading font-bold leading-tight text-white mb-8">
-              Reviving <span className="text-gold">Ummah</span> Through
-              <span className="block text-soft-gold mt-2">
+              Reviving <span className="text-yellow-400">Ummah</span> Through
+              <span className="block text-soft-yellow-400 mt-2">
                 Education & Sincerity
               </span>
             </h1>
 
             <p
-              className="hidden font-arabic text-3xl md:text-5xl text-gold mb-5"
+              className="hidden font-arabic text-3xl md:text-5xl text-yellow-400 mb-5"
               dir="rtl"
             >
               وَقُل رَّبِّ زِدْنِي عِلْمًا
@@ -255,7 +255,7 @@ const AboutPage = () => {
               variants={fadeUp}
               className="bg-primary rounded-[40px] p-12 shadow-premium"
             >
-              <span className="text-gold uppercase tracking-[0.2em] text-sm font-semibold">
+              <span className="text-yellow-400 uppercase tracking-[0.2em] text-sm font-semibold">
                 Our Vision
               </span>
 
@@ -321,7 +321,7 @@ const AboutPage = () => {
 
         <div className="container-custom relative z-10">
           <div className="text-center mb-20">
-            <span className="text-gold uppercase tracking-[0.25em] text-sm font-semibold">
+            <span className="text-yellow-400 uppercase tracking-[0.25em] text-sm font-semibold">
               Foundation Journey
             </span>
 
@@ -341,7 +341,7 @@ const AboutPage = () => {
                 variants={fadeUp}
                 className="grid md:grid-cols-[180px_1fr] gap-8 items-start"
               >
-                <div className="text-gold text-5xl font-bold">
+                <div className="text-yellow-400 text-5xl font-bold">
                   {item.year}
                 </div>
 
@@ -400,13 +400,13 @@ const AboutPage = () => {
             variants={fadeUp}
             className="max-w-4xl mx-auto text-center"
           >
-            <span className="text-gold uppercase tracking-[0.25em] text-sm font-semibold">
+            <span className="text-yellow-400 uppercase tracking-[0.25em] text-sm font-semibold">
               Become Part Of The Mission
             </span>
 
             <h2 className="text-4xl md:text-6xl font-heading font-bold leading-tight mt-6 mb-8">
               Help Us Build Future Generations Through
-              <span className="text-gold block mt-2">
+              <span className="text-yellow-400 block mt-2">
                 Knowledge & Character
               </span>
             </h2>

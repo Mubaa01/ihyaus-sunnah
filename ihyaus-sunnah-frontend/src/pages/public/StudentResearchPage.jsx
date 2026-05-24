@@ -146,7 +146,7 @@ const StudentResearchPage = () => {
 
               <h1 className="max-w-5xl text-4xl font-heading font-bold leading-tight md:text-6xl">
                 Research & Academic Projects
-                <span className="mt-4 block font-arabic text-gold" dir="rtl">
+                <span className="mt-4 block font-arabic text-yellow-400" dir="rtl">
                   بحوث الطلاب العلمية
                 </span>
               </h1>

@@ -13,7 +13,7 @@ const Footer = () => {
     <footer className="relative bg-primary overflow-hidden text-white mt-24">
 
       {/* BACKGROUND GLOW */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-gold/10 blur-3xl rounded-full"></div>
+      <div className="absolute top-0 left-0 w-96 h-96 bg-yellow-400/10 blur-3xl rounded-full"></div>
 
       <div className="relative container-custom pt-20 pb-8">
 
@@ -27,7 +27,7 @@ const Footer = () => {
                 Ihyaus Sunnah
               </h2>
 
-              <p className="uppercase tracking-[0.25em] text-gold text-sm">
+              <p className="uppercase tracking-[0.25em] text-yellow-200 text-sm">
                 Foundation
               </p>
             </div>
@@ -38,7 +38,7 @@ const Footer = () => {
             </p>
 
             <p
-              className="font-arabic text-2xl text-goldSoft"
+              className="font-arabic text-2xl text-yellow-400Soft"
               dir="rtl"
             >
               عَلِّمُوا مَجَّانًا كَمَا عُلِّمْتُمْ مَجَّانًا
@@ -56,7 +56,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/about"
-                  className="text-gray-300 hover:text-gold transition"
+                  className="text-gray-300 hover:text-yellow-400 transition"
                 >
                   About Us
                 </Link>
@@ -65,7 +65,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/programs"
-                  className="text-gray-300 hover:text-gold transition"
+                  className="text-gray-300 hover:text-yellow-400 transition"
                 >
                   Programs
                 </Link>
@@ -74,7 +74,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/staff"
-                  className="text-gray-300 hover:text-gold transition"
+                  className="text-gray-300 hover:text-yellow-400 transition"
                 >
                   Staff Directory
                 </Link>
@@ -83,7 +83,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/organization"
-                  className="text-gray-300 hover:text-gold transition"
+                  className="text-gray-300 hover:text-yellow-400 transition"
                 >
                   Organization
                 </Link>
@@ -92,7 +92,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/lectures"
-                  className="text-gray-300 hover:text-gold transition"
+                  className="text-gray-300 hover:text-yellow-400 transition"
                 >
                   Lectures
                 </Link>
@@ -128,18 +128,17 @@ const Footer = () => {
             <div className="space-y-5">
 
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-gold">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-yellow-400">
                   <FaMapMarkerAlt />
                 </div>
 
                 <p className="text-gray-300 leading-relaxed">
-                  Kofar Matar Nassarawa,
-                  Kano State, Nigeria
+                  No. 14 Shehu Idris Street, Magume, zaria, Kaduna State, Nigeria.
                 </p>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-gold">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-yellow-400">
                   <FaPhoneAlt />
                 </div>
 
@@ -149,7 +148,7 @@ const Footer = () => {
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-gold">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-yellow-400">
                   <FaEnvelope />
                 </div>
 
@@ -168,7 +167,7 @@ const Footer = () => {
                   <a
                     key={idx}
                     href="#"
-                    className="w-11 h-11 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-gold hover:text-primary transition duration-300"
+                    className="w-11 h-11 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:bg-yellow-400 hover:text-primary transition duration-300"
                   >
                     <Icon />
                   </a>

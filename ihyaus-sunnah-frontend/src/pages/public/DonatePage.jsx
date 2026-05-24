@@ -78,8 +78,8 @@ const DonatePage = () => {
         <div className="relative container-custom flex min-h-[85vh] items-center py-24">
           <div className="max-w-4xl text-white">
             <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-5 py-3 backdrop-blur-md">
-              <FaHandHoldingHeart className="text-gold" />
-              <span className="text-sm uppercase tracking-[0.2em] text-gold">
+              <FaHandHoldingHeart className="text-yellow-400" />
+              <span className="text-sm uppercase tracking-[0.2em] text-yellow-400">
                 Support • Sadaqah • Impact
               </span>
             </div>
@@ -88,7 +88,7 @@ const DonatePage = () => {
               Support Knowledge & Community Development
             </h1>
 
-            <p className="hidden mb-5 text-2xl font-arabic text-gold" dir="rtl">
+            <p className="hidden mb-5 text-2xl font-arabic text-yellow-400" dir="rtl">
               مَّثَلُ الَّذِينَ يُنفِقُونَ أَمْوَالَهُمْ فِي سَبِيلِ اللَّهِ
             </p>
 
@@ -128,7 +128,7 @@ const DonatePage = () => {
                 key={stat.label}
                 className="glass-card rounded-[2rem] border border-white/20 p-8 text-center shadow-premium backdrop-blur-xl"
               >
-                <h3 className="mb-2 text-5xl font-bold text-gold">
+                <h3 className="mb-2 text-5xl font-bold text-yellow-400">
                   {stat.number}
                 </h3>
 
@@ -175,7 +175,7 @@ const DonatePage = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                   <div className="absolute bottom-6 left-6">
-                    <div className="rounded-full bg-gold px-5 py-2 text-sm font-semibold text-primary">
+                    <div className="rounded-full bg-yellow-400 px-5 py-2 text-sm font-semibold text-primary">
                       {item.amount}
                     </div>
                   </div>
@@ -213,7 +213,7 @@ const DonatePage = () => {
               />
 
               <div className="absolute -bottom-8 -right-8 rounded-[2rem] bg-primary p-8 text-white shadow-premium">
-                <h4 className="text-4xl font-bold text-gold">100%</h4>
+                <h4 className="text-4xl font-bold text-yellow-400">100%</h4>
                 <p className="mt-2 text-gray-200">
                   Transparent Community Projects
                 </p>
@@ -263,7 +263,7 @@ const DonatePage = () => {
       <section className="section-padding bg-primary text-white">
         <div className="container-custom">
           <div className="mb-16 text-center">
-            <span className="section-subtitle text-gold">
+            <span className="section-subtitle text-yellow-400">
               Payment Methods
             </span>
 
@@ -291,7 +291,7 @@ const DonatePage = () => {
                 className="glass-card rounded-[2rem] border border-white/20 p-8"
               >
                 <div className="mb-6 flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gold text-2xl text-primary">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-yellow-400 text-2xl text-primary">
                     <FaMosque />
                   </div>
 
@@ -308,7 +308,7 @@ const DonatePage = () => {
 
                 <div className="space-y-4">
                   <div className="rounded-2xl bg-white/10 p-5">
-                    <p className="mb-1 text-sm text-gold">
+                    <p className="mb-1 text-sm text-yellow-400">
                       Account Name
                     </p>
 
@@ -318,7 +318,7 @@ const DonatePage = () => {
                   </div>
 
                   <div className="rounded-2xl bg-white/10 p-5">
-                    <p className="mb-1 text-sm text-gold">
+                    <p className="mb-1 text-sm text-yellow-400">
                       Account Number
                     </p>
 
@@ -327,7 +327,7 @@ const DonatePage = () => {
                         {item.accountNumber}
                       </h4>
 
-                      <button className="rounded-xl bg-gold p-3 text-primary transition hover:scale-105">
+                      <button className="rounded-xl bg-yellow-400 p-3 text-primary transition hover:scale-105">
                         <FaCopy />
                       </button>
                     </div>

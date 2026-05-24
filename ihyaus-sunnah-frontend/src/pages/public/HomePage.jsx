@@ -102,7 +102,7 @@ const HomePage = () => {
       className=" text-sm md:text-lg uppercase tracking-[0.25em] text-white mb-16"
       >
         Teach freely <br></br>
-        <span className=" bg-gold p-1 "> as you have been taught freely</span>
+        <span className="text-primaryDark bg-yellow-400 p-1 "> as you have been taught freely</span>
        
       </motion.p>
       
@@ -114,7 +114,7 @@ const HomePage = () => {
               className="text-3xl md:text-6xl font-heading font-bold leading-tight text-white mb-6 pb-16"
             >
               Ihyaus Sunnah Foundation
-              <span className="block text-yellow-300 mt-2 md: text-xlg">
+              <span className="block text-yellow-400 mt-2 md: text-xlg">
                 Magume Zaria
               </span>
             </motion.h1>
@@ -168,7 +168,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:-translate-y-2 transition duration-500 shadow-soft"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gold text-primary flex items-center justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-primary flex items-center justify-center mb-6">
                 <FiBookOpen size={30} />
               </div>
 
@@ -194,7 +194,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:-translate-y-2 transition duration-500 shadow-soft"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gold text-primary flex items-center justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-primary flex items-center justify-center mb-6">
                 <FiUsers size={30} />
               </div>
 
@@ -220,7 +220,7 @@ const HomePage = () => {
               viewport={{ once: true }}
               className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:-translate-y-2 transition duration-500 shadow-soft"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gold text-primary flex items-center justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-primary flex items-center justify-center mb-6">
                 <FiHeart size={30} />
               </div>
 
@@ -266,7 +266,7 @@ const HomePage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="uppercase tracking-[0.25em] text-gold font-semibold mb-4 text-6xl"
+              className="uppercase tracking-[0.25em] text-gold font-semibold mb-4 text-6lg"
             >
               
               Our Programs
@@ -323,7 +323,7 @@ const HomePage = () => {
           {/* HEADER */}
           <div className="text-center mb-16">
 
-            <p className="uppercase tracking-[0.25em] text-gold font-semibold mb-4 text-6xl">
+            <p className="uppercase tracking-[0.25em] text-gold font-semibold mb-4 text-6lg">
               Our Values
             </p>
 
@@ -407,8 +407,8 @@ const HomePage = () => {
             </p>
 
             <h2 className="text-4xl md:text-6xl font-heading font-bold text-white leading-tight mb-8">
-              Help Us Build Knowledge,
-              <span className="block text-gold">
+              
+              <span className="block text-yellow-400">
                 Character & Community
               </span>
             </h2>

@@ -132,45 +132,29 @@ const ProgramsPage = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-primary/70" />
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-white to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-dark to-transparent" />
 
-        <motion.div
-          animate={{
-            y: [0, -12, 0],
-            transition: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-          }}
-          className="absolute top-32 right-16 hidden xl:block z-20"
-        >
-          <div className="glass-card p-7 rounded-lg border border-white/10 backdrop-blur-xl">
-            <FiBookOpen className="mb-4 text-5xl text-gold" />
-            <h3 className="text-3xl font-bold text-white mb-2">
-              {programs.length || "0"} Programs
-            </h3>
-            <p className="text-gray-300 leading-relaxed">
-              Comprehensive Islamic and academic development.
-            </p>
-          </div>
-        </motion.div>
+       
 
         <div className="relative z-10 container-custom py-32">
           <div className="max-w-5xl">
-            <motion.p
+            {/* <motion.p
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="uppercase tracking-[0.3em] text-goldSoft font-semibold mb-7"
             >
               Educational Programs & Community Development
-            </motion.p>
+            </motion.p> */}
 
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-5xl md:text-7xl xl:text-8xl font-heading font-bold text-white leading-[1.1] mb-8"
+              className="text-4xl md:text-5xl xl:text-7xl font-heading font-bold text-white leading-[1.1] mb-8"
             >
               Programs That Build
-              <span className="block text-gold mt-2">Knowledge & Society</span>
+              <span className="block text-yellow-400 mt-2">Knowledge & Society</span>
             </motion.h1>
 
             <motion.p
@@ -208,28 +192,7 @@ const ProgramsPage = () => {
         </div>
       </section>
 
-      <section className="relative -mt-20 z-20 pb-10">
-        <div className="container-custom">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((item, index) => (
-              <motion.div
-                key={item.label}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-lg p-6 md:p-8 shadow-soft border border-gray-100 text-center"
-              >
-                <div className="w-14 h-14 rounded-lg bg-primary/10 text-primary flex items-center justify-center mx-auto mb-5 text-2xl">
-                  {item.icon}
-                </div>
-                <h3 className="text-3xl font-bold text-primary mb-2">{item.value}</h3>
-                <p className="text-gray-500">{item.label}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+    
 
       <section id="programs-grid" className="py-24 md:py-28 bg-cream relative overflow-hidden">
         <div className="container-custom relative z-10">
@@ -449,7 +412,7 @@ const ProgramsPage = () => {
             </p>
             <h2 className="text-4xl md:text-7xl font-heading font-bold text-white leading-tight mb-8">
               Education Beyond
-              <span className="block text-gold mt-2">The Classroom</span>
+              <span className="block text-yellow-400 mt-2">The Classroom</span>
             </h2>
             <p className="text-lg md:text-2xl text-gray-200 leading-relaxed mb-12">
               Through donations and community support, we assist orphans and
