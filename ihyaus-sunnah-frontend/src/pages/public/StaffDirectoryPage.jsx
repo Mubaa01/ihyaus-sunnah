@@ -135,25 +135,25 @@ const StaffDirectoryCard = ({ member, category, featured = false, extraBadges = 
   )
 }
 
-const StaffEmptyCard = ({ category }) => (
-  <div className="flex h-[500px] w-full flex-col justify-end overflow-hidden rounded-[32px] border border-dashed border-brand-400 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-7 shadow-card">
-    <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-2xl text-primary">
-      <FaUsers />
-    </div>
+// const StaffEmptyCard = ({ category }) => (
+//   <div className="flex h-[500px] w-full flex-col justify-end overflow-hidden rounded-[32px] border border-dashed border-brand-400 bg-gradient-to-br from-brand-50 via-white to-brand-100 p-7 shadow-card">
+//     <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-100 text-2xl text-primary">
+//       <FaUsers />
+//     </div>
 
-    <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-brand-400">
-      {category}
-    </p>
+//     <p className="mb-3 text-sm font-semibold uppercase tracking-[0.16em] text-brand-400">
+//       {category}
+//     </p>
 
-    <h3 className="text-3xl font-semibold text-primary">
-      No staff listed yet
-    </h3>
+//     <h3 className="text-3xl font-semibold text-primary">
+//       No staff listed yet
+//     </h3>
 
-    <p className="mt-4 text-sm leading-relaxed text-neutral-400">
-      Staff added to this category will appear here.
-    </p>
-  </div>
-)
+//     <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+//       Staff added to this category will appear here.
+//     </p>
+//   </div>
+// )
 
 const StaffSectionBlock = ({ section, members, centered = false, showDivider = false }) => (
   <div className={centered ? "space-y-10" : "space-y-8"}>
