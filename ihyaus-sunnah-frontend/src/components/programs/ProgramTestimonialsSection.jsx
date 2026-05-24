@@ -8,7 +8,6 @@ const ProgramTestimonialsSection = ({ program }) => {
 
   return (
     <section className="section-padding py-24 bg-cream relative">
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl"></div>
       <div className="container-custom relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -29,7 +28,7 @@ const ProgramTestimonialsSection = ({ program }) => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
-              className="bg-cream p-10 rounded-3xl shadow-soft border border-gray-100 hover:shadow-soft hover:-translate-y-1 transition duration-500"
+              className="bg-white p-10 rounded-xl shadow-soft border border-gray-100 hover:shadow-soft hover:-translate-y-1 transition duration-500"
             >
               <FaQuoteLeft className="text-secondary text-4xl mb-6" />
               <p className="text-lg text-gray-700 leading-relaxed mb-6 italic">

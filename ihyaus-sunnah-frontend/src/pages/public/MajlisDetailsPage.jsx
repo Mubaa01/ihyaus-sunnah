@@ -51,7 +51,7 @@ const MajlisDetailsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f8faf7] flex items-center justify-center">
+      <div className="min-h-screen bg-brand-50 flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -59,7 +59,7 @@ const MajlisDetailsPage = () => {
 
   if (error || !majlis) {
     return (
-      <div className="min-h-screen bg-[#f8faf7] flex items-center justify-center px-6">
+      <div className="min-h-screen bg-brand-50 flex items-center justify-center px-6">
         <div className="text-center max-w-lg">
           <h1 className="text-4xl font-bold text-primary mb-4">
             {error || "Majlis Not Found"}
@@ -78,7 +78,7 @@ const MajlisDetailsPage = () => {
   const bookProgress = Math.min(100, Number(majlis.book?.progress) || 0);
 
   return (
-    <div className="min-h-screen bg-[#f8faf7]">
+    <div className="min-h-screen bg-brand-50">
       <section className="relative bg-primary text-white overflow-hidden">
         <div className="absolute inset-0">
           <img

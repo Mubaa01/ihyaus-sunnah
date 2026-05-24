@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { FaHandsHelping } from 'react-icons/fa'
 
-const ProgramCTASection = () => {
+const ProgramCTASection = ({ program }) => {
+  const title = program?.title || 'this program'
+  const subject = encodeURIComponent(`Program enquiry: ${title}`)
+
   return (
-    <section className="section-padding py-24 bg-gradient-to-r from-primary via-primary-dark to-primary-light text-white relative overflow-hidden">
+    <section className="section-padding py-24 bg-gradient-to-r from-primary via-primary to-primaryLight text-white relative overflow-hidden">
       <div className="absolute inset-0">
         <img
           src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2000&auto=format&fit=crop"
@@ -12,11 +15,6 @@ const ProgramCTASection = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-primary/90"></div>
-      </div>
-
-      <div className="absolute inset-0 opacity-10">
-        <div className="absolute top-0 left-0 w-96 h-96 bg-secondary rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-white rounded-full blur-3xl"></div>
       </div>
 
       <motion.div
@@ -41,16 +39,21 @@ const ProgramCTASection = () => {
           viewport={{ once: true }}
           className="flex flex-wrap justify-center gap-6"
         >
+          <a href={`mailto:info@ihyaussunnah.org?subject=${subject}`}>
+            <button className="btn-primary text-lg px-10 py-4 shadow-lg hover:shadow-xl transition-all duration-300">
+              Enroll / Register
+            </button>
+          </a>
           <Link to="/donate">
             <button className="btn-secondary text-lg px-10 py-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300">
-              Donate Now
+              Sponsor This Program
             </button>
           </Link>
-          <Link to="/programs">
-            <button className="bg-white/10 backdrop-blur-md border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-10 py-4 rounded-2xl transition-all duration-300 font-semibold">
-              Back to Programs
+          <a href={`mailto:info@ihyaussunnah.org?subject=${subject}`}>
+            <button className="bg-white/10 backdrop-blur-md border-2 border-white text-white hover:bg-white hover:text-primary text-lg px-10 py-4 rounded-lg transition-all duration-300 font-semibold">
+              Contact Admin
             </button>
-          </Link>
+          </a>
         </motion.div>
       </motion.div>
     </section>

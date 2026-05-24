@@ -26,7 +26,7 @@ const ProgramBenefitsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.05 }}
             viewport={{ once: true }}
-            className="bg-white p-10 rounded-3xl shadow-soft border border-gray-100"
+            className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
           >
             <h3 className="text-2xl font-bold text-primary mb-4">Holistic Learning</h3>
             <p className="text-gray-600 leading-relaxed">
@@ -38,7 +38,7 @@ const ProgramBenefitsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
             viewport={{ once: true }}
-            className="bg-white p-10 rounded-3xl shadow-soft border border-gray-100"
+            className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
           >
             <h3 className="text-2xl font-bold text-primary mb-4">Trusted Mentors</h3>
             <p className="text-gray-600 leading-relaxed">
@@ -50,7 +50,7 @@ const ProgramBenefitsSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.15 }}
             viewport={{ once: true }}
-            className="bg-white p-10 rounded-3xl shadow-soft border border-gray-100"
+            className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
           >
             <h3 className="text-2xl font-bold text-primary mb-4">Real Results</h3>
             <p className="text-gray-600 leading-relaxed">

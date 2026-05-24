@@ -115,7 +115,7 @@ const MajlisSchedulePage = () => {
   }, [completed.length, majlis]);
 
   return (
-    <div className="min-h-screen bg-[#f8faf7] text-gray-900">
+    <div className="min-h-screen bg-brand-50 text-neutral-700">
       <section className="relative overflow-hidden bg-primary text-white">
         <div className="absolute inset-0">
           <img
@@ -405,7 +405,7 @@ const MajlisSessionCard = ({ item, index }) => {
             <MiniInfo icon={FaChalkboardTeacher} label="Teacher" value={item.instructor?.name || "TBA"} />
           </div>
 
-          <div>
+          {/* <div>
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-500">Enrollment</span>
               <span className="font-semibold text-primary">
@@ -415,7 +415,7 @@ const MajlisSessionCard = ({ item, index }) => {
             <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
               <div className="h-full bg-gold rounded-full" style={{ width: `${progress}%` }} />
             </div>
-          </div>
+          </div> */}
 
           <div className="flex flex-col sm:flex-row gap-3">
             <Link to={detailUrl} className="btn-primary justify-center">

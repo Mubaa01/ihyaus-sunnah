@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Program Card Palette Preview</title>
+    <style>
+      :root {
+        --green: #0b3d2e;
+        --green-soft: #145a45;
+        --blue: #1e5b8a;
+        --blue-soft: #3b82b6;
+        --gold: #c9a646;
+        --cream: #f8f5f0;
+        --ink: #16231f;
+        --muted: #63716d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        background:
+          linear-gradient(135deg, rgba(11, 61, 46, 0.95), rgba(30, 91, 138, 0.82)),
+          var(--cream);
+        color: var(--ink);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      .stage {
+        width: min(1120px, calc(100vw - 48px));
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 36px;
+        align-items: center;
+      }
+
+      .note {
+        color: white;
+      }
+
+      .eyebrow {
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 520px;
+        margin: 20px 0 18px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 62px;
+        line-height: 0.98;
+      }
+
+      .note p {
+        max-width: 500px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 19px;
+        line-height: 1.75;
+      }
+
+      .swatches {
+        display: flex;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .swatch {
+        width: 76px;
+        height: 76px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 14px;
+        box-shadow: 0 18px 35px rgba(0, 0, 0, 0.18);
+      }
+
+      .card {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.28);
+      }
+
+      .card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background:
+          radial-gradient(320px 320px at 80% 10%, rgba(201, 166, 70, 0.28), transparent 60%),
+          radial-gradient(380px 320px at 5% 25%, rgba(30, 91, 138, 0.2), transparent 65%);
+      }
+
+      .image {
+        position: relative;
+        height: 310px;
+        background:
+          linear-gradient(to top, rgba(11, 61, 46, 0.92), rgba(11, 61, 46, 0.1)),
+          url("https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=1600&auto=format&fit=crop");
+        background-size: cover;
+        background-position: center;
+      }
+
+      .badge-row {
+        position: absolute;
+        top: 22px;
+        left: 22px;
+        right: 22px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .badge {
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 999px;
+        padding: 9px 14px;
+        background: rgba(255, 255, 255, 0.14);
+        color: white;
+        font-size: 13px;
+        font-weight: 800;
+        backdrop-filter: blur(16px);
+      }
+
+      .badge.blue {
+        background: rgba(30, 91, 138, 0.9);
+      }
+
+      .image-copy {
+        position: absolute;
+        left: 26px;
+        right: 26px;
+        bottom: 24px;
+        color: white;
+      }
+
+      .image-copy h2 {
+        margin: 0 0 10px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 38px;
+        line-height: 1.04;
+      }
+
+      .image-copy p {
+        max-width: 600px;
+        margin: 0;
+        color: rgba(255, 255, 255, 0.82);
+        line-height: 1.55;
+      }
+
+      .body {
+        position: relative;
+        z-index: 1;
+        padding: 26px;
+      }
+
+      .meta {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+
+      .meta-item {
+        border: 1px solid rgba(11, 61, 46, 0.08);
+        border-radius: 14px;
+        background: #fbfaf7;
+        padding: 14px;
+      }
+
+      .meta-item strong {
+        display: block;
+        color: var(--green);
+        font-size: 15px;
+        margin-top: 6px;
+      }
+
+      .meta-item span {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 24px 0;
+      }
+
+      .chip {
+        border-radius: 999px;
+        padding: 8px 12px;
+        background: rgba(30, 91, 138, 0.09);
+        color: var(--blue);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .chip.gold {
+        background: rgba(201, 166, 70, 0.15);
+        color: #866b16;
+      }
+
+      .actions {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+      }
+
+      .primary-action,
+      .secondary-action {
+        border-radius: 14px;
+        padding: 16px 22px;
+        font-weight: 900;
+        text-decoration: none;
+      }
+
+      .primary-action {
+        background: var(--green);
+        color: white;
+      }
+
+      .secondary-action {
+        border: 1px solid rgba(30, 91, 138, 0.22);
+        color: var(--blue);
+        background: rgba(30, 91, 138, 0.06);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="stage">
+      <section class="note">
+        <div class="eyebrow">Institution Palette Direction</div>
+        <h1>Green anchors the identity. Blue sharpens the academic feel.</h1>
+        <p>
+          White and cream keep the interface calm, green carries trust and Islamic identity,
+          blue brings a modern learning-system tone, and gold stays as a restrained heritage accent.
+        </p>
+        <div class="swatches">
+          <div class="swatch" style="background: var(--green)"></div>
+          <div class="swatch" style="background: var(--blue)"></div>
+          <div class="swatch" style="background: var(--gold)"></div>
+          <div class="swatch" style="background: var(--cream)"></div>
+        </div>
+      </section>
+
+      <article class="card">
+        <div class="image">
+          <div class="badge-row">
+            <span class="badge">Qur'an & Arabic</span>
+            <span class="badge blue">Active</span>
+          </div>
+          <div class="image-copy">
+            <h2>Tahfeez & Character Program</h2>
+            <p>Structured memorization, tajweed, revision discipline, and mentorship for growing learners.</p>
+          </div>
+        </div>
+        <div class="body">
+          <div class="meta">
+            <div class="meta-item"><span>Duration</span><strong>Ongoing</strong></div>
+            <div class="meta-item"><span>Level</span><strong>Junior to Advanced</strong></div>
+            <div class="meta-item"><span>Location</span><strong>Kano Campus</strong></div>
+            <div class="meta-item"><span>Enrollment</span><strong>Open</strong></div>
+          </div>
+          <div class="chips">
+            <span class="chip">Daily revision</span>
+            <span class="chip">Mentorship</span>
+            <span class="chip gold">Qur'anic fluency</span>
+          </div>
+          <div class="actions">
+            <a class="primary-action" href="#">View Details</a>
+            <a class="secondary-action" href="#">Sponsor</a>
+          </div>
+        </div>
+      </article>
+    </main>
+  </body>
+</html>

@@ -110,7 +110,7 @@ const ProgramDetailsPage = () => {
       <ProgramIslamicIntegrationSection program={program} />
 
       {/* CTA Section */}
-      <ProgramCTASection />
+      <ProgramCTASection program={program} />
     </div>
   )
 }

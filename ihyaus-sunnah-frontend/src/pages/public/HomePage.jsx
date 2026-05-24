@@ -57,6 +57,7 @@ const HomePage = () => {
     <div className="overflow-hidden">
 
 
+    
       <section className="relative min-h-screen flex items-center overflow-hidden">
 
         <div className=" absolute inset-0">
@@ -77,11 +78,10 @@ const HomePage = () => {
           
 
           <div className="max-w-4xl">
-            <QuranVersePanel {...homeVerse} className="mb-10 max-w-3xl" />
 
             
           
-  <motion.div className="hidden"
+  <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -99,7 +99,7 @@ const HomePage = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-      className="hidden text-sm md:text-lg uppercase tracking-[0.25em] text-white mb-16"
+      className=" text-sm md:text-lg uppercase tracking-[0.25em] text-white mb-16"
       >
         Teach freely <br></br>
         <span className=" bg-gold p-1 "> as you have been taught freely</span>
@@ -111,7 +111,7 @@ const HomePage = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="text-3xl md:text-6xl font-heading font-bold leading-tight text-white mb-6 pb-8"
+              className="text-3xl md:text-6xl font-heading font-bold leading-tight text-white mb-6 pb-16"
             >
               Ihyaus Sunnah Foundation
               <span className="block text-yellow-300 mt-2 md: text-xlg">
@@ -127,7 +127,7 @@ const HomePage = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2 }}
-              className="flex flex-wrap gap-5 "
+              className="flex flex-wrap gap-5  "
             >
               
 
@@ -158,7 +158,7 @@ const HomePage = () => {
           </div>
 
           {/* FLOATING STATS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 md: width-2/3">
 
             {/* CARD 1 */}
             <motion.div

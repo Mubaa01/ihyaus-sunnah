@@ -9,23 +9,14 @@ import {
   FaBookOpen,
 } from "react-icons/fa";
 
-
+const fallbackCategoryImage =
+  "https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=900&auto=format&fit=crop";
 
 const ProgramCategoriesSection = ({ program }) => {
   if (!program?.categories?.length) return null;
 
   return (
-    <section className="relative py-28 bg-[#f8f4ee] overflow-hidden">
-      {/* Background Decorations */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full bg-secondary/5 blur-3xl" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full bg-primary/5 blur-3xl" />
-
-        <div className="absolute top-0 left-0 opacity-[0.03]">
-          <img src="/patterns/islamic-pattern.svg" alt="" className="w-[350px]" />
-        </div>
-      </div>
-
+    <section className="relative py-28 bg-neutral-50 overflow-hidden">
       <div className="container-custom relative z-10">
         {/* HEADER */}
         <motion.div
@@ -84,7 +75,7 @@ const ProgramCategoriesSection = ({ program }) => {
 
                   {/* LEFT CONTENT */}
                   <div className="w-full lg:w-1/2 lg:mx-10">
-                    <div className="relative bg-white/90 backdrop-blur-xl rounded-[32px] shadow-lg overflow-hidden p-8 md:p-10">
+                    <div className="relative bg-white/90 backdrop-blur-xl rounded-xl shadow-soft overflow-hidden p-8 md:p-10">
 
                       {/* BADGES */}
                       <div className="flex flex-wrap gap-3 mb-6">
@@ -121,25 +112,25 @@ const ProgramCategoriesSection = ({ program }) => {
 
                       {/* FIXED STATS (schema-safe fallback) */}
                       <div className="grid grid-cols-3 gap-4 mt-8">
-                        <div className="p-4 rounded-2xl bg-[#faf8f4] border">
+                        <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
                           <p className="text-sm text-secondary flex items-center gap-2">
                             <FaUsers /> Students
                           </p>
-                          <p className="text-xl font-bold">500+</p>
+                          <p className="text-xl font-bold">{category.studentCount || program.stats?.totalStudents || 'Open'}</p>
                         </div>
 
-                        <div className="p-4 rounded-2xl bg-[#faf8f4] border">
+                        <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
                           <p className="text-sm text-secondary flex items-center gap-2">
                             <FaClock /> Duration
                           </p>
-                          <p className="text-xl font-bold">Ongoing</p>
+                          <p className="text-xl font-bold">{category.duration || program.duration || 'Ongoing'}</p>
                         </div>
 
-                        <div className="p-4 rounded-2xl bg-[#faf8f4] border">
+                        <div className="p-4 rounded-lg bg-neutral-50 border border-neutral-200">
                           <p className="text-sm text-secondary flex items-center gap-2">
                             <FaStar /> Rating
                           </p>
-                          <p className="text-xl font-bold">4.9</p>
+                          <p className="text-xl font-bold">{category.rating || 'New'}</p>
                         </div>
                       </div>
                     </div>
@@ -152,7 +143,7 @@ const ProgramCategoriesSection = ({ program }) => {
                         <motion.div
                           key={i}
                           whileHover={{ y: -6 }}
-                          className="relative overflow-hidden rounded-[24px] shadow-lg group"
+                          className="relative overflow-hidden rounded-lg shadow-soft group"
                         >
                           <a
                             href={video.url || undefined}
@@ -161,15 +152,15 @@ const ProgramCategoriesSection = ({ program }) => {
                             className={`block ${video.url ? "" : "pointer-events-none"}`}
                           >
                             <img
-                              src={video.thumbnail}
-                              alt={video.title}
+                              src={video.thumbnail || fallbackCategoryImage}
+                              alt={video.title || `${category.title} preview`}
                               className="w-full h-[220px] object-cover group-hover:scale-110 transition duration-700"
                             />
 
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                             <div className="absolute top-4 right-4 px-3 py-1 bg-black/60 text-white text-xs rounded-full">
-                              {video.duration}
+                              {video.duration || 'Preview'}
                             </div>
 
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -180,7 +171,7 @@ const ProgramCategoriesSection = ({ program }) => {
 
                             <div className="absolute bottom-0 p-4 text-white">
                               <h4 className="text-sm font-semibold">
-                                {video.title}
+                                {video.title || `${category.title} preview`}
                               </h4>
                             </div>
                           </a>

@@ -33,7 +33,7 @@ const ProgramStaffSection = ({ program }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 viewport={{ once: true }}
-                className="bg-cream rounded-3xl border border-gray-100 shadow-soft overflow-hidden"
+                className="bg-cream rounded-xl border border-gray-100 shadow-soft overflow-hidden"
               >
                 <div className="h-72 bg-primary/10 overflow-hidden">
                   {staff?.image ? (

@@ -11,7 +11,7 @@ html {
 }
 
 body {
-  @apply bg-cream text-dark font-sans antialiased overflow-x-hidden;
+  @apply bg-brand-50 text-neutral-700 font-sans antialiased overflow-x-hidden;
 }
 
 /* =========================
@@ -45,24 +45,25 @@ p {
 
 .btn-primary {
   @apply inline-flex items-center justify-center
-  bg-gold text-primary
+  bg-primary text-white
   px-7 py-3
-  rounded-2xl
+  rounded-lg
   font-semibold
   shadow-card
   transition-all duration-300
+  hover:bg-primaryLight
   hover:scale-105
   hover:shadow-glow;
 }
 
 .btn-secondary {
   @apply inline-flex items-center justify-center
-  bg-primary text-white
+  bg-brand-100 text-primary
   px-7 py-3
-  rounded-2xl
+  rounded-lg
   font-semibold
   transition-all duration-300
-  hover:bg-primaryLight
+  hover:bg-brand-50
   hover:scale-105;
 }
 
@@ -71,7 +72,7 @@ p {
   border border-white
   text-white
   px-7 py-3
-  rounded-2xl
+  rounded-lg
   font-semibold
   transition-all duration-300
   hover:bg-white
@@ -80,14 +81,34 @@ p {
 
 .btn-dark-outline {
   @apply inline-flex items-center justify-center
-  border border-primary
+  border border-brand-400
   text-primary
   px-7 py-3
-  rounded-2xl
+  rounded-lg
   font-semibold
   transition-all duration-300
   hover:bg-primary
   hover:text-white;
+}
+
+.btn-outline-light {
+  @apply inline-flex items-center justify-center
+  border border-white/70
+  text-white
+  px-7 py-3
+  rounded-lg
+  font-semibold
+  transition-all duration-300
+  hover:bg-white
+  hover:text-primary;
+}
+
+.section-badge {
+  @apply inline-flex items-center gap-2 rounded-lg bg-brand-100 px-4 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-primary;
+}
+
+.section-badge-dark {
+  @apply inline-flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-semibold uppercase tracking-[0.16em] text-goldSoft;
 }
 
 /* =========================
@@ -96,7 +117,7 @@ p {
 
 .card {
   @apply bg-white
-  rounded-3xl
+  rounded-xl
   border border-gray-100
   overflow-hidden
   transition-all duration-500
@@ -110,16 +131,16 @@ p {
 .input-primary {
   @apply w-full
   px-5 py-4
-  rounded-2xl
-  border border-gray-200
-  bg-gray-50/80
-  text-dark
+  rounded-lg
+  border border-neutral-200
+  bg-neutral-50
+  text-neutral-700
   transition-all duration-300
   focus:outline-none
   focus:ring-2
-  focus:ring-secondary
+  focus:ring-brand-400
   focus:ring-opacity-30
-  focus:border-secondary;
+  focus:border-brand-400;
 }
 
 /* =========================
@@ -130,6 +151,65 @@ p {
   @apply bg-white/10
   backdrop-blur-xl
   border border-white/20;
+}
+
+/* =========================
+   PROGRAM CARD SPOTLIGHT
+========================= */
+
+[data-program-glow] {
+  --glow-x: 50%;
+  --glow-y: 0%;
+  --glow-size: 220px;
+  --glow-primary: 24 69 59;
+  --glow-accent: 61 122 107;
+  position: relative;
+  isolation: isolate;
+}
+
+[data-program-glow]::before,
+[data-program-glow]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease;
+}
+
+[data-program-glow]::before {
+  z-index: -1;
+  background:
+    radial-gradient(
+      var(--glow-size) var(--glow-size) at var(--glow-x) var(--glow-y),
+      rgb(var(--glow-accent) / 0.18),
+      transparent 68%
+    ),
+    linear-gradient(135deg, rgb(var(--glow-primary) / 0.06), transparent 55%);
+}
+
+[data-program-glow]::after {
+  z-index: 2;
+  padding: 1px;
+  background:
+    radial-gradient(
+      calc(var(--glow-size) * 0.72) calc(var(--glow-size) * 0.72) at var(--glow-x) var(--glow-y),
+      rgb(var(--glow-accent) / 0.72),
+      rgb(var(--glow-primary) / 0.24) 42%,
+      transparent 70%
+    );
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-program-glow]:hover::before,
+  [data-program-glow]:hover::after {
+    opacity: 1;
+  }
 }
 
 /* =========================
@@ -146,7 +226,7 @@ p {
 
 .section-subtitle {
   @apply inline-block
-  text-secondary
+  text-brand-400
   font-semibold
   uppercase
   tracking-[0.2em]
@@ -164,7 +244,7 @@ p {
 
 .section-description {
   @apply text-lg
-  text-gray-600
+  text-neutral-600
   leading-relaxed
   max-w-3xl;
 }
@@ -201,8 +281,8 @@ p {
   background:
     linear-gradient(
       to right,
-      rgba(11, 61, 46, 0.92),
-      rgba(11, 61, 46, 0.75)
+      rgba(24, 69, 59, 0.92),
+      rgba(18, 53, 45, 0.75)
     );
 }
 
@@ -210,8 +290,8 @@ p {
   background:
     linear-gradient(
       135deg,
-      #D4AF37 0%,
-      #E6C766 100%
+      #B45309 0%,
+      #FEF3C7 100%
     );
 }
 
@@ -292,16 +372,16 @@ p {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f3f4f6;
+  background: #F0F7F4;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #0B3D2E;
+  background: #18453B;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #145A45;
+  background: #12352D;
 }
 
 /* =========================
@@ -309,6 +389,6 @@ p {
 ========================= */
 
 ::selection {
-  background: rgba(212, 175, 55, 0.25);
-  color: #0B3D2E;
+  background: rgba(212, 234, 227, 0.8);
+  color: #18453B;
 }

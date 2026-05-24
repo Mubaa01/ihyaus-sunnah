@@ -117,8 +117,8 @@ const AboutPage = () => {
             </span>
 
             <h1 className="text-5xl md:text-7xl font-heading font-bold leading-tight text-white mb-8">
-              Reviving Knowledge Through
-              <span className="block text-gold mt-2">
+              Reviving <span className="text-gold">Ummah</span> Through
+              <span className="block text-soft-gold mt-2">
                 Education & Sincerity
               </span>
             </h1>
@@ -317,7 +317,7 @@ const AboutPage = () => {
 
       {/* TIMELINE */}
       <section className="section-padding bg-primary relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#D4AF37,_transparent_45%)]" />
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#3D7A6B,_transparent_45%)]" />
 
         <div className="container-custom relative z-10">
           <div className="text-center mb-20">
@@ -390,7 +390,7 @@ const AboutPage = () => {
 
       {/* CTA */}
       <section className="section-padding bg-gradient-to-r from-primary to-primaryLight text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#D4AF37,_transparent_45%)]" />
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_#3D7A6B,_transparent_45%)]" />
 
         <div className="container-custom relative z-10">
           <motion.div

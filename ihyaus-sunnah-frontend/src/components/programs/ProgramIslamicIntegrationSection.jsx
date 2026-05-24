@@ -28,7 +28,7 @@ const ProgramIslamicIntegrationSection = ({ program }) => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.05 }}
               viewport={{ once: true }}
-              className="bg-white p-6 rounded-2xl shadow-soft border border-gray-100 flex items-center gap-4"
+              className="bg-white p-6 rounded-lg shadow-soft border border-gray-100 flex items-center gap-4"
             >
               <div className="w-10 h-10 rounded-xl bg-gold/10 text-gold flex items-center justify-center shrink-0">
                 <FaBookOpen />

@@ -14,22 +14,89 @@ module.exports = {
       ========================= */
 
       colors: {
-        primary: "#0B3D2E",
-        primaryLight: "#145A45",
+        brand: {
+          50: "#F0F7F4",
+          100: "#D4EAE3",
+          300: "#6DB8A2",
+          400: "#3D7A6B",
+          500: "#18453B",
+          600: "#12352D",
+          700: "#0C251F",
+        },
 
-        secondary: "#C9A646",
-        secondaryLight: "#E6C76A",
+        neutral: {
+          50: "#FAF9F7",
+          200: "#D9D4CC",
+          400: "#8C8278",
+          600: "#3D3830",
+          700: "#2C2820",
+        },
 
-        gold: "#C9A646",
-        goldSoft: "#E6C76A",
+        error: {
+          100: "#FDDEC9",
+          500: "#C2410C",
+        },
 
-        cream: "#F8F5F0",
+        warning: {
+          100: "#FEF3C7",
+          600: "#B45309",
+        },
 
-        dark: "#1A1A1A",
+        gray: {
+          50: "#FAF9F7",
+          100: "#F0F7F4",
+          200: "#D9D4CC",
+          300: "#D9D4CC",
+          400: "#8C8278",
+          500: "#8C8278",
+          600: "#3D3830",
+          700: "#2C2820",
+          800: "#2C2820",
+          900: "#2C2820",
+        },
 
-        muted: "#6B7280",
+        red: {
+          50: "#FDDEC9",
+          100: "#FDDEC9",
+          200: "#FDDEC9",
+          300: "#C2410C",
+          400: "#C2410C",
+          500: "#C2410C",
+          600: "#C2410C",
+          700: "#C2410C",
+        },
 
-        borderColor: "#E5E7EB",
+        yellow: {
+          50: "#FEF3C7",
+          100: "#FEF3C7",
+          200: "#FEF3C7",
+          300: "#B45309",
+          400: "#B45309",
+          500: "#B45309",
+          600: "#B45309",
+          700: "#B45309",
+        },
+
+        primary: "#18453B",
+        primaryLight: "#12352D",
+        primaryDark: "#0C251F",
+        "primary-dark": "#0C251F",
+
+        secondary: "#3D7A6B",
+        secondaryLight: "#6DB8A2",
+        "secondary-light": "#6DB8A2",
+
+        gold: "#B45309",
+        goldSoft: "#FEF3C7",
+        "soft-gold": "#FEF3C7",
+
+        cream: "#FAF9F7",
+
+        dark: "#2C2820",
+
+        muted: "#8C8278",
+
+        borderColor: "#D9D4CC",
       },
 
       /* =========================
@@ -66,7 +133,7 @@ module.exports = {
 
         card: "0 8px 24px rgba(0,0,0,0.06)",
 
-        glow: "0 0 25px rgba(201, 166, 70, 0.25)",
+        glow: "0 0 25px rgba(24, 69, 59, 0.22)",
 
         navbar: "0 8px 30px rgba(0,0,0,0.08)",
       },
@@ -86,10 +153,10 @@ module.exports = {
 
       backgroundImage: {
         heroGradient:
-          "linear-gradient(to bottom right, rgba(11,61,46,0.95), rgba(11,61,46,0.8), rgba(0,0,0,0.75))",
+          "linear-gradient(to bottom right, rgba(24,69,59,0.95), rgba(18,53,45,0.84), rgba(12,37,31,0.78))",
 
         sectionFade:
-          "linear-gradient(to bottom, rgba(248,245,240,0), rgba(248,245,240,1))",
+          "linear-gradient(to bottom, rgba(250,249,247,0), rgba(250,249,247,1))",
       },
 
       /* =========================

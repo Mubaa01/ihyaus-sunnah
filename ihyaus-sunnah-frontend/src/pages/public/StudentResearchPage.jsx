@@ -123,7 +123,7 @@ const StudentResearchPage = () => {
   const resetFilters = () => setFilters(defaultFilters)
 
   return (
-    <div className="bg-[#f7f4ef] text-dark">
+    <div className="bg-neutral-50 text-dark">
       <section className="relative min-h-[72vh] overflow-hidden bg-primary">
         <img
           src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2000&auto=format&fit=crop"
@@ -331,7 +331,7 @@ const StudentResearchPage = () => {
                           className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#0B3D2E,#C9A646)]">
+                        <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#18453B,#3D7A6B)]">
                           <FiFileText className="text-5xl text-white/85" />
                         </div>
                       )}
