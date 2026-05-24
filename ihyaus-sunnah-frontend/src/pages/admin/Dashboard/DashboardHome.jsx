@@ -1,55 +1,53 @@
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-
+import { motion } from "framer-motion";
 import {
-  FaUsers,
+  FaArrowRight,
   FaBookOpen,
-  FaDonate,
-  FaMosque,
-  FaImages,
   FaCalendarAlt,
+  FaCheckCircle,
   FaClock,
-  FaArrowUp,
-  FaArrowDown,
-  FaPlus,
-  FaEye,
-  FaEdit,
-  FaTrash,
   FaFilePdf,
+  FaImages,
+  FaMosque,
+  FaPlus,
+  FaUsers,
 } from "react-icons/fa";
 
 import AdminStatCard from "../../../components/admin/AdminStatCard";
-import useProgramsAPI from "../../../hooks/useProgramsAPI";
-import useStaffAPI from "../../../hooks/useStaffAPI";
-import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI";
-import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI";
 import useActivitiesAPI from "../../../hooks/useActivitiesAPI";
 import useMajlisAPI from "../../../hooks/useMajlisAPI";
+import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI";
+import useProgramsAPI from "../../../hooks/useProgramsAPI";
+import useStaffAPI from "../../../hooks/useStaffAPI";
+import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI";
 
 const activityColors = {
-  staff: "text-blue-600 bg-blue-100",
-  program: "text-green-600 bg-green-100",
-  media: "text-purple-600 bg-purple-100",
-  donation: "text-yellow-600 bg-yellow-100",
-  default: "text-gray-600 bg-gray-100",
-}
+  staff: "bg-blue-50 text-blue-600",
+  program: "bg-green-50 text-green-600",
+  media: "bg-purple-50 text-purple-600",
+  donation: "bg-yellow-50 text-yellow-700",
+  default: "bg-brand-50 text-primary",
+};
 
 const activityIcon = {
   staff: <FaUsers />,
   program: <FaBookOpen />,
-  media: <FaMosque />,
-  donation: <FaDonate />,
+  media: <FaImages />,
+  donation: <FaCheckCircle />,
   default: <FaClock />,
-}
+};
 
 const getTimeAgo = (dateString) => {
-  const delta = Math.floor((new Date() - new Date(dateString)) / 1000)
-  if (delta < 60) return `${delta}s ago`
-  if (delta < 3600) return `${Math.floor(delta / 60)}m ago`
-  if (delta < 86400) return `${Math.floor(delta / 3600)}h ago`
-  return `${Math.floor(delta / 86400)}d ago`
-}
+  const date = new Date(dateString);
+  if (Number.isNaN(date.getTime())) return "Recently";
+
+  const delta = Math.max(0, Math.floor((new Date() - date) / 1000));
+  if (delta < 60) return `${delta}s ago`;
+  if (delta < 3600) return `${Math.floor(delta / 60)}m ago`;
+  if (delta < 86400) return `${Math.floor(delta / 3600)}h ago`;
+  return `${Math.floor(delta / 86400)}d ago`;
+};
 
 const DashboardHome = () => {
   const { programs = [] } = useProgramsAPI();
@@ -60,330 +58,346 @@ const DashboardHome = () => {
   const { stats: majlisStats = {} } = useMajlisAPI();
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Update time every minute
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  // Calculate dynamic stats
-  const totalStaff = (staff || []).length;
-  const totalPrograms = (programs || []).length;
-  const activePrograms = (programs || []).filter(p => p.status === 'active').length;
-  const totalResearch = (researchItems || []).length;
-  const featuredPrograms = (programs || []).filter(p => p.isFeatured).length;
+  const dashboardStats = useMemo(() => {
+    const activePrograms = programs.filter((program) => program.status === "active");
+    const featuredPrograms = programs.filter((program) => program.isFeatured);
+    const trustees = staff.filter((member) => member.category === "Board of Trustees");
 
-  const recentActivities = [...activities]
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    .slice(0, 4)
-    .map((activity) => ({
-      ...activity,
-      icon: activityIcon[activity.type] || activityIcon.default,
-      color: activityColors[activity.type] || activityColors.default,
-      time: getTimeAgo(activity.createdAt),
-    }))
+    return {
+      totalStaff: staff.length,
+      totalPrograms: programs.length,
+      activePrograms: activePrograms.length,
+      featuredPrograms: featuredPrograms.length,
+      trustees: trustees.length,
+      totalResearch: researchItems.length,
+      totalMedia: mediaItems.length,
+      totalMajlis: majlisStats?.totalMajlis ?? 0,
+      publicMajlis: majlisStats?.publicCount ?? 0,
+      privateMajlis: majlisStats?.privateCount ?? 0,
+    };
+  }, [majlisStats, mediaItems.length, programs, researchItems.length, staff]);
+
+  const recentActivities = useMemo(
+    () =>
+      [...activities]
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+        .slice(0, 5)
+        .map((activity) => ({
+          ...activity,
+          icon: activityIcon[activity.type] || activityIcon.default,
+          color: activityColors[activity.type] || activityColors.default,
+          time: getTimeAgo(activity.createdAt),
+        })),
+    [activities]
+  );
 
   const quickActions = [
     {
-      title: "Add Staff",
-      description: "Register new team member",
+      title: "Add staff",
+      description: "Create a staff profile",
       icon: <FaUsers />,
       path: "/admin/staff/create",
-      color: "bg-blue-500 hover:bg-blue-600"
     },
     {
-      title: "Create Program",
-      description: "Launch new educational program",
+      title: "Create program",
+      description: "Publish a new program",
       icon: <FaBookOpen />,
       path: "/admin/programs/create",
-      color: "bg-green-500 hover:bg-green-600"
     },
     {
-      title: "Upload Media",
-      description: "Add lectures or media content",
+      title: "Upload media",
+      description: "Add lecture or media content",
       icon: <FaImages />,
       path: "/admin/media/create",
-      color: "bg-purple-500 hover:bg-purple-600"
     },
     {
-      title: "Publish Research",
-      description: "Add a new student research item",
+      title: "Publish research",
+      description: "Add student research",
       icon: <FaFilePdf />,
       path: "/admin/research/create",
-      color: "bg-yellow-500 hover:bg-yellow-600"
     },
     {
-      title: "Manage Majlis",
-      description: "Schedule new sessions",
+      title: "Manage majlis",
+      description: "Review schedules and classes",
       icon: <FaMosque />,
       path: "/admin/majlis",
-      color: "bg-red-500 hover:bg-red-600"
-    },
-    {
-      title: "View Reports",
-      description: "Check analytics and reports",
-      icon: <FaCalendarAlt />,
-      path: "/admin/reports",
-      color: "bg-orange-500 hover:bg-orange-600"
     },
   ];
 
   return (
-    <div className="space-y-10">
-      {/* Hero */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
+    <div className="space-y-6">
+      <motion.section
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative overflow-hidden rounded-[32px]
-        bg-gradient-to-br from-primary via-primary to-primaryLight
-        p-10 text-white"
+        transition={{ duration: 0.35 }}
+        className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm lg:p-6"
       >
-        <div className="absolute inset-0 bg-black/10" />
-        <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-48 translate-x-48" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 bg-secondary/10 rounded-full translate-y-32 -translate-x-32" />
-
-        <div className="relative z-10 flex justify-between items-start">
-          <div className="max-w-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-3 h-3 rounded-full bg-secondary animate-pulse" />
-              <p className="uppercase tracking-[0.3em] text-secondary text-sm font-medium">
-                Ihyaus Sunnah Foundation
-              </p>
-            </div>
-
-            <h1 className="text-4xl md:text-5xl font-heading font-bold leading-tight mb-4">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-3xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-secondary">
+              Admin overview
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold leading-tight text-primary lg:text-4xl">
               Administrative Dashboard
             </h1>
-
-            <p className="text-lg text-gray-200 max-w-xl leading-relaxed">
-              Manage {totalPrograms} programs, {totalStaff} staff members, and institutional content
-              from one centralized platform.
+            <p className="mt-3 max-w-2xl text-sm text-neutral-500 sm:text-base">
+              Monitor institutional content, staff records, media, research, and
+              majlis scheduling from one focused workspace.
             </p>
-
-            <div className="flex items-center gap-6 mt-6 text-sm">
-              <div className="flex items-center gap-2">
-                <FaClock className="text-secondary" />
-                <span>{currentTime.toLocaleDateString()} • {currentTime.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-green-400" />
-                <span>System Online</span>
-              </div>
-            </div>
           </div>
 
-          <div className="hidden lg:block">
-            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-              <h3 className="text-lg font-semibold mb-4">Quick Stats</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Active Programs</span>
-                  <span className="font-bold">{activePrograms}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">Featured</span>
-                  <span className="font-bold">{featuredPrograms}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm">This Month</span>
-                  <span className="font-bold text-green-300">+12%</span>
-                </div>
+          <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
+            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                <FaClock className="text-secondary" />
+                Today
               </div>
+              <p className="mt-2 text-sm text-neutral-500">
+                {currentTime.toLocaleDateString(undefined, {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })}
+              </p>
+              <p className="mt-1 text-lg font-semibold text-primary">
+                {currentTime.toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            </div>
+            <div className="rounded-lg border border-green-100 bg-green-50 p-4">
+              <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
+                <FaCheckCircle />
+                System status
+              </div>
+              <p className="mt-2 text-sm text-green-700">
+                Dashboard services are available.
+              </p>
+              <Link
+                to="/admin/activities"
+                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary"
+              >
+                View audit feed <FaArrowRight className="text-xs" />
+              </Link>
             </div>
           </div>
         </div>
-      </motion.div>
+      </motion.section>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+      <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-5">
         <AdminStatCard
-          title="Total Staff"
-          value={totalStaff.toString()}
+          title="Staff"
+          value={dashboardStats.totalStaff.toString()}
           icon={<FaUsers />}
-          color="bg-blue-100 text-blue-600"
-          trend={{ value: "+5%", direction: "up" }}
-          description={`${staff.filter(s => s.category === 'Board of Trustees').length} trustees`}
+          color="bg-blue-50 text-blue-600"
+          trend={{ value: `${dashboardStats.trustees} trustees`, direction: "up" }}
+          description="Team and leadership records"
         />
-
         <AdminStatCard
           title="Active Programs"
-          value={activePrograms.toString()}
+          value={dashboardStats.activePrograms.toString()}
           icon={<FaBookOpen />}
-          color="bg-green-100 text-green-600"
-          trend={{ value: "+2", direction: "up" }}
-          description={`${featuredPrograms} featured`}
+          color="bg-green-50 text-green-600"
+          trend={{ value: `${dashboardStats.featuredPrograms} featured`, direction: "up" }}
+          description={`${dashboardStats.totalPrograms} total programs`}
         />
-
         <AdminStatCard
-          title="Media Content"
-          value={mediaItems.length.toString()}
+          title="Media"
+          value={dashboardStats.totalMedia.toString()}
           icon={<FaImages />}
-          color="bg-purple-100 text-purple-600"
-          trend={{ value: "+12", direction: "up" }}
-          description="Lectures & media"
+          color="bg-purple-50 text-purple-600"
+          description="Lectures and library assets"
         />
-
         <AdminStatCard
-          title="Research Items"
-          value={totalResearch.toString()}
+          title="Research"
+          value={dashboardStats.totalResearch.toString()}
           icon={<FaFilePdf />}
-          color="bg-yellow-100 text-yellow-700"
-          trend={{ value: "+3", direction: "up" }}
+          color="bg-yellow-50 text-yellow-700"
           description="Student publications"
         />
-
         <AdminStatCard
-          title="Majlis Sessions"
-          value={(majlisStats?.totalMajlis ?? 0).toString()}
+          title="Majlis"
+          value={dashboardStats.totalMajlis.toString()}
           icon={<FaMosque />}
-          color="bg-red-100 text-red-600"
-          trend={{ value: `${majlisStats.publicCount} public`, direction: "up" }}
-          description={`${majlisStats.privateCount} private classes`}
+          color="bg-brand-50 text-primary"
+          description={`${dashboardStats.publicMajlis} public, ${dashboardStats.privateMajlis} private`}
         />
-      </div>
+      </section>
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        {/* Recent Activities */}
+      <section className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="xl:col-span-2 bg-white rounded-3xl p-8 shadow-soft border border-gray-100"
+          transition={{ delay: 0.05 }}
+          className="rounded-lg border border-neutral-200 bg-white shadow-sm"
         >
-          <div className="flex items-center justify-between mb-8">
-            <h2 className="text-2xl font-bold text-primary flex items-center gap-3">
-              <FaClock className="text-secondary" />
-              Recent Activities
-            </h2>
-
+          <div className="flex flex-col gap-3 border-b border-neutral-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-xl font-semibold text-primary">
+                Recent activity
+              </h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                Latest changes across admin-managed content.
+              </p>
+            </div>
             <Link
               to="/admin/activities"
-              className="text-secondary font-medium hover:text-primary transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-secondary"
             >
-              View All →
+              View all <FaArrowRight className="text-xs" />
             </Link>
           </div>
 
-          <div className="space-y-6">
-            {recentActivities.map((activity, idx) => (
-              <motion.div
-                key={activity.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="flex items-start gap-4 pb-6 border-b border-gray-100 last:border-none last:pb-0"
-              >
-                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 ${activity.color}`}>
-                  {activity.icon}
+          <div className="divide-y divide-neutral-200">
+            {recentActivities.length === 0 ? (
+              <div className="p-8 text-center">
+                <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-lg bg-brand-50 text-primary">
+                  <FaClock />
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-primary text-lg">
-                        {activity.action}
-                      </h3>
-                      <p className="text-gray-600 mt-1">
-                        {activity.details}
-                      </p>
+                <p className="mt-3 font-semibold text-primary">
+                  No recent activity yet
+                </p>
+                <p className="mt-1 text-sm text-neutral-500">
+                  New admin actions will appear here as they happen.
+                </p>
+              </div>
+            ) : (
+              recentActivities.map((activity, index) => (
+                <motion.div
+                  key={activity.id || `${activity.action}-${index}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.04 }}
+                  className="flex gap-4 p-5"
+                >
+                  <div
+                    className={`flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg ${activity.color}`}
+                  >
+                    {activity.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <h3 className="truncate font-semibold text-primary">
+                          {activity.action || "Admin update"}
+                        </h3>
+                        <p className="mt-1 text-sm text-neutral-500">
+                          {activity.details || "A dashboard record was updated."}
+                        </p>
+                      </div>
+                      <span className="whitespace-nowrap text-xs font-medium text-neutral-400">
+                        {activity.time}
+                      </span>
                     </div>
-                    <span className="text-sm text-gray-400 whitespace-nowrap ml-4">
-                      {activity.time}
-                    </span>
                   </div>
-
-                  <div className="flex items-center gap-4 mt-3">
-                    <button className="text-sm text-secondary hover:text-primary transition-colors flex items-center gap-1">
-                      <FaEye className="w-3 h-3" />
-                      View
-                    </button>
-                    <button className="text-sm text-gray-500 hover:text-primary transition-colors flex items-center gap-1">
-                      <FaEdit className="w-3 h-3" />
-                      Edit
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              ))
+            )}
           </div>
         </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
+        <motion.aside
+          initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white rounded-3xl p-8 shadow-soft border border-gray-100"
+          transition={{ delay: 0.1 }}
+          className="space-y-6"
         >
-          <h2 className="text-2xl font-bold text-primary mb-8 flex items-center gap-3">
-            <FaPlus className="text-secondary" />
-            Quick Actions
-          </h2>
-
-          <div className="space-y-4">
-            {quickActions.map((action, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-              >
+          <div className="rounded-lg border border-neutral-200 bg-white shadow-sm">
+            <div className="border-b border-neutral-200 p-5">
+              <h2 className="flex items-center gap-2 text-xl font-semibold text-primary">
+                <FaPlus className="text-secondary" />
+                Quick actions
+              </h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                Common creation and review tasks.
+              </p>
+            </div>
+            <div className="grid gap-2 p-3">
+              {quickActions.map((action) => (
                 <Link
+                  key={action.path}
                   to={action.path}
-                  className={`group block p-5 rounded-2xl text-white transition-all duration-300 transform hover:scale-105 hover:shadow-lg ${action.color}`}
+                  className="group flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-brand-50"
                 >
-                  <div className="flex items-start gap-4">
-                    <div className="text-2xl mt-1">
-                      {action.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-lg mb-1">
-                        {action.title}
-                      </h3>
-                      <p className="text-sm opacity-90">
-                        {action.description}
-                      </p>
-                    </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <FaArrowUp className="transform rotate-45" />
-                    </div>
-                  </div>
+                  <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-white">
+                    {action.icon}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-semibold text-primary">
+                      {action.title}
+                    </span>
+                    <span className="block truncate text-sm text-neutral-500">
+                      {action.description}
+                    </span>
+                  </span>
+                  <FaArrowRight className="text-xs text-neutral-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                 </Link>
-              </motion.div>
-            ))}
+              ))}
+            </div>
           </div>
 
-          {/* System Status */}
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <h3 className="font-semibold text-primary mb-4">System Status</h3>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Database</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-green-600">Online</span>
+          <div className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm">
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-primary">
+              <FaCalendarAlt className="text-secondary" />
+              Content health
+            </h2>
+            <div className="mt-5 space-y-4">
+              <div>
+                <div className="mb-2 flex justify-between text-sm">
+                  <span className="font-medium text-neutral-600">
+                    Program coverage
+                  </span>
+                  <span className="font-semibold text-primary">
+                    {dashboardStats.totalPrograms
+                      ? Math.round(
+                          (dashboardStats.activePrograms /
+                            dashboardStats.totalPrograms) *
+                            100
+                        )
+                      : 0}
+                    %
+                  </span>
+                </div>
+                <div className="h-2 rounded-full bg-neutral-100">
+                  <div
+                    className="h-2 rounded-full bg-primary"
+                    style={{
+                      width: `${
+                        dashboardStats.totalPrograms
+                          ? (dashboardStats.activePrograms /
+                              dashboardStats.totalPrograms) *
+                            100
+                          : 0
+                      }%`,
+                    }}
+                  />
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Media Storage</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-green-600">85% Free</span>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="rounded-lg bg-neutral-50 p-3">
+                  <p className="text-neutral-500">Featured</p>
+                  <p className="mt-1 text-lg font-semibold text-primary">
+                    {dashboardStats.featuredPrograms}
+                  </p>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">API Services</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm text-green-600">Healthy</span>
+                <div className="rounded-lg bg-neutral-50 p-3">
+                  <p className="text-neutral-500">Audit items</p>
+                  <p className="mt-1 text-lg font-semibold text-primary">
+                    {activities.length}
+                  </p>
                 </div>
               </div>
             </div>
           </div>
-        </motion.div>
-      </div>
+        </motion.aside>
+      </section>
     </div>
   );
 };

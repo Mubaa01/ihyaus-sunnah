@@ -1,35 +1,36 @@
-import { useState, useMemo } from "react";
-import { NavLink } from "react-router-dom";
+import { useMemo } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
-  FaHome,
-  FaUsers,
+  FaBell,
   FaBookOpen,
-  FaMosque,
-  FaDonate,
-  FaImages,
-  FaCog,
-  FaSignOutAlt,
-  FaChevronDown,
   FaChevronLeft,
   FaChevronRight,
-  FaBell,
-  FaUser,
-  FaShieldAlt,
   FaClock,
+  FaCog,
   FaFilePdf,
+  FaHome,
+  FaImages,
+  FaMosque,
+  FaShieldAlt,
+  FaSignOutAlt,
+  FaUser,
+  FaUsers,
 } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
-import useStaffAPI from "../../hooks/useStaffAPI";
-import useProgramsAPI from "../../hooks/useProgramsAPI";
 import useActivitiesAPI from "../../hooks/useActivitiesAPI";
-import useNotificationsAPI from "../../hooks/useNotificationsAPI";
-import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
 import useMajlisAPI from "../../hooks/useMajlisAPI";
+import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
+import useNotificationsAPI from "../../hooks/useNotificationsAPI";
+import useProgramsAPI from "../../hooks/useProgramsAPI";
+import useStaffAPI from "../../hooks/useStaffAPI";
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI";
 
-const AdminSidebar = ({ isOpen, setIsOpen }) => {
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+const AdminSidebar = ({
+  isOpen,
+  setIsOpen,
+  isCollapsed,
+  setIsCollapsed,
+}) => {
+  const navigate = useNavigate();
   const { staff = [] } = useStaffAPI();
   const { programs = [] } = useProgramsAPI();
   const { researchItems = [] } = useStudentResearchAPI({});
@@ -38,246 +39,219 @@ const AdminSidebar = ({ isOpen, setIsOpen }) => {
   const { unreadCount = 0 } = useNotificationsAPI();
   const { stats = {} } = useMajlisAPI();
 
-  const navItems = useMemo(() => [
-    {
-      name: "Dashboard",
-      path: "/admin",
-      icon: <FaHome />,
-      badge: null,
-    },
-    {
-      name: "Activity Feed",
-      path: "/admin/activities",
-      icon: <FaClock />,
-      badge: activities.length ? activities.length.toString() : null,
-      description: "Audit recent actions",
-    },
-    {
-      name: "Notifications",
-      path: "/admin/notifications",
-      icon: <FaBell />,
-      badge: unreadCount ? unreadCount.toString() : null,
-      description: "Alerts and updates",
-    },
-    {
-      name: "Staff Management",
-      path: "/admin/staff",
-      icon: <FaUsers />,
-      badge: staff.length.toString(),
-      description: "Manage team members",
-    },
-    {
-      name: "Programs",
-      path: "/admin/programs",
-      icon: <FaBookOpen />,
-      badge: programs.length.toString(),
-      description: "Educational programs",
-    },
-    {
-      name: "Research Library",
-      path: "/admin/research",
-      icon: <FaFilePdf />,
-      badge: researchItems.length.toString(),
-      description: "Student research publications",
-    },
-    {
-      name: "Media Library",
-      path: "/admin/media",
-      icon: <FaImages />,
-      badge: mediaItems.length.toString(),
-      description: "Content library",
-    },
-    {
-      name: "Majlis Schedule",
-      path: "/admin/majlis",
-      icon: <FaMosque />,
-      badge: stats.totalMajlis ? stats.totalMajlis.toString() : "0",
-      description: "Manage majlis sessions",
-    },
-    {
-      name: "My Profile",
-      path: "/admin/profile",
-      icon: <FaUser />,
-      badge: null,
-      description: "Manage your admin account",
-    },
-    {
-      name: "Settings",
-      path: "/admin/settings",
-      icon: <FaCog />,
-      badge: null,
-      description: "System settings",
-    },
-  ], [staff.length, programs.length, mediaItems.length, activities.length, unreadCount, stats.totalMajlis]);
+  const navItems = useMemo(
+    () => [
+      { name: "Dashboard", path: "/admin", icon: <FaHome /> },
+      {
+        name: "Activity Feed",
+        path: "/admin/activities",
+        icon: <FaClock />,
+        badge: activities.length || null,
+      },
+      {
+        name: "Notifications",
+        path: "/admin/notifications",
+        icon: <FaBell />,
+        badge: unreadCount || null,
+      },
+      {
+        name: "Staff",
+        path: "/admin/staff",
+        icon: <FaUsers />,
+        badge: staff.length,
+      },
+      {
+        name: "Programs",
+        path: "/admin/programs",
+        icon: <FaBookOpen />,
+        badge: programs.length,
+      },
+      {
+        name: "Research",
+        path: "/admin/research",
+        icon: <FaFilePdf />,
+        badge: researchItems.length,
+      },
+      {
+        name: "Media Library",
+        path: "/admin/media",
+        icon: <FaImages />,
+        badge: mediaItems.length,
+      },
+      {
+        name: "Majlis Schedule",
+        path: "/admin/majlis",
+        icon: <FaMosque />,
+        badge: stats.totalMajlis || 0,
+      },
+    ],
+    [
+      activities.length,
+      mediaItems.length,
+      programs.length,
+      researchItems.length,
+      staff.length,
+      stats.totalMajlis,
+      unreadCount,
+    ]
+  );
+
+  const secondaryItems = [
+    { name: "Profile", path: "/admin/profile", icon: <FaUser /> },
+    { name: "Settings", path: "/admin/settings", icon: <FaCog /> },
+  ];
+
+  const navClass = ({ isActive }) =>
+    [
+      "group relative flex h-11 items-center rounded-lg px-3 text-sm font-medium transition-colors",
+      isCollapsed ? "justify-center" : "gap-3",
+      isActive
+        ? "is-active bg-primary text-white shadow-sm"
+        : "text-neutral-600 hover:bg-brand-50 hover:text-primary",
+    ].join(" ");
 
   return (
     <>
-      {/* Overlay */}
-      <div
-        className={`fixed inset-0 bg-black/50 z-40 lg:hidden transition-all duration-300 ${
-          isOpen ? "opacity-100 visible" : "opacity-0 invisible"
+      <button
+        type="button"
+        className={`fixed inset-0 z-40 bg-primary/40 backdrop-blur-sm transition-opacity lg:hidden ${
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
         onClick={() => setIsOpen(false)}
+        aria-label="Close admin navigation"
       />
 
-      {/* Sidebar */}
-      <motion.aside
-        initial={{ x: -100, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className={`fixed top-0 left-0 z-50 h-screen w-[320px] ${collapsed ? 'lg:w-24' : 'lg:w-[320px]'}
-        bg-gradient-to-b from-primary to-primaryLight text-white shadow-2xl
-        overflow-hidden max-w-full
-        transform transition-all duration-300
-        ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      <aside
+        className={`fixed left-0 top-0 z-50 flex h-screen flex-col border-r border-neutral-200 bg-white shadow-xl transition-all duration-300 lg:shadow-none ${
+          isCollapsed ? "lg:w-24" : "lg:w-[300px]"
+        } w-[300px] max-w-[86vw] ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
-        {/* Logo & User Section */}
-        <div className="border-b border-white/10">
-          {/* Logo */}
-          <div className="h-20 flex items-center justify-between px-4 lg:px-6">
-            <div className={`flex items-center gap-4 ${collapsed ? 'justify-center w-full' : ''}`}>
-              <div className="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center">
-                <FaShieldAlt className="text-secondary text-lg" />
-              </div>
-              <div className={`${collapsed ? 'hidden' : ''}`}>
-                <h1 className="text-xl font-heading font-bold">
+        <div className="flex h-[72px] items-center justify-between border-b border-neutral-200 px-4">
+          <button
+            type="button"
+            onClick={() => navigate("/admin")}
+            className={`flex min-w-0 items-center ${
+              isCollapsed ? "justify-center" : "gap-3"
+            }`}
+          >
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-lg text-white">
+              <FaShieldAlt />
+            </span>
+            {!isCollapsed && (
+              <span className="min-w-0 text-left">
+                <span className="block truncate text-base font-semibold text-primary">
                   Ihyaus Sunnah
-                </h1>
-                <p className="text-xs text-secondary tracking-widest uppercase">
-                  Admin Panel
-                </p>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setCollapsed(!collapsed)}
-              className="hidden lg:flex items-center justify-center w-10 h-10 rounded-2xl bg-white/10 hover:bg-white/20 transition-all"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
-            </button>
-          </div>
+                </span>
+                <span className="block truncate text-xs font-semibold uppercase tracking-[0.12em] text-secondary">
+                  Admin Console
+                </span>
+              </span>
+            )}
+          </button>
 
-          {/* User Info */}
-          <div className={`px-8 pb-6 ${collapsed ? 'hidden lg:block' : ''}`}>
-            <button
-              onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl
-              bg-white/10 hover:bg-white/20 transition-all duration-300"
-            >
-              <img
-                src="https://i.pravatar.cc/100"
-                alt="admin"
-                className="w-12 h-12 rounded-2xl object-cover border-2 border-white/30"
-              />
-              <div className="flex-1 text-left">
-                <h3 className="font-semibold text-sm">Admin User</h3>
-                <p className="text-xs text-gray-300">Super Administrator</p>
-              </div>
-              <FaChevronDown
-                className={`text-sm transition-transform duration-300 ${
-                  userMenuOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            <AnimatePresence>
-              {userMenuOpen && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="mt-3 space-y-2"
-                >
-                  <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl
-                    text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-all">
-                    <FaUser className="text-xs" />
-                    Profile Settings
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl
-                    text-sm text-gray-300 hover:bg-white/10 hover:text-white transition-all">
-                    <FaBell className="text-xs" />
-                    Notifications
-                  </button>
-                  <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl
-                    text-sm text-red-300 hover:bg-red-500/20 hover:text-red-200 transition-all">
-                    <FaSignOutAlt className="text-xs" />
-                    Logout
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <button
+            type="button"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="hidden h-9 w-9 items-center justify-center rounded-lg border border-neutral-200 text-neutral-500 transition-colors hover:border-primary/30 hover:text-primary lg:flex"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {isCollapsed ? <FaChevronRight /> : <FaChevronLeft />}
+          </button>
         </div>
 
-        {/* Navigation */}
-        <div className={`px-6 py-8 flex flex-col h-[calc(100vh-200px)] ${collapsed ? 'px-3' : ''}`}>
-          <div className="space-y-2 flex-1 min-w-0 overflow-y-auto pr-1">
-            {navItems.map((item, idx) => (
-              <motion.div
-                key={item.name}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
+        <nav className="flex-1 overflow-y-auto px-3 py-4">
+          <div className="space-y-1">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === "/admin"}
+                className={navClass}
+                onClick={() => setIsOpen(false)}
+                title={isCollapsed ? item.name : undefined}
               >
-                <NavLink
-                  to={item.path}
-                  end={item.path === "/admin"}
-                  className={({ isActive }) => {
-                    const base = `group flex items-center ${collapsed ? 'justify-center' : 'gap-4'} ${collapsed ? 'px-3' : 'px-5'} py-4 rounded-2xl transition-all duration-300 relative`
-                    const state = isActive
-                      ? 'bg-white text-primary shadow-lg transform scale-105'
-                      : `text-gray-200 hover:bg-white/10 hover:text-white ${collapsed ? '' : 'hover:translate-x-2'}`
-
-                    return `${base} ${state}`
-                  }}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span className={`text-xl transition-transform group-hover:scale-110 ${collapsed ? 'mx-auto' : ''}`}>
-                    {item.icon}
-                  </span>
-
-                  <div className={`${collapsed ? 'hidden' : 'flex-1 min-w-0'}`}>
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium tracking-wide truncate">
-                        {item.name}
+                <span className="flex h-5 w-5 items-center justify-center text-base">
+                  {item.icon}
+                </span>
+                {!isCollapsed && (
+                  <>
+                    <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                    {item.badge !== null && item.badge !== undefined && (
+                      <span className="rounded-md bg-neutral-100 px-2 py-0.5 text-xs font-semibold text-neutral-600 group-[.is-active]:bg-white/15 group-[.is-active]:text-white">
+                        {item.badge}
                       </span>
-                      {item.badge && (
-                        <span className="bg-secondary text-primary text-xs font-bold px-2 py-1 rounded-full min-w-[20px] text-center">
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-                    {item.description && (
-                      <p className="text-xs text-gray-400 mt-1 truncate">
-                        {item.description}
-                      </p>
                     )}
-                  </div>
-
-                  {/* Active indicator */}
-                  <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-secondary rounded-r-full transition-all duration-300 ${collapsed ? 'opacity-0' : 'opacity-0 group-hover:opacity-50'}`} />
-                </NavLink>
-              </motion.div>
+                  </>
+                )}
+              </NavLink>
             ))}
           </div>
 
-          {/* Quick Stats Footer */}
-          <div className={`mt-8 p-4 bg-white/5 rounded-2xl border border-white/10 ${collapsed ? 'hidden lg:block' : ''}`}>
-            <h4 className="text-sm font-semibold text-secondary mb-3">Quick Stats</h4>
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <p className="text-gray-300">Active Users</p>
-                <p className="font-bold text-white">1,247</p>
-              </div>
-              <div>
-                <p className="text-gray-300">This Month</p>
-                <p className="font-bold text-green-400">+23%</p>
-              </div>
+          <div className="mt-5 border-t border-neutral-200 pt-4">
+            <p
+              className={`mb-2 px-3 text-xs font-semibold uppercase tracking-[0.12em] text-neutral-400 ${
+                isCollapsed ? "sr-only" : ""
+              }`}
+            >
+              Account
+            </p>
+            <div className="space-y-1">
+              {secondaryItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={navClass}
+                  onClick={() => setIsOpen(false)}
+                  title={isCollapsed ? item.name : undefined}
+                >
+                  <span className="flex h-5 w-5 items-center justify-center text-base">
+                    {item.icon}
+                  </span>
+                  {!isCollapsed && (
+                    <span className="min-w-0 flex-1 truncate">{item.name}</span>
+                  )}
+                </NavLink>
+              ))}
             </div>
           </div>
+        </nav>
+
+        <div className="border-t border-neutral-200 p-3">
+          <div
+            className={`flex items-center rounded-lg bg-brand-50 p-2 ${
+              isCollapsed ? "justify-center" : "gap-3"
+            }`}
+          >
+            <img
+              src="https://i.pravatar.cc/100"
+              alt="Admin user"
+              className="h-9 w-9 rounded-lg object-cover"
+            />
+            {!isCollapsed && (
+              <>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-primary">
+                    Admin User
+                  </p>
+                  <p className="truncate text-xs text-neutral-400">
+                    Super Administrator
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate("/login")}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-white hover:text-red-600"
+                  aria-label="Logout"
+                >
+                  <FaSignOutAlt />
+                </button>
+              </>
+            )}
+          </div>
         </div>
-      </motion.aside>
+      </aside>
     </>
   );
 };

@@ -1,95 +1,199 @@
-import { Link } from "react-router-dom"
-import { FaArrowRight, FaCogs, FaShieldAlt, FaUserCircle, FaExternalLinkAlt } from "react-icons/fa"
-// TODO: Replace with real admin profile API
+import { Link } from "react-router-dom";
+import {
+  FaArrowRight,
+  FaBell,
+  FaBookOpen,
+  FaCheckCircle,
+  FaCogs,
+  FaExternalLinkAlt,
+  FaImages,
+  FaKey,
+  FaShieldAlt,
+  FaUserCircle,
+} from "react-icons/fa";
+
+const profile = {
+  name: "Admin User",
+  email: "admin@example.com",
+  role: "Super Administrator",
+};
+
+const primarySettings = [
+  {
+    title: "Profile",
+    description: "Update account identity, role display, and contact details.",
+    icon: <FaUserCircle />,
+    path: "/admin/profile",
+    action: "Open profile",
+  },
+  {
+    title: "Secret key policy",
+    description: "Reset generated keys or set a custom 4-digit confirmation PIN.",
+    icon: <FaKey />,
+    path: "/admin/profile",
+    action: "Manage key",
+  },
+  {
+    title: "Notifications",
+    description: "Review admin alerts, unread updates, and operational notices.",
+    icon: <FaBell />,
+    path: "/admin/notifications",
+    action: "View alerts",
+  },
+];
+
+const systemLinks = [
+  { label: "Dashboard", path: "/admin", icon: <FaCogs /> },
+  { label: "Programs", path: "/admin/programs", icon: <FaBookOpen /> },
+  { label: "Media library", path: "/admin/media", icon: <FaImages /> },
+  { label: "Public website", path: "/", icon: <FaExternalLinkAlt /> },
+];
 
 const SettingsPage = () => {
-  // TODO: Fetch admin profile from backend API
-  const profile = { name: "Admin", email: "admin@email.com" }
-
   return (
-    <div className="space-y-10">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-bold text-primary">Admin Settings</h1>
-          <p className="text-gray-500 mt-2">
-            Configure your account and access system-level settings from one place.
-          </p>
-        </div>
-
-        <Link to="/" className="btn-primary inline-flex items-center gap-2">
-          <FaExternalLinkAlt /> Go to Public Site
-        </Link>
-      </div>
-
-      <div className="grid gap-6 xl:grid-cols-3">
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-soft p-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-3xl bg-primary/10 text-primary flex items-center justify-center text-xl">
-              <FaUserCircle />
-            </div>
-            <div>
-              <h2 className="font-semibold text-lg text-primary">Profile</h2>
-              <p className="text-sm text-gray-500">Update account details and secret key settings.</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600">{profile.name}</p>
-          <p className="text-sm text-gray-600">{profile.email}</p>
-          <div className="mt-6">
-            <Link to="/admin/profile" className="btn-secondary w-full inline-flex justify-center">
-              Open Profile Settings <FaArrowRight className="ml-2" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-soft p-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-3xl bg-secondary/10 text-secondary flex items-center justify-center text-xl">
-              <FaShieldAlt />
-            </div>
-            <div>
-              <h2 className="font-semibold text-lg text-primary">Secret Key Policy</h2>
-              <p className="text-sm text-gray-500">Confirm and customize your admin access PIN.</p>
-            </div>
-          </div>
-          <p className="text-sm text-gray-600">Your backend issues a confirmation key automatically for every admin account.</p>
-          <p className="text-sm text-gray-600 mt-3">You can reset it to a new generated key or change it to a custom 4-digit PIN.</p>
-          <div className="mt-6">
-            <Link to="/admin/profile" className="btn-primary w-full inline-flex justify-center">
-              Manage Secret Key <FaArrowRight className="ml-2" />
-            </Link>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-3xl border border-gray-100 shadow-soft p-8 flex flex-col justify-between">
+    <div className="space-y-6">
+      <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm lg:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 rounded-3xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
-                <FaCogs />
+            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-secondary">
+              System preferences
+            </p>
+            <h1 className="mt-2 text-3xl font-semibold text-primary">
+              Admin Settings
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm text-neutral-500 sm:text-base">
+              Configure admin identity, security, notifications, and key system
+              destinations from one organized workspace.
+            </p>
+          </div>
+
+          <Link
+            to="/"
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primaryLight"
+          >
+            <FaExternalLinkAlt className="text-xs" /> Public site
+          </Link>
+        </div>
+      </section>
+
+      <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
+        <main className="space-y-6">
+          <section className="grid gap-4 md:grid-cols-3">
+            {primarySettings.map((item) => (
+              <Link
+                key={item.title}
+                to={item.path}
+                className="group rounded-lg border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-primary/30 hover:shadow-card"
+              >
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-xl text-white">
+                  {item.icon}
+                </div>
+                <h2 className="mt-5 text-lg font-semibold text-primary">
+                  {item.title}
+                </h2>
+                <p className="mt-2 text-sm text-neutral-500">
+                  {item.description}
+                </p>
+                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
+                  {item.action}
+                  <FaArrowRight className="text-xs transition-transform group-hover:translate-x-1" />
+                </span>
+              </Link>
+            ))}
+          </section>
+
+          <section className="rounded-lg border border-neutral-200 bg-white shadow-sm">
+            <div className="border-b border-neutral-200 p-5">
+              <h2 className="text-xl font-semibold text-primary">
+                Access and security
+              </h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                A quick view of the current admin account posture.
+              </p>
+            </div>
+
+            <div className="grid gap-4 p-5 md:grid-cols-3">
+              <div className="rounded-lg bg-neutral-50 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <FaUserCircle className="text-secondary" /> Account
+                </div>
+                <p className="mt-3 font-semibold text-primary">{profile.name}</p>
+                <p className="mt-1 text-sm text-neutral-500">{profile.email}</p>
               </div>
-              <div>
-                <h2 className="font-semibold text-lg text-primary">System Links</h2>
-                <p className="text-sm text-gray-500">Quick access to admin and public sections.</p>
+              <div className="rounded-lg bg-green-50 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
+                  <FaCheckCircle /> Status
+                </div>
+                <p className="mt-3 font-semibold text-green-800">Active</p>
+                <p className="mt-1 text-sm text-green-700">
+                  Admin account is available.
+                </p>
+              </div>
+              <div className="rounded-lg bg-brand-50 p-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                  <FaShieldAlt /> Role
+                </div>
+                <p className="mt-3 font-semibold text-primary">{profile.role}</p>
+                <p className="mt-1 text-sm text-neutral-500">
+                  Has full console access.
+                </p>
               </div>
             </div>
-            <ul className="space-y-3 text-sm text-gray-600">
-              <li className="flex items-center justify-between gap-2">
-                <span>Admin dashboard</span>
-                <Link to="/admin" className="text-primary">Open</Link>
-              </li>
-              <li className="flex items-center justify-between gap-2">
-                <span>Admin profile</span>
-                <Link to="/admin/profile" className="text-primary">Open</Link>
-              </li>
-              <li className="flex items-center justify-between gap-2">
-                <span>Public website</span>
-                <Link to="/" className="text-primary">Home</Link>
-              </li>
-            </ul>
-          </div>
-        </div>
+          </section>
+        </main>
+
+        <aside className="space-y-6">
+          <section className="rounded-lg border border-neutral-200 bg-white shadow-sm">
+            <div className="border-b border-neutral-200 p-5">
+              <h2 className="text-xl font-semibold text-primary">System links</h2>
+              <p className="mt-1 text-sm text-neutral-500">
+                Jump to high-use admin areas.
+              </p>
+            </div>
+
+            <div className="grid gap-2 p-3">
+              {systemLinks.map((item) => (
+                <Link
+                  key={item.label}
+                  to={item.path}
+                  className="group flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-brand-50"
+                >
+                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-primary">
+                    {item.icon}
+                  </span>
+                  <span className="min-w-0 flex-1 font-semibold text-primary">
+                    {item.label}
+                  </span>
+                  <FaArrowRight className="text-xs text-neutral-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+                </Link>
+              ))}
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-green-100 bg-green-50 p-5">
+            <div className="flex items-start gap-3">
+              <FaShieldAlt className="mt-1 text-green-700" />
+              <div>
+                <h2 className="font-semibold text-green-800">
+                  Recommended setup
+                </h2>
+                <p className="mt-1 text-sm text-green-700">
+                  Keep profile details current and rotate the secret key when
+                  admin access changes hands.
+                </p>
+                <Link
+                  to="/admin/profile"
+                  className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary"
+                >
+                  Review profile <FaArrowRight className="text-xs" />
+                </Link>
+              </div>
+            </div>
+          </section>
+        </aside>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SettingsPage
+export default SettingsPage;

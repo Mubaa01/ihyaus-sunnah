@@ -1,24 +1,38 @@
 import { useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
+  FaAngleRight,
   FaBars,
   FaBell,
-  FaSearch,
-  FaUser,
-  FaCog,
-  FaSignOutAlt,
-  FaChevronDown,
-  FaHome,
-  FaAngleRight,
   FaBookOpen,
-  FaImages,
+  FaCog,
   FaExternalLinkAlt,
+  FaHome,
+  FaImages,
+  FaSearch,
+  FaSignOutAlt,
+  FaUser,
 } from "react-icons/fa";
-import { motion, AnimatePresence } from "framer-motion";
-import useStaffAPI from "../../hooks/useStaffAPI";
-import useProgramsAPI from "../../hooks/useProgramsAPI";
+import { AnimatePresence, motion } from "framer-motion";
 import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
 import useNotificationsAPI from "../../hooks/useNotificationsAPI";
+import useProgramsAPI from "../../hooks/useProgramsAPI";
+import useStaffAPI from "../../hooks/useStaffAPI";
+
+const labelMap = {
+  admin: "Dashboard",
+  activities: "Activity Feed",
+  notifications: "Notifications",
+  staff: "Staff",
+  programs: "Programs",
+  research: "Research",
+  media: "Media Library",
+  playlists: "Playlists",
+  majlis: "Majlis Schedule",
+  profile: "Profile",
+  settings: "Settings",
+  create: "Create",
+};
 
 const AdminTopbar = ({ setIsOpen }) => {
   const location = useLocation();
@@ -27,21 +41,22 @@ const AdminTopbar = ({ setIsOpen }) => {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const { staff } = useStaffAPI();
-  const { programs } = useProgramsAPI();
-  const { mediaItems } = useMediaLibraryAPI({});
+  const { staff = [] } = useStaffAPI();
+  const { programs = [] } = useProgramsAPI();
+  const { mediaItems = [] } = useMediaLibraryAPI({});
+  const { notifications = [], unreadCount = 0 } = useNotificationsAPI();
 
   const searchResults = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase()
-    if (!query || query.length < 2) return []
+    const query = searchQuery.trim().toLowerCase();
+    if (query.length < 2) return [];
 
-    const results = []
+    const results = [];
 
     staff
       .filter((item) =>
-        item.name?.toLowerCase().includes(query) ||
-        item.position?.toLowerCase().includes(query) ||
-        item.role?.toLowerCase().includes(query)
+        [item.name, item.position, item.role]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(query))
       )
       .slice(0, 3)
       .forEach((item) =>
@@ -50,14 +65,15 @@ const AdminTopbar = ({ setIsOpen }) => {
           label: item.name,
           subtitle: item.position || item.role,
           path: "/admin/staff",
-          icon: <FaUser className="text-blue-500" />,
+          icon: <FaUser className="text-blue-600" />,
         })
-      )
+      );
 
     programs
       .filter((program) =>
-        program.title?.toLowerCase().includes(query) ||
-        program.category?.toLowerCase().includes(query)
+        [program.title, program.category]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(query))
       )
       .slice(0, 3)
       .forEach((item) =>
@@ -66,15 +82,15 @@ const AdminTopbar = ({ setIsOpen }) => {
           label: item.title,
           subtitle: item.category,
           path: "/admin/programs",
-          icon: <FaBookOpen className="text-green-500" />,
+          icon: <FaBookOpen className="text-green-600" />,
         })
-      )
+      );
 
     mediaItems
       .filter((item) =>
-        item.title?.toLowerCase().includes(query) ||
-        item.description?.toLowerCase().includes(query) ||
-        item.tags?.some((tag) => tag.toLowerCase().includes(query))
+        [item.title, item.description, ...(item.tags || [])]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(query))
       )
       .slice(0, 3)
       .forEach((item) =>
@@ -83,177 +99,160 @@ const AdminTopbar = ({ setIsOpen }) => {
           label: item.title,
           subtitle: item.mediaCategory,
           path: "/admin/media",
-          icon: <FaImages className="text-purple-500" />,
+          icon: <FaImages className="text-purple-600" />,
         })
-      )
+      );
 
-    return results.slice(0, 6)
-  }, [searchQuery, staff, programs, mediaItems])
+    return results.slice(0, 6);
+  }, [mediaItems, programs, searchQuery, staff]);
 
-  const handleSearchSelect = (item) => {
-    setSearchQuery("")
-    navigate(item.path)
-  }
+  const breadcrumbs = useMemo(() => {
+    const segments = location.pathname.split("/").filter(Boolean);
+    const items = [{ name: "Dashboard", path: "/admin", icon: <FaHome /> }];
+    let currentPath = "";
 
-  const handleSearchKeyDown = (e) => {
-    if (e.key === "Enter" && searchResults.length > 0) {
-      handleSearchSelect(searchResults[0])
-    }
-  }
-
-  const { notifications, unreadCount } = useNotificationsAPI()
-
-  // Generate breadcrumbs from current path
-  const generateBreadcrumbs = () => {
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    const breadcrumbs = [{ name: 'Dashboard', path: '/admin', icon: <FaHome /> }];
-
-    let currentPath = '/admin';
-    pathSegments.slice(1).forEach((segment, index) => {
+    segments.forEach((segment, index) => {
       currentPath += `/${segment}`;
-      const name = segment.charAt(0).toUpperCase() + segment.slice(1).replace('-', ' ');
-      breadcrumbs.push({ name, path: currentPath });
+      if (index === 0) return;
+      items.push({
+        name:
+          labelMap[segment] ||
+          segment
+            .replace(/-/g, " ")
+            .replace(/\b\w/g, (letter) => letter.toUpperCase()),
+        path: currentPath,
+      });
     });
 
-    return breadcrumbs;
+    return items;
+  }, [location.pathname]);
+
+  const handleSearchSelect = (item) => {
+    setSearchQuery("");
+    navigate(item.path);
   };
 
-  const breadcrumbs = generateBreadcrumbs();
+  const handleSearchKeyDown = (event) => {
+    if (event.key === "Enter" && searchResults.length > 0) {
+      handleSearchSelect(searchResults[0]);
+    }
+  };
 
   return (
-    <header
-      className="sticky top-0 z-30
-      bg-white/95 backdrop-blur-xl
-      border-b border-gray-100 shadow-sm"
-    >
-      <div className="h-20 px-6 lg:px-10 flex items-center justify-between">
-        {/* Left Section */}
-        <div className="flex items-center gap-6">
+    <header className="sticky top-0 z-30 border-b border-neutral-200 bg-white/95 backdrop-blur">
+      <div className="flex h-[72px] items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex min-w-0 items-center gap-3">
           <button
+            type="button"
             onClick={() => setIsOpen(true)}
-            className="lg:hidden w-12 h-12 rounded-2xl
-            bg-gray-100 hover:bg-gray-200
-            flex items-center justify-center transition-all hover:scale-105"
+            className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 transition-colors hover:border-primary/30 hover:text-primary lg:hidden"
+            aria-label="Open admin navigation"
           >
             <FaBars />
           </button>
 
-          {/* Breadcrumbs */}
-          <div className="hidden md:flex items-center gap-2 text-sm">
-            {breadcrumbs.map((crumb, index) => (
-              <div key={crumb.path} className="flex items-center gap-2">
-                {index > 0 && <FaAngleRight className="text-gray-400 w-3 h-3" />}
-                {index === breadcrumbs.length - 1 ? (
-                  <span className="font-semibold text-primary">{crumb.name}</span>
-                ) : (
-                  <Link
-                    to={crumb.path}
-                    className="text-gray-600 hover:text-primary transition-colors flex items-center gap-2"
-                  >
-                    {crumb.icon && <span className="text-gray-400">{crumb.icon}</span>}
-                    {crumb.name}
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Mobile Title */}
-          <div className="md:hidden">
-            <h1 className="text-xl font-heading font-bold text-primary">
-              {breadcrumbs[breadcrumbs.length - 1]?.name || 'Dashboard'}
+          <div className="min-w-0">
+            <div className="hidden items-center gap-2 text-sm md:flex">
+              {breadcrumbs.map((crumb, index) => (
+                <div key={crumb.path} className="flex min-w-0 items-center gap-2">
+                  {index > 0 && (
+                    <FaAngleRight className="h-3 w-3 flex-shrink-0 text-neutral-400" />
+                  )}
+                  {index === breadcrumbs.length - 1 ? (
+                    <span className="truncate font-semibold text-primary">
+                      {crumb.name}
+                    </span>
+                  ) : (
+                    <Link
+                      to={crumb.path}
+                      className="flex items-center gap-2 text-neutral-500 transition-colors hover:text-primary"
+                    >
+                      {crumb.icon && <span>{crumb.icon}</span>}
+                      <span>{crumb.name}</span>
+                    </Link>
+                  )}
+                </div>
+              ))}
+            </div>
+            <h1 className="truncate text-lg font-semibold text-primary md:hidden">
+              {breadcrumbs[breadcrumbs.length - 1]?.name || "Dashboard"}
             </h1>
           </div>
         </div>
 
-        {/* Right Section */}
-        <div className="flex items-center gap-4">
-          {/* Search */}
-          <div className="hidden md:block relative">
-            <div
-              className="flex items-center gap-3
-              bg-gray-100 rounded-2xl px-4 py-3 w-[280px]
-              focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:shadow-lg
-              transition-all duration-300"
-            >
-              <FaSearch className="text-gray-400" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="relative hidden md:block">
+            <div className="flex h-10 w-[300px] items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-3 transition focus-within:border-primary/40 focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/10">
+              <FaSearch className="text-neutral-400" />
               <input
                 type="text"
-                placeholder="Search programs, staff, media..."
+                placeholder="Search staff, programs, media"
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(event) => setSearchQuery(event.target.value)}
                 onKeyDown={handleSearchKeyDown}
-                className="bg-transparent outline-none w-full text-sm placeholder-gray-500"
+                className="w-full bg-transparent text-sm outline-none placeholder:text-neutral-400"
               />
               {searchQuery && (
                 <button
+                  type="button"
                   onClick={() => setSearchQuery("")}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-lg leading-none text-neutral-400 hover:text-neutral-600"
+                  aria-label="Clear search"
                 >
-                  ×
+                  x
                 </button>
               )}
             </div>
 
-            {/* Search Results Dropdown */}
             <AnimatePresence>
               {searchQuery && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute top-full mt-2 w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-4 z-50"
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute right-0 top-full z-50 mt-2 w-full rounded-lg border border-neutral-200 bg-white p-2 shadow-card"
                 >
-                  <div className="space-y-3">
-                    <div className="text-sm text-gray-500 mb-2">Search results</div>
-                    {searchResults.length === 0 ? (
-                      <div className="text-sm text-gray-500 py-4 text-center">
-                        No results found. Try staff names, program titles or media keywords.
-                      </div>
-                    ) : (
-                      searchResults.map((item, index) => (
-                        <button
-                          key={`${item.category}-${index}`}
-                          onClick={() => handleSearchSelect(item)}
-                          className="w-full flex items-center gap-3 p-3 rounded-2xl text-left hover:bg-gray-50 transition-colors"
-                        >
-                          <div className="w-11 h-11 rounded-2xl bg-gray-100 flex items-center justify-center">
-                            {item.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-sm text-primary">{item.label}</p>
-                            <p className="text-xs text-gray-500">{item.subtitle} • {item.category}</p>
-                          </div>
-                        </button>
-                      ))
-                    )}
-                    {searchResults.length > 0 && (
+                  {searchResults.length === 0 ? (
+                    <div className="px-3 py-5 text-center text-sm text-neutral-500">
+                      No matching records found.
+                    </div>
+                  ) : (
+                    searchResults.map((item, index) => (
                       <button
-                        onClick={() => navigate(searchResults[0].path)}
-                        className="w-full text-left text-sm text-primary font-medium hover:text-secondary transition-colors"
+                        key={`${item.category}-${index}`}
+                        type="button"
+                        onClick={() => handleSearchSelect(item)}
+                        className="flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors hover:bg-brand-50"
                       >
-                        See all {searchResults[0].category.toLowerCase()} results
+                        <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-neutral-100">
+                          {item.icon}
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block truncate text-sm font-semibold text-primary">
+                            {item.label}
+                          </span>
+                          <span className="block truncate text-xs text-neutral-400">
+                            {item.subtitle || item.category} / {item.category}
+                          </span>
+                        </span>
                       </button>
-                    )}
-                  </div>
+                    ))
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* Notifications */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="relative w-12 h-12 rounded-2xl
-              bg-gray-100 hover:bg-gray-200
-              flex items-center justify-center transition-all hover:scale-105"
+              className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 transition-colors hover:border-primary/30 hover:text-primary"
+              aria-label="Open notifications"
             >
               <FaBell />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1
-                w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold
-                flex items-center justify-center">
+                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
                   {unreadCount}
                 </span>
               )}
@@ -262,150 +261,124 @@ const AdminTopbar = ({ setIsOpen }) => {
             <AnimatePresence>
               {notificationsOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 z-50"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card"
                 >
-                  <div className="p-4 border-b border-gray-100">
+                  <div className="border-b border-neutral-200 p-4">
                     <h3 className="font-semibold text-primary">Notifications</h3>
-                    <p className="text-sm text-gray-500">{unreadCount} unread</p>
+                    <p className="text-sm text-neutral-400">{unreadCount} unread</p>
                   </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <button
-                        key={notification.id}
-                        onClick={() => {
-                          setNotificationsOpen(false)
-                          navigate('/admin/notifications')
-                        }}
-                        className={`w-full text-left p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                          notification.read ? '' : 'bg-blue-50/50'
-                        }`}
-                      >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            notification.type === 'staff' ? 'bg-blue-100 text-blue-600' :
-                            notification.type === 'program' ? 'bg-green-100 text-green-600' :
-                            notification.type === 'media' ? 'bg-purple-100 text-purple-600' :
-                            'bg-yellow-100 text-yellow-600'
-                          }`}>
-                            {notification.type === 'staff' ? <FaUser className="w-4 h-4" /> :
-                             notification.type === 'program' ? <FaBookOpen className="w-4 h-4" /> :
-                             notification.type === 'media' ? <FaImages className="w-4 h-4" /> :
-                             <FaBell className="w-4 h-4" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <h4 className="font-medium text-sm text-primary">{notification.title}</h4>
-                            <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
-                            <p className="text-xs text-gray-400 mt-2">{new Date(notification.createdAt).toLocaleTimeString()}</p>
-                          </div>
-                          {!notification.read && (
-                            <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-2"></div>
-                          )}
-                        </div>
-                      </button>
-                    ))}
+                  <div className="max-h-80 overflow-y-auto">
+                    {notifications.length === 0 ? (
+                      <div className="p-6 text-center text-sm text-neutral-500">
+                        You are all caught up.
+                      </div>
+                    ) : (
+                      notifications.slice(0, 5).map((notification) => (
+                        <button
+                          key={notification.id}
+                          type="button"
+                          onClick={() => {
+                            setNotificationsOpen(false);
+                            navigate("/admin/notifications");
+                          }}
+                          className={`w-full border-b border-neutral-100 p-4 text-left transition-colors hover:bg-brand-50 ${
+                            notification.read ? "bg-white" : "bg-brand-50/60"
+                          }`}
+                        >
+                          <p className="text-sm font-semibold text-primary">
+                            {notification.title}
+                          </p>
+                          <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
+                            {notification.message}
+                          </p>
+                        </button>
+                      ))
+                    )}
                   </div>
-                  <div className="p-4 border-t border-gray-100">
-                    <button
-                      onClick={() => {
-                        setNotificationsOpen(false)
-                        navigate('/admin/notifications')
-                      }}
-                      className="w-full text-center text-sm text-primary hover:text-primary/80 transition-colors"
-                    >
-                      View All Notifications
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNotificationsOpen(false);
+                      navigate("/admin/notifications");
+                    }}
+                    className="w-full p-3 text-center text-sm font-semibold text-primary transition-colors hover:bg-brand-50"
+                  >
+                    View all notifications
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
 
-          {/* User Menu */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
-              className="flex items-center gap-3 p-2 rounded-2xl
-              hover:bg-gray-100 transition-all hover:scale-105"
+              className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 px-2 transition-colors hover:border-primary/30"
+              aria-label="Open account menu"
             >
               <img
                 src="https://i.pravatar.cc/100"
-                alt="admin"
-                className="w-10 h-10 rounded-2xl object-cover border-2 border-gray-200"
+                alt="Admin user"
+                className="h-7 w-7 rounded-md object-cover"
               />
-              <div className="hidden sm:block text-left">
-                <h3 className="text-sm font-semibold text-primary">Admin User</h3>
-                <p className="text-xs text-gray-500">Super Admin</p>
-              </div>
-              <FaChevronDown className={`text-sm transition-transform ${userMenuOpen ? 'rotate-180' : ''}`} />
+              <span className="hidden text-sm font-semibold text-primary sm:block">
+                Admin
+              </span>
             </button>
 
             <AnimatePresence>
               {userMenuOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-xl border border-gray-100 z-50"
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-lg border border-neutral-200 bg-white p-2 shadow-card"
                 >
-                  <div className="p-4 border-b border-gray-100">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src="https://i.pravatar.cc/100"
-                        alt="admin"
-                        className="w-12 h-12 rounded-2xl object-cover"
-                      />
-                      <div>
-                        <h4 className="font-semibold text-primary">Admin User</h4>
-                        <p className="text-sm text-gray-500">admin@example.com</p>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-2">
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false)
-                        navigate('/admin/profile')
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <FaUser className="w-4 h-4" />
-                      Profile
-                    </button>
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false)
-                        navigate('/admin/settings')
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <FaCog className="w-4 h-4" />
-                      Settings
-                    </button>
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false)
-                        navigate('/')
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    >
-                      <FaExternalLinkAlt className="w-4 h-4" />
-                      Public Site
-                    </button>
-                    <div className="border-t border-gray-100 my-2"></div>
-                    <button
-                      onClick={() => {
-                        setUserMenuOpen(false)
-                        navigate('/login')
-                      }}
-                      className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <FaSignOutAlt className="w-4 h-4" />
-                      Logout
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      navigate("/admin/profile");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-brand-50 hover:text-primary"
+                  >
+                    <FaUser /> Profile
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      navigate("/admin/settings");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-brand-50 hover:text-primary"
+                  >
+                    <FaCog /> Settings
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      navigate("/");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-neutral-600 transition-colors hover:bg-brand-50 hover:text-primary"
+                  >
+                    <FaExternalLinkAlt /> Public site
+                  </button>
+                  <div className="my-2 border-t border-neutral-200" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setUserMenuOpen(false);
+                      navigate("/login");
+                    }}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
+                  >
+                    <FaSignOutAlt /> Logout
+                  </button>
                 </motion.div>
               )}
             </AnimatePresence>
