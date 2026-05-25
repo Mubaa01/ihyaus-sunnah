@@ -7,6 +7,7 @@ import {
   FaCalendarAlt,
   FaCheckCircle,
   FaClock,
+  FaEye,
   FaFilePdf,
   FaImages,
   FaMosque,
@@ -129,30 +130,87 @@ const DashboardHome = () => {
     },
   ];
 
+  const totalManagedItems =
+    dashboardStats.totalStaff +
+    dashboardStats.totalPrograms +
+    dashboardStats.totalMedia +
+    dashboardStats.totalResearch +
+    dashboardStats.totalMajlis;
+
   return (
     <div className="space-y-6">
       <motion.section
         initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm lg:p-6"
+        className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm"
       >
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.14em] text-secondary">
-              Admin overview
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold leading-tight text-primary lg:text-4xl">
-              Administrative Dashboard
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm text-neutral-500 sm:text-base">
-              Monitor institutional content, staff records, media, research, and
-              majlis scheduling from one focused workspace.
-            </p>
+        <div className="grid gap-0 xl:grid-cols-[1fr_360px]">
+          <div className="p-5 lg:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-primary">
+                  <span className="h-2 w-2 rounded-full bg-green-600" />
+                  Admin overview
+                </div>
+                <h1 className="mt-4 max-w-3xl text-3xl font-semibold leading-tight text-primary lg:text-4xl">
+                  Manage the foundation from one focused workspace.
+                </h1>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-neutral-500 sm:text-base">
+                  Track programs, staff, research, media, and majlis activity
+                  with the actions and context administrators need most.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2 lg:justify-end">
+                <Link
+                  to="/admin/programs/create"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primaryLight"
+                >
+                  <FaPlus className="text-xs" /> New program
+                </Link>
+                <Link
+                  to="/"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 text-sm font-semibold text-primary transition-colors hover:bg-brand-50"
+                >
+                  <FaEye className="text-xs" /> Public site
+                </Link>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                <p className="text-sm font-medium text-neutral-500">
+                  Managed records
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {totalManagedItems}
+                </p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                <p className="text-sm font-medium text-neutral-500">
+                  Active programs
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {dashboardStats.activePrograms}
+                  <span className="ml-2 text-sm font-medium text-neutral-400">
+                    / {dashboardStats.totalPrograms}
+                  </span>
+                </p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+                <p className="text-sm font-medium text-neutral-500">
+                  Audit activity
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-primary">
+                  {activities.length}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:w-[360px]">
-            <div className="rounded-lg border border-neutral-200 bg-neutral-50 p-4">
+          <aside className="border-t border-neutral-200 bg-neutral-50 p-5 xl:border-l xl:border-t-0 lg:p-6">
+            <div className="rounded-lg border border-neutral-200 bg-white p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                 <FaClock className="text-secondary" />
                 Today
@@ -172,7 +230,8 @@ const DashboardHome = () => {
                 })}
               </p>
             </div>
-            <div className="rounded-lg border border-green-100 bg-green-50 p-4">
+
+            <div className="mt-3 rounded-lg border border-green-100 bg-green-50 p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-green-700">
                 <FaCheckCircle />
                 System status
@@ -187,7 +246,22 @@ const DashboardHome = () => {
                 View audit feed <FaArrowRight className="text-xs" />
               </Link>
             </div>
-          </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-3">
+              <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                <p className="text-xs font-medium text-neutral-500">Featured</p>
+                <p className="mt-1 text-lg font-semibold text-primary">
+                  {dashboardStats.featuredPrograms}
+                </p>
+              </div>
+              <div className="rounded-lg border border-neutral-200 bg-white p-3">
+                <p className="text-xs font-medium text-neutral-500">Majlis</p>
+                <p className="mt-1 text-lg font-semibold text-primary">
+                  {dashboardStats.totalMajlis}
+                </p>
+              </div>
+            </div>
+          </aside>
         </div>
       </motion.section>
 

@@ -1,17 +1,15 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-
 import {
-  FiArrowRight,
+  FiAward,
   FiBookOpen,
   FiHeart,
   FiUsers,
-  FiAward,
 } from "react-icons/fi";
 
-import useProgramsAPI from "../../hooks/useProgramsAPI";
+import HeroSection from "../../components/Home/HeroSection";
 import ProgramCard from "../../components/programs/ProgramCard";
-import QuranVersePanel from "../../components/common/QuranVersePanel";
+import useProgramsAPI from "../../hooks/useProgramsAPI";
 
 const values = [
   {
@@ -20,21 +18,18 @@ const values = [
     description:
       "Promoting authentic Islamic knowledge with wisdom, discipline, and excellence.",
   },
-
   {
     icon: <FiHeart size={28} />,
     title: "Sincerity",
     description:
       "Building education and service purely for the pleasure of Allah.",
   },
-
   {
     icon: <FiUsers size={28} />,
     title: "Community",
     description:
       "Strengthening the Muslim community through education and unity.",
   },
-
   {
     icon: <FiAward size={28} />,
     title: "Service",
@@ -43,263 +38,50 @@ const values = [
   },
 ];
 
-const homeVerse = {
-  arabic: "إِنَّ اللَّهَ يَأْمُرُ بِالْعَدْلِ وَالْإِحْسَانِ وَإِيتَاءِ ذِي الْقُرْبَىٰ",
-  translation:
-    "Indeed, Allah commands justice, excellence, and giving to relatives.",
-  reference: "Surah An-Nahl 16:90",
-}
-
 const HomePage = () => {
-  const { programs, loading } = useProgramsAPI()
+  const { programs, loading } = useProgramsAPI();
 
   return (
     <div className="overflow-hidden">
+      <HeroSection />
 
-
-    
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-
-        <div className=" absolute inset-0">
-          <img
-            src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=2000&auto=format&fit=crop"
-            alt="Ihyaus Sunnah Foundation"
-            className="w-full h-full object-cover"
-          />
-
-         
-          <div className="absolute inset-0 bg-heroGradient"></div>
-        </div>
-
-  
-        {/* <div className="absolute top-20 left-10 w-72 h-72 bg-gold/20 blur-3xl rounded-full animate-pulseGlow"></div> */}
-
-        <div className="relative z-10  px-20  py-8 md:grid md:items-center">
-          
-
-          <div className="max-w-4xl">
-
-            
-          
-  <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h1
-          dir="ltr"
-          className="font-arabic text-5xl md:text-6xl font-bold text-white leading-tight  tracking-[0.25em] pt-32 pb-8"
-          
-        >
-          عَلِّمُوا مَجَّانًا كَمَا عُلِّمْتُمْ مَجَّانًا
-        </h1>
-      </motion.div>
-
-    
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      className=" text-sm md:text-lg uppercase tracking-[0.25em] text-white mb-16"
-      >
-        Teach freely <br></br>
-        <span className="text-primaryDark bg-yellow-400 p-1 "> as you have been taught freely</span>
-       
-      </motion.p>
-      
-          
-            <motion.h1
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              className="text-3xl md:text-6xl font-heading font-bold leading-tight text-white mb-6 pb-16"
-            >
-              Ihyaus Sunnah Foundation
-              <span className="block text-yellow-400 mt-2 md: text-xlg">
-                Magume Zaria
-              </span>
-            </motion.h1>
-
-          
-         
-
-        
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2 }}
-              className="flex flex-wrap gap-5  "
-            >
-              
-
-              <Link to="/about">
-                <button className="btn-primary flex items-center gap-2 hover:bg-yellow-400">
-                  Explore Foundation
-                  <FiArrowRight />
-                </button>
-              </Link>
-
-              <Link to="/programs">
-                <button className="btn-outline flex items-center gap-2">
-                  View Programs
-                </button>
-              </Link>
-
-              
-              <Link to="/donate">
-                <button className="btn-primary flex items-center gap-2 hover:bg-yellow-400">
-                  Support Our Misssion
-                  <FiArrowRight />
-                </button>
-              </Link>
-
-             
-            </motion.div>
-
-          </div>
-
-          {/* FLOATING STATS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-24 md: width-2/3">
-
-            {/* CARD 1 */}
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              viewport={{ once: true }}
-              className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:-translate-y-2 transition duration-500 shadow-soft"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-primary flex items-center justify-center mb-6">
-                <FiBookOpen size={30} />
-              </div>
-
-              <h3 className="text-4xl font-bold text-white mb-2">
-                5+
-              </h3>
-
-              <p className="text-goldSoft text-lg font-semibold mb-3">
-                Educational Programs
-              </p>
-
-              <p className="text-gray-300 leading-relaxed">
-                Islamic studies, Tahfeez, Arabic education, western education,
-                and community learning programs.
-              </p>
-            </motion.div>
-
-            {/* CARD 2 */}
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:-translate-y-2 transition duration-500 shadow-soft"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-primary flex items-center justify-center mb-6">
-                <FiUsers size={30} />
-              </div>
-
-              <h3 className="text-4xl font-bold text-white mb-2">
-                1000+
-              </h3>
-
-              <p className="text-goldSoft text-lg font-semibold mb-3">
-                Students
-              </p>
-
-              <p className="text-gray-300 leading-relaxed">
-                Building a disciplined community grounded upon knowledge,
-                sincerity, and Islamic values.
-              </p>
-            </motion.div>
-
-            {/* CARD 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9 }}
-              viewport={{ once: true }}
-              className="bg-white/10 backdrop-blur-xl border border-white/10 rounded-3xl p-8 hover:-translate-y-2 transition duration-500 shadow-soft"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-yellow-400 text-primary flex items-center justify-center mb-6">
-                <FiHeart size={30} />
-              </div>
-
-              <h3 className="text-4xl font-bold text-white mb-2">
-                Nonprofit
-              </h3>
-
-              <p className="text-goldSoft text-lg font-semibold mb-3">
-                Community Development
-              </p>
-
-              <p className="text-gray-300 leading-relaxed">
-                Supporting orphans and vulnerable members of society through
-                donations and welfare initiatives.
-              </p>
-            </motion.div>
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      
-
-      {/* ====================================================== */}
-      {/* PROGRAMS SECTION */}
-      {/* ====================================================== */}
-
-      <section className="py-28 bg-cream relative overflow-hidden">
-
-        {/* BACKGROUND GLOW */}
-        <div className="absolute top-10 right-0 w-72 h-72 bg-gold/10 blur-3xl rounded-full"></div>
-
+      <section className="relative overflow-hidden bg-cream py-24 md:py-28">
         <div className="container-custom relative z-10">
-
-          {/* SECTION HEADER */}
-          <div className="text-center mb-16">
-
+          <div className="mx-auto mb-14 max-w-3xl text-center">
             <motion.p
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="uppercase tracking-[0.25em] text-gold font-semibold mb-4 text-6lg"
+              className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gold"
             >
-              
               Our Programs
             </motion.p>
-
             <motion.h2
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="text-4xl md:text-5xl font-heading font-bold text-primary mb-6"
+              className="text-4xl font-semibold text-primary md:text-5xl"
             >
               Educational & Community Initiatives
             </motion.h2>
-
             <motion.p
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
-              className="text-lg text-muted max-w-3xl mx-auto leading-relaxed"
+              className="mt-5 text-lg leading-relaxed text-yellow-200"
             >
               We provide comprehensive educational programs and impactful
               community initiatives designed to nurture knowledge, character,
               and societal development.
             </motion.p>
-
           </div>
 
-          {/* PROGRAM CARDS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
             {loading ? (
-              <div className="col-span-full text-center py-24 text-primary font-semibold">
+              <div className="col-span-full py-20 text-center font-semibold text-primary">
                 Loading programs...
               </div>
             ) : (
@@ -308,139 +90,93 @@ const HomePage = () => {
               ))
             )}
           </div>
-
         </div>
       </section>
 
-      {/* ====================================================== */}
-      {/* VALUES SECTION */}
-      {/* ====================================================== */}
-
-      <section className="py-28 bg-white relative overflow-hidden">
-
+      <section className="relative overflow-hidden bg-white py-24 md:py-28">
         <div className="container-custom">
-
-          {/* HEADER */}
-          <div className="text-center mb-16">
-
-            <p className="uppercase tracking-[0.25em] text-gold font-semibold mb-4 text-6lg">
+          <div className="mx-auto mb-14 max-w-3xl text-center">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gold">
               Our Values
             </p>
-
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-primary mb-6">
+            <h2 className="text-4xl font-semibold text-primary md:text-5xl">
               Principles That Guide Our Mission
             </h2>
-
-            <p className="text-lg text-muted max-w-3xl mx-auto leading-relaxed">
+            <p className="mt-5 text-lg leading-relaxed text-muted">
               Everything we do is rooted in Islamic values, sincerity,
               educational excellence, and service to humanity.
             </p>
-
           </div>
 
-          {/* VALUES GRID */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {values.map((value, idx) => (
               <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 60 }}
+                key={value.title}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: idx * 0.1 }}
+                transition={{ duration: 0.55, delay: idx * 0.08 }}
                 viewport={{ once: true }}
-                className="group card p-10 text-center hover:-translate-y-2 transition duration-500"
+                className="group rounded-lg border border-neutral-200 bg-white p-8 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-card"
               >
-
-                {/* ICON */}
-                <div className="w-20 h-20 mx-auto rounded-3xl bg-primary/10 text-primary flex items-center justify-center mb-6 group-hover:bg-gold group-hover:text-primary transition duration-500">
+                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-gold">
                   {value.icon}
                 </div>
-
-                {/* TITLE */}
-                <h3 className="text-2xl font-heading font-bold text-primary mb-4">
+                <h3 className="mb-3 text-2xl font-semibold text-primary">
                   {value.title}
                 </h3>
-
-                {/* DESCRIPTION */}
-                <p className="text-muted leading-relaxed">
-                  {value.description}
-                </p>
-
+                <p className="leading-relaxed text-muted">{value.description}</p>
               </motion.div>
             ))}
-
           </div>
-
         </div>
       </section>
 
-      {/* ====================================================== */}
-      {/* CTA SECTION */}
-      {/* ====================================================== */}
-
-      <section className="relative py-28 overflow-hidden">
-
-        {/* BACKGROUND IMAGE */}
+      <section className="relative overflow-hidden py-24 md:py-28">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2000&auto=format&fit=crop"
-            alt="Community Support"
-            className="w-full h-full object-cover"
+            alt="Community support"
+            className="h-full w-full object-cover"
           />
-
-          <div className="absolute inset-0 bg-primary/90"></div>
+          <div className="absolute inset-0 bg-primary/90" />
         </div>
 
-        {/* CONTENT */}
-        <div className="relative z-10 container-custom text-center">
-
+        <div className="container-custom relative z-10 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 60 }}
+            initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.65 }}
             viewport={{ once: true }}
-            className="max-w-4xl mx-auto"
+            className="mx-auto max-w-4xl"
           >
-
-            <p className="uppercase tracking-[0.25em] text-goldSoft font-semibold mb-4">
+            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-goldSoft">
               Support Our Mission
             </p>
-
-            <h2 className="text-4xl md:text-6xl font-heading font-bold text-white leading-tight mb-8">
-              
-              <span className="block text-yellow-400">
-                Character & Community
-              </span>
+            <h2 className="text-4xl font-semibold leading-tight text-white md:text-6xl">
+              Help sustain knowledge, character, and community.
             </h2>
-
-            <p className="text-lg md:text-xl text-gray-200 leading-relaxed mb-10">
+            <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-white/80 md:text-xl">
               Your support helps us provide affordable Islamic education,
               support orphans, organize public lectures, and strengthen the
               Muslim community through impactful programs.
             </p>
-
-            <div className="flex flex-wrap justify-center gap-5">
-
-              <Link to="/donate">
-                <button className="btn-primary">
-                  Donate Now
-                </button>
+            <div className="mt-9 flex flex-wrap justify-center gap-3">
+              <Link
+                to="/donate"
+                className="inline-flex h-12 items-center justify-center rounded-lg bg-gold px-6 text-sm font-semibold text-primary transition-colors hover:bg-goldSoft"
+              >
+                Donate now
               </Link>
-
-              <Link to="/about">
-                <button className="btn-outline">
-                  Learn More
-                </button>
+              <Link
+                to="/about"
+                className="inline-flex h-12 items-center justify-center rounded-lg border border-white/35 px-6 text-sm font-semibold text-white transition-colors hover:bg-white hover:text-primary"
+              >
+                Learn more
               </Link>
-
             </div>
-
           </motion.div>
-
         </div>
-
       </section>
-
     </div>
   );
 };
