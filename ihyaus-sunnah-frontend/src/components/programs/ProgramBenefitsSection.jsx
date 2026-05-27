@@ -1,6 +1,32 @@
 import { motion } from 'framer-motion'
 
-const ProgramBenefitsSection = () => {
+const fallbackBenefits = [
+  {
+    title: 'Holistic Learning',
+    description:
+      'Students benefit from a balanced curriculum, character building, mentorship, and community engagement.',
+  },
+  {
+    title: 'Trusted Mentors',
+    description:
+      'Instructors guide learners with care, spiritual direction, and strong educational standards.',
+  },
+  {
+    title: 'Real Results',
+    description:
+      'Students grow in confidence, discipline, beneficial knowledge, and practical commitment.',
+  },
+]
+
+const ProgramBenefitsSection = ({ program }) => {
+  const dynamicBenefits = program?.features?.filter(Boolean).slice(0, 3).map((feature) => ({
+    title: feature,
+    description:
+      'A focused part of this program designed to strengthen learning, discipline, and beneficial growth.',
+  }))
+
+  const benefits = dynamicBenefits?.length ? dynamicBenefits : fallbackBenefits
+
   return (
     <section className="section-padding py-24 bg-cream relative">
       <div className="container-custom">
@@ -21,42 +47,21 @@ const ProgramBenefitsSection = () => {
         </motion.div>
 
         <div className="grid md:grid-cols-3 gap-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.05 }}
-            viewport={{ once: true }}
-            className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
-          >
-            <h3 className="text-2xl font-bold text-primary mb-4">Holistic Learning</h3>
-            <p className="text-gray-600 leading-relaxed">
-              Students benefit from a balanced curriculum of memorization, tajweed, Islamic sciences, character building, and community engagement.
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            viewport={{ once: true }}
-            className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
-          >
-            <h3 className="text-2xl font-bold text-primary mb-4">Trusted Mentors</h3>
-            <p className="text-gray-600 leading-relaxed">
-              Our instructors are experienced teachers who deliver lessons with care, spiritual guidance, and the highest standards of Islamic etiquette.
-            </p>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.15 }}
-            viewport={{ once: true }}
-            className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
-          >
-            <h3 className="text-2xl font-bold text-primary mb-4">Real Results</h3>
-            <p className="text-gray-600 leading-relaxed">
-              Graduates leave with strong Quranic fluency, deeper understanding of Islamic science, and the confidence to lead with sincerity.
-            </p>
-          </motion.div>
+          {benefits.map((benefit, index) => (
+            <motion.div
+              key={benefit.title}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: (index + 1) * 0.05 }}
+              viewport={{ once: true }}
+              className="bg-white p-10 rounded-xl shadow-soft border border-gray-100"
+            >
+              <h3 className="text-2xl font-bold text-primary mb-4">{benefit.title}</h3>
+              <p className="text-gray-600 leading-relaxed">
+                {benefit.description}
+              </p>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

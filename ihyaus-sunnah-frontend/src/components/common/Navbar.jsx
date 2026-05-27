@@ -22,7 +22,7 @@ const Navbar = () => {
     { name: "Media Library", path: "/media-library" },
     // { name: "Organization", path: "/organization" },
    
-    { name: "Donate", path: "/donate" },
+    // { name: "Donate", path: "/donate" },
   ];
 
   useEffect(() => {

@@ -7,8 +7,12 @@ import {
   FaMosque,
   FaUsers,
   FaHeart,
-  FaArrowRight,
+  FaArrowRight
 } from "react-icons/fa"
+
+import {
+  FiArrowRight
+} from "react-icons/fi";
 import QuranVersePanel from "../../components/common/QuranVersePanel"
 
 const fadeUp = {
@@ -112,9 +116,9 @@ const AboutPage = () => {
             variants={fadeUp}
             className="max-w-4xl"
           >
-            <span className="inline-block bg-yellow-400/20 border border-yellow-400/30 text-yellow-400 px-5 py-2 rounded-full text-sm tracking-widest uppercase mb-8">
+            {/* <span className="inline-block bg-yellow-400/20 border border-yellow-400/30 text-yellow-400 px-5 py-2 rounded-full text-sm tracking-widest uppercase mb-8">
               About The Foundation
-            </span>
+            </span> */}
 
             <h1 className="text-5xl md:text-7xl font-heading font-bold leading-tight text-white mb-8">
               Reviving <span className="text-yellow-400">Ummah</span> Through
@@ -142,6 +146,7 @@ const AboutPage = () => {
               <Link to="/programs">
                 <button className="btn-primary">
                   Explore Programs
+                  <FiArrowRight />
                 </button>
               </Link>
 

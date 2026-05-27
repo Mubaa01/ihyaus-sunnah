@@ -90,7 +90,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.7, delay: 0.16 }}
                 className="mx-auto mt-6 block w-full max-w-[760px] lg:mx-0"
               >
-                <p className="text-center text-base leading-7 text-white/85 md:text-lg">
+                <p className="block md:max-w-700s text-center text-base leading-7 text-white/85 md:text-lg px-20">
                   Teaching freely, serving sincerely, and nurturing a community
                   rooted in Islamic knowledge, character, and compassion.
                 </p>
@@ -104,7 +104,7 @@ const HeroSection = () => {
               >
                 <Link
                   to="/programs"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-yellow-400 px-5 text-sm font-semibold text-primary transition-colors hover:bg-yellow-400Soft"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg btn-primary px-5 text-sm font-semibold text-primary transition-colors hover:bg-yellow-400Soft"
                 >
                   View programs <FiArrowRight />
                 </Link>

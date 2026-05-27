@@ -14,6 +14,9 @@ import {
   FaUsers,
   FaClock,
   FaUpload,
+  FaPlus,
+  FaSave,
+  FaTimes,
 } from "react-icons/fa"
 
 import useProgramsAPI from "../../../hooks/useProgramsAPI"
@@ -577,26 +580,41 @@ const confirmSave = (secretKey) => {
     <motion.div
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-6xl mx-auto"
+      className="mx-auto max-w-7xl"
     >
-      <div className="bg-white rounded-3xl shadow-premium overflow-hidden">
+      <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-premium">
 
         {/* HEADER */}
-        <div className="bg-primary text-white p-10">
-          <h1 className="text-5xl font-bold mb-3">
-            {id ? "Edit Program" : "Create Program"}
-          </h1>
+        <div className="border-b border-neutral-200 bg-primary p-6 text-white md:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <span className="mb-4 inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold uppercase text-goldSoft">
+                <FaBookOpen /> Program Editor
+              </span>
+              <h1 className="text-3xl font-bold md:text-4xl">
+                {id ? "Edit Program" : "Create Program"}
+              </h1>
 
-          <p className="text-white/80 text-lg">
-            Manage program details, curriculum, and organizational information.
-          </p>
+              <p className="mt-3 max-w-2xl text-sm text-white/75 md:text-base">
+                Manage the public page, curriculum levels, media, schedule, and program outcomes.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2 rounded-lg border border-white/10 bg-white/10 p-2 text-center">
+              <HeaderMetric label="Sections" value={formData.sections.length} />
+              <HeaderMetric label="Features" value={formData.features.length} />
+              <HeaderMetric label="Levels" value={formData.categories.length} />
+            </div>
+          </div>
         </div>
 
         {/* FORM */}
-        <form onSubmit={handleSubmit} className="p-10 space-y-10">
+        <form onSubmit={handleSubmit} className="space-y-6 bg-neutral-50 p-4 md:p-6 lg:p-8">
 
           {/* BASIC INFO */}
-          <div className="grid md:grid-cols-2 gap-8">
+          <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+          <SectionTitle icon={<FaBookOpen />} title="Basic Information" />
+          <div className="grid gap-5 md:grid-cols-2">
             <Input label="Program Title" icon={<FaBookOpen />} name="title" value={formData.title || ""} onChange={handleChange} required />
             <Select
               label="Category"
@@ -621,14 +639,13 @@ const confirmSave = (secretKey) => {
             <Input label="Duration" icon={<FaClock />} name="duration" value={formData.duration || ""} onChange={handleChange} />
             <Input label="Location" icon={<FaMapMarkerAlt />} name="location" value={formData.location || ""} onChange={handleChange} />
           </div>
+          </section>
 
           {/* IMAGES */}
-          <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
-              <FaImage /> Program Images
-            </h3>
+          <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaImage />} title="Program Images" />
 
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid gap-5 md:grid-cols-2">
               {/* Thumbnail */}
               <div className="space-y-3">
                 <label className="font-semibold text-primary">Thumbnail Image</label>
@@ -761,10 +778,11 @@ const confirmSave = (secretKey) => {
                 />
               </div>
             </div>
-          </div>
+          </section>
 
           {/* DESCRIPTIONS */}
-          <div className="space-y-6">
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaAlignLeft />} title="Descriptions" />
             <Input label="Tagline" name="tagline" value={formData.tagline || ""} onChange={handleChange} />
             <div>
               <label className="font-semibold text-primary flex items-center gap-2 mb-2">
@@ -792,51 +810,45 @@ const confirmSave = (secretKey) => {
                 placeholder="Detailed program description..."
               />
             </div>
-          </div>
+          </section>
 
           {/* SCHEDULE */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
-              <FaCalendarAlt /> Schedule Information
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaCalendarAlt />} title="Schedule Information" />
+            <div className="grid gap-4 md:grid-cols-2">
               <Input label="Days" name="days" value={formData.schedule?.days || ""} onChange={handleScheduleChange} />
               <Input label="Time" name="time" value={formData.schedule?.time || ""} onChange={handleScheduleChange} />
             </div>
-          </div>
+          </section>
 
           {/* STATS */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
-              <FaUsers /> Program Statistics
-            </h3>
-            <div className="grid md:grid-cols-3 gap-4">
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaUsers />} title="Program Statistics" />
+            <div className="grid gap-4 md:grid-cols-3">
               <Input label="Total Students" type="number" name="totalStudents" value={formData.stats?.totalStudents ?? 0} onChange={handleStatsChange} />
               <Input label="Total Staff" type="number" name="totalStaff" value={formData.stats?.totalStaff ?? 0} onChange={handleStatsChange} />
               <Input label="Years Running" type="number" name="yearsRunning" value={formData.stats?.yearsRunning ?? 0} onChange={handleStatsChange} />
             </div>
-          </div>
+          </section>
 
           {/* SECTIONS */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
-              <FaLayerGroup /> Program Sections
-            </h3>
-            <div className="flex flex-wrap gap-4 mb-4">
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaLayerGroup />} title="Program Sections" />
+            <div className="mb-4 flex flex-wrap gap-3">
               {formData.sections.map((section, index) => (
-                <div key={index} className="flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-2xl">
+                <div key={index} className="flex items-center gap-2 rounded-lg border border-brand-100 bg-brand-50 px-3 py-2 text-primary">
                   <span>{section}</span>
                   <button
                     type="button"
                     onClick={() => removeSection(index)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-[#B91C1C] hover:text-[#7F1D1D]"
                   >
                     ×
                   </button>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 placeholder="Add section..."
@@ -849,26 +861,26 @@ const confirmSave = (secretKey) => {
                 Add
               </button>
             </div>
-          </div>
+          </section>
 
           {/* FEATURES */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary">Key Features</h3>
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaBookOpen />} title="Key Features" />
             <div className="space-y-2 mb-4">
               {formData.features.map((feature, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-50 p-3 rounded-2xl">
+                <div key={index} className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
                   <span className="flex-1">{feature}</span>
                   <button
                     type="button"
                     onClick={() => removeFeature(index)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-[#B91C1C] hover:text-[#7F1D1D]"
                   >
                     ×
                   </button>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 placeholder="Add feature..."
@@ -881,26 +893,26 @@ const confirmSave = (secretKey) => {
                 Add
               </button>
             </div>
-          </div>
+          </section>
 
           {/* OBJECTIVES */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary">Learning Objectives</h3>
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaUsers />} title="Learning Objectives" />
             <div className="space-y-2 mb-4">
               {formData.objectives.map((objective, index) => (
-                <div key={index} className="flex items-center gap-2 bg-gray-50 p-3 rounded-2xl">
+                <div key={index} className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-neutral-50 p-3">
                   <span className="flex-1">{objective}</span>
                   <button
                     type="button"
                     onClick={() => removeObjective(index)}
-                    className="text-red-500 hover:text-red-700"
+                    className="text-[#B91C1C] hover:text-[#7F1D1D]"
                   >
                     ×
                   </button>
                 </div>
               ))}
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="text"
                 placeholder="Add objective..."
@@ -913,13 +925,11 @@ const confirmSave = (secretKey) => {
                 Add
               </button>
             </div>
-          </div>
+          </section>
 
           {/* CATEGORIES WITH PREVIEW VIDEOS */}
-          <div className="space-y-4 border-t pt-6">
-            <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
-              <FaLayerGroup /> Program Categories & Levels
-            </h3>
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaLayerGroup />} title="Program Categories & Levels" />
             
             {/* Categories List */}
             {formData.categories.map((category, catIndex) => (
@@ -927,14 +937,14 @@ const confirmSave = (secretKey) => {
                 key={catIndex}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-cream p-6 rounded-2xl border border-gray-200 space-y-4"
+                className="space-y-4 rounded-lg border border-neutral-200 bg-neutral-50 p-5"
               >
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-bold text-primary">{category.title || `Category ${catIndex + 1}`}</h4>
                   <button
                     type="button"
                     onClick={() => removeCategory(catIndex)}
-                    className="text-red-500 hover:text-red-700 font-bold text-xl"
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[#F1B4B4] text-[#B91C1C] hover:bg-[#FFF1F1]"
                   >
                     ×
                   </button>
@@ -994,13 +1004,13 @@ const confirmSave = (secretKey) => {
                   {(category.previewVideos || []).map((video, vidIndex) => {
                     const previewKey = `cat-${catIndex}-vid-${vidIndex}`
                     return (
-                      <div key={vidIndex} className="bg-white p-4 rounded-xl mb-3 border border-gray-100 space-y-3">
+                      <div key={vidIndex} className="mb-3 space-y-3 rounded-lg border border-neutral-200 bg-white p-4">
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-gray-700">Video {vidIndex + 1}</span>
                           <button
                             type="button"
                             onClick={() => removeVideo(catIndex, vidIndex)}
-                            className="text-red-500 hover:text-red-700"
+                            className="text-[#B91C1C] hover:text-[#7F1D1D]"
                           >
                             ×
                           </button>
@@ -1094,9 +1104,9 @@ const confirmSave = (secretKey) => {
                     <button
                       type="button"
                       onClick={() => addVideo(catIndex)}
-                      className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-secondary/90 transition-colors"
+                      className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-white transition hover:bg-secondary/90"
                     >
-                      + Add Video
+                      <FaPlus /> Add Video
                     </button>
                   )}
                 </div>
@@ -1106,12 +1116,12 @@ const confirmSave = (secretKey) => {
                   <h5 className="font-semibold text-primary mb-3">Learning Outcomes</h5>
                   <div className="space-y-2 mb-3">
                     {(category.outcomes || []).map((outcome, outIndex) => (
-                      <div key={outIndex} className="flex items-center gap-2 bg-white p-2 rounded">
+                      <div key={outIndex} className="flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2">
                         <span className="flex-1">{outcome}</span>
                         <button
                           type="button"
                           onClick={() => removeOutcome(catIndex, outIndex)}
-                          className="text-red-500 hover:text-red-700"
+                          className="text-[#B91C1C] hover:text-[#7F1D1D]"
                         >
                           ×
                         </button>
@@ -1140,17 +1150,15 @@ const confirmSave = (secretKey) => {
             <button
               type="button"
               onClick={addCategory}
-              className="px-4 py-3 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors font-semibold w-full"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-3 font-semibold text-white transition-colors hover:bg-primary/90"
             >
-              + Add Category
+              <FaPlus /> Add Category
             </button>
-          </div>
+          </section>
 
           {/* GALLERY */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-semibold text-primary flex items-center gap-2">
-              <FaImage /> Gallery Images
-            </h3>
+          <section className="space-y-5 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:p-6">
+            <SectionTitle icon={<FaImage />} title="Gallery Images" />
 
             {/* Upload New Image */}
             <div className="space-y-3">
@@ -1163,7 +1171,7 @@ const confirmSave = (secretKey) => {
               />
               <label
                 htmlFor="gallery-upload"
-                className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-2xl cursor-pointer hover:border-primary transition-colors"
+                className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-4 py-3 transition-colors hover:border-primary hover:bg-brand-50"
               >
                 <FaUpload className="text-gray-400" />
                 <span className="text-gray-600">Add gallery image</span>
@@ -1172,13 +1180,13 @@ const confirmSave = (secretKey) => {
 
             {/* Gallery Preview */}
             {galleryPreviews.length > 0 && (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
                 {galleryPreviews.map((image, index) => (
                   <div key={index} className="relative">
                     <img
                       src={image}
                       alt={`Gallery ${index + 1}`}
-                      className="w-full h-24 object-cover rounded-xl border"
+                      className="h-24 w-full rounded-lg border object-cover"
                     />
                     <button
                       type="button"
@@ -1187,7 +1195,7 @@ const confirmSave = (secretKey) => {
                         setFormData(prev => ({ ...prev, gallery: newGallery }))
                         setGalleryPreviews(prev => prev.filter((_, i) => i !== index))
                       }}
-                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                      className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[#B91C1C] text-sm text-white hover:bg-[#7F1D1D]"
                     >
                       ×
                     </button>
@@ -1217,43 +1225,45 @@ const confirmSave = (secretKey) => {
                     setNewGalleryImage("")
                   }
                 }}
-                className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary/90 transition-colors"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
               >
-                Add URL Image
+                <FaPlus /> Add URL Image
               </button>
             </div>
-          </div>
+          </section>
 
           {/* DATES & FEATURED */}
-          <div className="grid md:grid-cols-3 gap-4">
+          <section className="grid gap-4 rounded-lg border border-neutral-200 bg-white p-5 shadow-soft md:grid-cols-3 md:p-6">
             <Input label="Start Date" type="date" name="startDate" value={formData.startDate || ""} onChange={handleChange} />
             <Input label="End Date" type="date" name="endDate" value={formData.endDate || ""} onChange={handleChange} />
-            <div className="flex items-center gap-3 pt-8">
+            <div className="flex items-center gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3 md:mt-7">
               <input
                 type="checkbox"
                 id="isFeatured"
                 name="isFeatured"
                 checked={!!formData.isFeatured}
                 onChange={handleChange}
-                className="w-5 h-5 text-primary"
+                className="h-5 w-5 text-primary"
               />
               <label htmlFor="isFeatured" className="font-semibold text-primary">
                 Featured Program
               </label>
             </div>
-          </div>
+          </section>
 
           {/* ACTIONS */}
-          <div className="flex justify-end gap-5">
+          <div className="sticky bottom-4 z-10 flex flex-col justify-end gap-3 rounded-lg border border-neutral-200 bg-white/95 p-4 shadow-premium backdrop-blur md:flex-row">
             <button
               type="button"
               onClick={() => navigate("/admin/programs")}
-              className="px-6 py-3 border rounded-2xl"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-6 py-3 font-semibold text-primary transition hover:bg-brand-50"
             >
+              <FaTimes />
               Cancel
             </button>
 
-            <button type="submit" className="btn-primary">
+            <button type="submit" className="btn-primary gap-2">
+              <FaSave />
               {id ? "Update Program" : "Create Program"}
             </button>
           </div>
@@ -1273,19 +1283,35 @@ const confirmSave = (secretKey) => {
 
 /* ---------------- SMALL REUSABLE COMPONENTS ---------------- */
 
-const Input = ({ label, icon, ...props }) => (
-  <div className="space-y-2">
-    <label className="font-semibold text-primary flex items-center gap-2">
-      {icon} {label}
-    </label>
-    <input {...props} className="input-primary w-full" />
+const HeaderMetric = ({ label, value }) => (
+  <div className="rounded-lg px-4 py-3">
+    <p className="text-2xl font-bold leading-none">{value}</p>
+    <p className="mt-1 text-xs font-semibold uppercase text-white/65">{label}</p>
   </div>
 )
 
-const Select = ({ label, options, ...props }) => (
+const SectionTitle = ({ icon, title }) => (
+  <div className="mb-5 flex items-center gap-3 border-b border-neutral-200 pb-4">
+    <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-100 text-primary">
+      {icon}
+    </span>
+    <h3 className="text-lg font-semibold text-primary">{title}</h3>
+  </div>
+)
+
+const Input = ({ label, icon, className = "", ...props }) => (
   <div className="space-y-2">
-    <label className="font-semibold text-primary">{label}</label>
-    <select {...props} className="input-primary w-full">
+    <label className="flex items-center gap-2 text-sm font-semibold text-primary">
+      {icon} {label}
+    </label>
+    <input {...props} className={`input-primary w-full ${className}`} />
+  </div>
+)
+
+const Select = ({ label, options, className = "", ...props }) => (
+  <div className="space-y-2">
+    <label className="text-sm font-semibold text-primary">{label}</label>
+    <select {...props} className={`input-primary w-full ${className}`}>
       <option value="">Select {label.toLowerCase()}</option>
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>

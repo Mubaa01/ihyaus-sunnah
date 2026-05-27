@@ -36,7 +36,7 @@ const ProgramCategoriesSection = ({ program }) => {
           </h2>
 
           <p className="max-w-3xl mx-auto mt-6 text-lg text-muted">
-            Each program follows a clear progression: Basic → Intermediate → Advanced.
+            Each program category gives students a clear path for learning, practice, and progress.
           </p>
         </motion.div>
 
@@ -53,7 +53,7 @@ const ProgramCategoriesSection = ({ program }) => {
 
               return (
                 <motion.div
-                  key={category.id}
+                  key={category.id || category.title || index}
                   initial={{ opacity: 0, y: 40 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, delay: index * 0.1 }}

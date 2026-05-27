@@ -139,10 +139,10 @@ const StudentResearchPage = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
             >
-              <span className="mb-5 inline-flex items-center gap-2 border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-goldSoft backdrop-blur">
+              {/* <span className="mb-5 inline-flex items-center gap-2 border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-goldSoft backdrop-blur">
                 <FiBookOpen />
                 Student Research
-              </span>
+              </span> */}
 
               <h1 className="max-w-5xl text-4xl font-heading font-bold leading-tight md:text-6xl">
                 Research & Academic Projects

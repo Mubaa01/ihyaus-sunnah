@@ -5,8 +5,10 @@ import { programsAPI } from '../../services/api'
 
 // Import all section components
 import ProgramHeroSection from '../../components/programs/ProgramHeroSection'
+import ProgramAtGlanceSection from '../../components/programs/ProgramAtGlanceSection'
 import ProgramOverviewSection from '../../components/programs/ProgramOverviewSection'
 import ProgramBenefitsSection from '../../components/programs/ProgramBenefitsSection'
+import ProgramObjectivesSection from '../../components/programs/ProgramObjectivesSection'
 import ProgramCategoriesSection from '../../components/programs/ProgramCategoriesSection'
 import ProgramScheduleSection from '../../components/programs/ProgramScheduleSection'
 import ProgramStaffSection from '../../components/programs/ProgramStaffSection'
@@ -54,6 +56,12 @@ const ProgramDetailsPage = () => {
         setLoading(false);
       });
   }, [slug]);
+
+  useEffect(() => {
+    if (!program?.title) return
+
+    document.title = `${program.title} | Ihyaus Sunnah Programs`
+  }, [program?.title])
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
@@ -88,11 +96,17 @@ const ProgramDetailsPage = () => {
       {/* Hero Section */}
       <ProgramHeroSection program={program} />
 
+      {/* Program At A Glance */}
+      <ProgramAtGlanceSection program={program} />
+
       {/* Overview Section */}
       <ProgramOverviewSection program={program} />
 
       {/* Benefits Section */}
-      <ProgramBenefitsSection />
+      <ProgramBenefitsSection program={program} />
+
+      {/* Objectives Section */}
+      <ProgramObjectivesSection program={program} />
 
       {/* Categories/Levels Section */}
       <ProgramCategoriesSection program={program} />

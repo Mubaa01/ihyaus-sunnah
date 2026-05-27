@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { FaBookOpen } from 'react-icons/fa'
 
 const ProgramIslamicIntegrationSection = ({ program }) => {
-  if (!program.islamicIntegration) {
+  if (!program.islamicIntegration?.length) {
     return null
   }
 

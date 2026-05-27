@@ -194,24 +194,24 @@ const ProgramsPage = () => {
 
     
 
-      <section id="programs-grid" className="py-24 md:py-28 bg-cream relative overflow-hidden">
+      <section id="programs-grid" className="relative overflow-hidden bg-cream py-24 md:py-28">
         <div className="container-custom relative z-10">
           <div className="max-w-4xl mx-auto text-center mb-14">
-            <p className="uppercase tracking-[0.25em] text-gold font-semibold mb-4">
+            <p className="mb-4 font-semibold uppercase tracking-[0.25em] text-gold">
               Our Educational Structure
             </p>
-            <h2 className="text-4xl md:text-6xl font-heading font-bold text-primary leading-tight mb-7">
+            <h2 className="mb-7 text-4xl font-bold leading-tight text-primary md:text-6xl">
               Programs Designed for
-              <span className="block text-gold mt-2">Holistic Development</span>
+              <span className="mt-2 block text-gold">Holistic Development</span>
             </h2>
-            <p className="text-lg text-muted leading-relaxed">
+            <p className="text-lg leading-relaxed text-muted">
               We combine Islamic education, academic learning, leadership
               development, public enlightenment, and social responsibility into
               one integrated mission.
             </p>
           </div>
 
-          <div className="mb-10 rounded-lg border border-gray-100 bg-white p-4 shadow-soft md:p-5">
+          <div className="mb-12 rounded-lg border border-gray-100 bg-white p-4 shadow-soft md:p-5">
             <div className="grid gap-4 lg:grid-cols-[1fr_210px_170px_210px]">
               <label className="relative block">
                 <FiSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -220,14 +220,14 @@ const ProgramsPage = () => {
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}
                   placeholder="Search title, description, category, or highlight"
-                  className="h-12 w-full rounded border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm outline-none transition focus:border-primary focus:bg-white"
+                  className="h-12 w-full rounded-lg border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm outline-none transition focus:border-primary focus:bg-white"
                 />
               </label>
 
               <select
                 value={category}
                 onChange={(event) => setCategory(event.target.value)}
-                className="h-12 rounded border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition focus:border-primary focus:bg-white"
+                className="h-12 rounded-lg border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition focus:border-primary focus:bg-white"
               >
                 {categories.map((item) => (
                   <option key={item} value={item}>
@@ -239,7 +239,7 @@ const ProgramsPage = () => {
               <select
                 value={status}
                 onChange={(event) => setStatus(event.target.value)}
-                className="h-12 rounded border border-gray-200 bg-gray-50 px-4 text-sm capitalize outline-none transition focus:border-primary focus:bg-white"
+                className="h-12 rounded-lg border border-gray-200 bg-gray-50 px-4 text-sm capitalize outline-none transition focus:border-primary focus:bg-white"
               >
                 <option value="all">All Status</option>
                 <option value="active">Active</option>
@@ -250,7 +250,7 @@ const ProgramsPage = () => {
               <select
                 value={level}
                 onChange={(event) => setLevel(event.target.value)}
-                className="h-12 rounded border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition focus:border-primary focus:bg-white"
+                className="h-12 rounded-lg border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition focus:border-primary focus:bg-white"
               >
                 {levels.map((item) => (
                   <option key={item} value={item}>
@@ -260,14 +260,14 @@ const ProgramsPage = () => {
               </select>
             </div>
 
-            <div className="mt-4 flex items-center gap-2 text-sm text-gray-600">
+            <div className="mt-4 flex items-center gap-2 text-sm text-muted">
               <FiFilter className="text-gold" />
               Showing {filteredPrograms.length} of {programs.length} program
               {programs.length === 1 ? "" : "s"}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-3">
             {loading ? (
               <div className="col-span-full text-center py-24 text-primary font-semibold">
                 Loading programs...
@@ -305,6 +305,7 @@ const ProgramsPage = () => {
                   key={program._id || program.id || program.slug}
                   program={program}
                   index={index}
+                  variant="showcase"
                 />
               ))
             )}

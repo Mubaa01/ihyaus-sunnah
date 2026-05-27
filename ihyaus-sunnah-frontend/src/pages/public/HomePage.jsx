@@ -71,7 +71,7 @@ const HomePage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
-              className="mt-5 text-lg leading-relaxed text-yellow-200"
+              className="mt-5 text-lg leading-relaxed"
             >
               We provide comprehensive educational programs and impactful
               community initiatives designed to nurture knowledge, character,
@@ -163,7 +163,7 @@ const HomePage = () => {
             <div className="mt-9 flex flex-wrap justify-center gap-3">
               <Link
                 to="/donate"
-                className="inline-flex h-12 items-center justify-center rounded-lg bg-gold px-6 text-sm font-semibold text-primary transition-colors hover:bg-goldSoft"
+                className="inline-flex h-12 items-center justify-center rounded-lg bg-yellow-400 px-6 text-sm font-semibold text-primary transition-colors hover:bg-goldSoft"
               >
                 Donate now
               </Link>

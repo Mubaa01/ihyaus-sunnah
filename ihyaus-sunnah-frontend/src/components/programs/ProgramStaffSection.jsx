@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { FaUserTie } from 'react-icons/fa'
 
 const ProgramStaffSection = ({ program }) => {
@@ -25,6 +26,9 @@ const ProgramStaffSection = ({ program }) => {
             const staff = highlight.staffId && typeof highlight.staffId === 'object'
               ? highlight.staffId
               : null
+            const profileId = staff?._id || staff?.id
+            const CardTag = profileId ? Link : 'div'
+            const cardProps = profileId ? { to: `/staff/profile/${profileId}` } : {}
 
             return (
               <motion.div
@@ -33,35 +37,37 @@ const ProgramStaffSection = ({ program }) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
                 viewport={{ once: true }}
-                className="bg-cream rounded-xl border border-gray-100 shadow-soft overflow-hidden"
+                className="overflow-hidden rounded-xl border border-gray-100 bg-cream shadow-soft transition hover:-translate-y-1 hover:shadow-premium"
               >
-                <div className="h-72 bg-primary/10 overflow-hidden">
-                  {staff?.image ? (
-                    <img
-                      src={staff.image}
-                      alt={staff.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-primary text-6xl">
-                      <FaUserTie />
-                    </div>
-                  )}
-                </div>
+                <CardTag {...cardProps} className="block">
+                  <div className="h-72 bg-primary/10 overflow-hidden">
+                    {staff?.image ? (
+                      <img
+                        src={staff.image}
+                        alt={staff.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-primary text-6xl">
+                        <FaUserTie />
+                      </div>
+                    )}
+                  </div>
 
-                <div className="p-6 space-y-3">
-                  <h3 className="text-2xl font-bold text-primary">
-                    {staff?.name || 'Program Staff'}
-                  </h3>
-                  <p className="text-gold font-semibold">
-                    {highlight.role || staff?.position || 'Staff Member'}
-                  </p>
-                  {highlight.categoryFocus && (
-                    <p className="text-gray-600">
-                      {highlight.categoryFocus}
+                  <div className="p-6 space-y-3">
+                    <h3 className="text-2xl font-bold text-primary">
+                      {staff?.name || 'Program Staff'}
+                    </h3>
+                    <p className="text-gold font-semibold">
+                      {highlight.role || staff?.position || 'Staff Member'}
                     </p>
-                  )}
-                </div>
+                    {highlight.categoryFocus && (
+                      <p className="text-gray-600">
+                        {highlight.categoryFocus}
+                      </p>
+                    )}
+                  </div>
+                </CardTag>
               </motion.div>
             )
           })}
