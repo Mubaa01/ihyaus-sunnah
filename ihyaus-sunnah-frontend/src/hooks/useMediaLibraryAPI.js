@@ -105,6 +105,18 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     }
   };
 
+  const editPlaylist = async (id, data, secretKey) => {
+    try {
+      const response = await playlistsAPI.update(id, data, secretKey);
+      await refreshPlaylists();
+      dispatchAdminDataUpdate({ playlists: true });
+      return response;
+    } catch (err) {
+      console.error("Failed to edit playlist:", err);
+      throw err;
+    }
+  };
+
   return {
     mediaItems,
     playlists,
@@ -118,6 +130,7 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     editMedia,
     removeMedia,
     addPlaylist,
+    editPlaylist,
   };
 };
 

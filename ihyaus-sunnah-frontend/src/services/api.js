@@ -41,6 +41,11 @@ const API_BASE_URL =
   import.meta.env.VITE_API_URL ||
   "http://localhost:4000/api";
 
+const getAuthHeaders = () => {
+  const token = window.localStorage?.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 // ==================== API CALL HELPER ====================
 
 const apiCall = async (
@@ -54,6 +59,7 @@ const apiCall = async (
   const defaultOptions = {
     headers: {
       "Content-Type": "application/json",
+      ...getAuthHeaders(),
     },
 
     credentials: "include",
@@ -293,6 +299,17 @@ export const playlistsAPI = {
   create: (data, secretKey) =>
     apiCall("/media/playlists", {
       method: "POST",
+
+      headers: {
+        "x-secret-key": secretKey,
+      },
+
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data, secretKey) =>
+    apiCall(`/media/playlists/${id}`, {
+      method: "PATCH",
 
       headers: {
         "x-secret-key": secretKey,

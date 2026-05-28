@@ -10,10 +10,8 @@ import {
   FaPlay,
 } from "react-icons/fa"
 
-// TODO: Replace all playlist mock logic with real API
-import { dispatchAdminDataUpdate } from "../../../utils/adminDataSync"
-
 import useStaffAPI from "../../../hooks/useStaffAPI"
+import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI"
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
@@ -27,12 +25,24 @@ const PlaylistFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { staff } = useStaffAPI()
+  const { playlists, addPlaylist, editPlaylist } = useMediaLibraryAPI({})
 
   const [showModal, setShowModal] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
 
-  // LOAD EXISTING PLAYLIST (EDIT MODE)
-  // TODO: Fetch playlist by ID from backend API for edit mode
+  useEffect(() => {
+    if (!id) return
+
+    const existing = playlists.find((playlist) => playlist._id === id || playlist.id === id)
+    if (!existing) return
+
+    setFormData({
+      ...emptyForm,
+      ...existing,
+      trusteeId: existing.trusteeId?._id || existing.trusteeId || "",
+    })
+  }, [id, playlists])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -48,20 +58,26 @@ const PlaylistFormPage = () => {
     setShowModal(true)
   }
 
-  const confirmSave = () => {
-    // Convert trusteeId to number or null
+  const confirmSave = async (secretKey) => {
+    setSaving(true)
+
     const processedData = {
       ...formData,
-      trusteeId: formData.trusteeId ? Number(formData.trusteeId) : null,
+      trusteeId: formData.trusteeId || null,
     }
 
-    if (id) {
-      updatePlaylist(id, processedData)
-    } else {
-      createPlaylist(processedData)
+    try {
+      if (id) {
+        await editPlaylist(id, processedData, secretKey)
+      } else {
+        await addPlaylist(processedData, secretKey)
+      }
+    } finally {
+      setSaving(false)
     }
+  }
 
-    dispatchAdminDataUpdate({ media: true })
+  const handleSaveSuccess = () => {
     setShowModal(false)
     navigate("/admin/media/playlists")
   }
@@ -144,7 +160,7 @@ const PlaylistFormPage = () => {
               onChange={handleChange}
               options={[
                 { value: "", label: "General/Student Content (No specific trustee)" },
-                ...staff.map(member => ({ value: member.id, label: member.name }))
+                ...staff.map(member => ({ value: member._id || member.id, label: member.name }))
               ]}
             />
 
@@ -164,7 +180,7 @@ const PlaylistFormPage = () => {
                   <p className="text-sm text-gray-600">
                     <strong>Trustee Assignment:</strong>{" "}
                     {formData.trusteeId
-                      ? `${staff.find(s => s.id === Number(formData.trusteeId))?.name} will own this playlist`
+                      ? `${staff.find(s => (s._id || s.id) === formData.trusteeId)?.name || "The selected trustee"} will own this playlist`
                       : "This is a general playlist not assigned to any specific trustee"
                     }
                   </p>
@@ -196,6 +212,8 @@ const PlaylistFormPage = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={confirmSave}
+        onSuccess={handleSaveSuccess}
+        loading={saving}
       />
     </motion.div>
   )

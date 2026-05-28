@@ -15,9 +15,6 @@ import {
   FaUpload,
 } from "react-icons/fa"
 
-// TODO: Replace all media mock logic with real API
-import { dispatchAdminDataUpdate } from "../../../utils/adminDataSync"
-
 import useStaffAPI from "../../../hooks/useStaffAPI"
 import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI"
 
@@ -40,27 +37,43 @@ const MediaFormPage = () => {
   const navigate = useNavigate()
   const { id } = useParams()
   const { staff } = useStaffAPI()
-  const { categories } = useMediaLibraryAPI({})
+  const { mediaItems, playlists, categories, addMedia, editMedia } = useMediaLibraryAPI({})
 
   const [showModal, setShowModal] = useState(false)
+  const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
   const [newTag, setNewTag] = useState("")
-  const [playlists, setPlaylists] = useState([])
+  const [filteredPlaylists, setFilteredPlaylists] = useState([])
   const [filePreview, setFilePreview] = useState("")
   const [thumbnailPreview, setThumbnailPreview] = useState("")
 
-  // LOAD EXISTING MEDIA (EDIT MODE)
-  // TODO: Fetch media by ID from backend API for edit mode
+  useEffect(() => {
+    if (!id) return
+
+    const existing = mediaItems.find((item) => item._id === id || item.id === id)
+    if (!existing) return
+
+    setFormData({
+      ...emptyForm,
+      ...existing,
+      staffId: existing.staffId?._id || existing.staffId || "",
+      playlistId: existing.playlistId?._id || existing.playlistId || "",
+      tags: Array.isArray(existing.tags) ? existing.tags : [],
+    })
+    setFilePreview(existing.url || "")
+    setThumbnailPreview(existing.thumbnail || "")
+  }, [id, mediaItems])
 
   // LOAD PLAYLISTS BASED ON TYPE
   useEffect(() => {
     if (formData.type) {
-      const availablePlaylists = getPlaylists({ mediaType: formData.type })
-      setPlaylists(availablePlaylists)
+      setFilteredPlaylists(
+        playlists.filter((playlist) => playlist.mediaType === formData.type)
+      )
     } else {
-      setPlaylists([])
+      setFilteredPlaylists([])
     }
-  }, [formData.type])
+  }, [formData.type, playlists])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -145,32 +158,27 @@ const MediaFormPage = () => {
     setShowModal(true)
   }
 
-  const confirmSave = () => {
-    // Convert string IDs to numbers
+  const confirmSave = async (secretKey) => {
+    setSaving(true)
+
     const processedData = {
       ...formData,
-      staffId: formData.staffId ? Number(formData.staffId) : null,
-      playlistId: formData.playlistId ? Number(formData.playlistId) : null,
+      staffId: formData.staffId || null,
+      playlistId: formData.playlistId || null,
     }
 
-    if (id) {
-      updateMedia(id, processedData)
-      logActivity({
-        type: "media",
-        action: "Updated media item",
-        details: `${processedData.title} was updated in the media library`,
-        reference: id,
-      })
-    } else {
-      createMedia(processedData)
-      logActivity({
-        type: "media",
-        action: "Uploaded media",
-        details: `${processedData.title} was added to the media library`,
-      })
+    try {
+      if (id) {
+        await editMedia(id, processedData, secretKey)
+      } else {
+        await addMedia(processedData, secretKey)
+      }
+    } finally {
+      setSaving(false)
     }
+  }
 
-    dispatchAdminDataUpdate({ media: true })
+  const handleSaveSuccess = () => {
     setShowModal(false)
     navigate("/admin/media")
   }
@@ -249,7 +257,7 @@ const MediaFormPage = () => {
               onChange={handleChange}
               options={[
                 { value: "", label: "Student/Community" },
-                ...staff.map(member => ({ value: member.id, label: member.name }))
+                ...staff.map(member => ({ value: member._id || member.id, label: member.name }))
               ]}
             />
 
@@ -261,8 +269,8 @@ const MediaFormPage = () => {
               onChange={handleChange}
               options={[
                 { value: "", label: "Select Playlist" },
-                ...playlists.map(playlist => ({
-                  value: playlist.id,
+                ...filteredPlaylists.map(playlist => ({
+                  value: playlist._id || playlist.id,
                   label: `${playlist.playlistName} (${playlist.mediaType})`
                 }))
               ]}
@@ -457,6 +465,8 @@ const MediaFormPage = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={confirmSave}
+        onSuccess={handleSaveSuccess}
+        loading={saving}
       />
     </motion.div>
   )

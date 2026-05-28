@@ -9,6 +9,7 @@ import {
   updateMedia,
   deleteMedia,
   createPlaylist,
+  updatePlaylist,
   getPlaylists
 } from "../controllers/mediaController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
@@ -31,5 +32,6 @@ router.delete("/:id", authenticate, verifyCrudOperation, deleteMedia);
 
 // Playlist routes - POST requires auth
 router.post("/playlists", authenticate, verifyCrudOperation, createPlaylist);
+router.patch("/playlists/:id", authenticate, verifyCrudOperation, updatePlaylist);
 
 export default router;

@@ -22,7 +22,7 @@ const ProgramScheduleSection = ({ program }) => {
             Daily Routine
           </h2>
           <p className="mt-4 text-lg text-gray-300">
-            {program.schedule.days || "Scheduled"} • {program.schedule.time || "Time TBA"}
+            {program.schedule.days || "Scheduled"} &bull; {program.schedule.time || "Time TBA"}
           </p>
         </motion.div>
 

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { FaArrowLeft, FaBookOpen, FaExclamationCircle } from 'react-icons/fa'
 import { programsAPI } from '../../services/api'
 
 // Import all section components
@@ -22,40 +23,21 @@ const ProgramDetailsPage = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-
-  // useEffect(() => {
-  //   setLoading(true);
-  //   setError(null);
-  //   setProgram(null);
-  //   programsAPI.getBySlug(slug)
-  //     .then((res) => {
-  //       setProgram(res.data);
-  //       setLoading(false);
-  //     })
-  //     .catch((err) => {
-  //       setError(err.message || 'Failed to load program');
-  //       setLoading(false);
-  //     });
-  // }, [slug]);
-
-
-
   useEffect(() => {
-    setLoading(true);
-    setError(null);
-    setProgram(null);
+    setLoading(true)
+    setError(null)
+    setProgram(null)
 
     programsAPI.getBySlug(slug)
       .then((res) => {
-        // Always use res.data for program object
-        setProgram(res.data);
-        setLoading(false);
+        setProgram(res.data)
+        setLoading(false)
       })
       .catch((err) => {
-        setError(err.message || "Failed to load program");
-        setLoading(false);
-      });
-  }, [slug]);
+        setError(err.message || "Failed to load program")
+        setLoading(false)
+      })
+  }, [slug])
 
   useEffect(() => {
     if (!program?.title) return
@@ -64,25 +46,47 @@ const ProgramDetailsPage = () => {
   }, [program?.title])
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="w-12 h-12 border-4 border-gold border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex min-h-screen items-center justify-center bg-cream px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md rounded-lg border border-gray-100 bg-white p-8 text-center shadow-premium"
+        >
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <FaBookOpen className="text-2xl" />
+          </div>
+          <div className="mx-auto mb-5 h-2 w-44 overflow-hidden rounded-full bg-gray-100">
+            <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
+          </div>
+          <h1 className="text-xl font-bold text-primary">Loading program details</h1>
+          <p className="mt-2 text-sm text-muted">
+            Preparing the overview, schedule, levels, and learning outcomes.
+          </p>
+        </motion.div>
       </div>
     )
   }
 
   if (error || !program) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="flex min-h-screen items-center justify-center bg-cream px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center"
+          className="w-full max-w-xl rounded-lg border border-gray-100 bg-white p-8 text-center shadow-premium"
         >
-          <h1 className="text-4xl font-bold text-primary mb-4">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-lg bg-red-50 text-gold">
+            <FaExclamationCircle className="text-3xl" />
+          </div>
+          <h1 className="mb-4 text-3xl font-bold text-primary md:text-4xl">
             {error || 'Program Not Found'}
           </h1>
+          <p className="mx-auto mb-7 max-w-md text-muted">
+            We could not open this program page. You can return to the program directory and choose another available program.
+          </p>
           <Link to="/programs">
-            <button className="btn-primary">
+            <button className="btn-primary gap-2">
+              <FaArrowLeft />
               Back to Programs
             </button>
           </Link>

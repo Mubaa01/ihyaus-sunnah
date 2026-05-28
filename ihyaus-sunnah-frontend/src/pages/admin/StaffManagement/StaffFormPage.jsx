@@ -49,6 +49,7 @@ const StaffFormPage = () => {
 
   const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
+  const [saving, setSaving] = useState(false)
 
   const [imagePreview, setImagePreview] = useState("")
 
@@ -117,12 +118,21 @@ const StaffFormPage = () => {
   }
 
 
-  const confirmSave = (secretKey) => {
-    if (id) {
-      editStaff(id, formData, secretKey)
-    } else {
-      addStaff(formData, secretKey)
+  const confirmSave = async (secretKey) => {
+    setSaving(true)
+
+    try {
+      if (id) {
+        await editStaff(id, formData, secretKey)
+      } else {
+        await addStaff(formData, secretKey)
+      }
+    } finally {
+      setSaving(false)
     }
+  }
+
+  const handleSaveSuccess = () => {
     setShowModal(false)
     navigate("/admin/staff")
   }
@@ -317,6 +327,8 @@ const StaffFormPage = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={confirmSave}
+        onSuccess={handleSaveSuccess}
+        loading={saving}
       />
     </motion.div>
   )

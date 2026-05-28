@@ -207,6 +207,23 @@ export const createPlaylist = async (req, res) => {
   }
 };
 
+export const updatePlaylist = async (req, res) => {
+  try {
+    const playlist = await Playlist.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!playlist) {
+      return res.status(404).json({ success: false, message: "Playlist not found" });
+    }
+
+    res.json({ success: true, message: "Playlist updated successfully", data: playlist });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
 export const getPlaylists = async (req, res) => {
   try {
     const { trusteeId, mediaType } = req.query;

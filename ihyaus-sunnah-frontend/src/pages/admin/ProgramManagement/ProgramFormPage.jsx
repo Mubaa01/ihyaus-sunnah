@@ -95,6 +95,7 @@ const ProgramFormPage = () => {
   const [newObjective, setNewObjective] = useState("")
   const [newSection, setNewSection] = useState("")
   const [newGalleryImage, setNewGalleryImage] = useState("")
+  const [saving, setSaving] = useState(false)
 
   // TODO: Fetch program by ID from backend API for edit mode
   useEffect(() => {
@@ -525,27 +526,36 @@ const ProgramFormPage = () => {
     e.preventDefault()
     setShowModal(true)
   }
-// ✅ FIXED - accept secretKey from modal and pass it through
-const confirmSave = (secretKey) => {
-  if (!id) {
-    const slug = formData.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '')
-    formData.slug = slug
+  const confirmSave = async (secretKey) => {
+    setSaving(true)
+
+    const generatedSlug = !id
+      ? formData.title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
+      : formData.slug
+
+    const dataToSave = {
+      ...formData,
+      slug: generatedSlug,
+    }
+
+    try {
+      if (id) {
+        await editProgram(id, dataToSave, secretKey)
+      } else {
+        await addProgram(dataToSave, secretKey)
+      }
+    } finally {
+      setSaving(false)
+    }
   }
 
-  const dataToSave = { ...formData }
-
-  if (id) {
-    editProgram(id, dataToSave, secretKey)   // ✅ key passed
-  } else {
-    addProgram(dataToSave, secretKey)         // ✅ key passed
+  const handleSaveSuccess = () => {
+    setShowModal(false)
+    navigate("/admin/programs")
   }
-
-  setShowModal(false)
-  navigate("/admin/programs")
-}
 
 
 
@@ -1276,6 +1286,8 @@ const confirmSave = (secretKey) => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={confirmSave}
+        onSuccess={handleSaveSuccess}
+        loading={saving}
       />
     </motion.div>
   )

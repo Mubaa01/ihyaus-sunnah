@@ -207,14 +207,17 @@ const ResearchFormPage = () => {
       } else {
         await addResearch(payload, secretKey)
       }
-
-      setShowModal(false)
-      navigate("/admin/research")
     } catch (err) {
       setError(err.message || "Failed to save research")
+      throw err
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleSaveSuccess = () => {
+    setShowModal(false)
+    navigate("/admin/research")
   }
 
   if (loading) {
@@ -492,6 +495,7 @@ const ResearchFormPage = () => {
         isOpen={showModal}
         onClose={() => setShowModal(false)}
         onConfirm={confirmSave}
+        onSuccess={handleSaveSuccess}
         loading={saving}
       />
     </motion.div>

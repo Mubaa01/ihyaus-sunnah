@@ -181,13 +181,17 @@ const MajlisForm = ({ open, onClose, onSave, initialData }) => {
     setIsSubmitting(true);
     try {
       await onSave(form.id, toPayload(form), secretKey);
-      setShowSecretModal(false);
-      onClose();
     } catch (error) {
       console.error("Error saving majlis:", error);
+      throw error;
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSaveSuccess = () => {
+    setShowSecretModal(false);
+    onClose();
   };
 
   if (!open) return null;
@@ -481,6 +485,7 @@ const MajlisForm = ({ open, onClose, onSave, initialData }) => {
             isOpen={showSecretModal}
             onClose={() => setShowSecretModal(false)}
             onConfirm={confirmSave}
+            onSuccess={handleSaveSuccess}
             loading={isSubmitting}
           />
         </motion.div>
