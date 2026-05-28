@@ -314,108 +314,304 @@ const StudentResearchPage = () => {
                 const imageSrc = item.imageUrl || imageLinks[item.id]
                 const pdfSrc = item.pdfUrl || pdfLinks[item.id]
 
+                // =========================================
+                // PREMIUM RESEARCH CARD (UPGRADED)
+                // =========================================
                 return (
                   <motion.article
                     key={item.id}
-                    initial={{ opacity: 0, y: 18 }}
+                    initial={{ opacity: 0, y: 24 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, margin: "-80px" }}
-                    transition={{ duration: 0.3, delay: Math.min(index * 0.02, 0.16) }}
-                    className="group flex min-h-[460px] flex-col overflow-hidden border border-gray-200 bg-white shadow-card transition hover:-translate-y-1 hover:border-primary/30 hover:shadow-soft"
+                    transition={{
+                      duration: 0.45,
+                      delay: Math.min(index * 0.03, 0.18),
+                    }}
+                    className="
+                      group relative flex min-h-[520px] flex-col overflow-hidden
+                      rounded-3xl border border-neutral-200/70
+                      bg-white
+                      shadow-[0_10px_40px_rgba(0,0,0,0.04)]
+                      transition-all duration-500
+                      hover:-translate-y-2
+                      hover:border-primary/20
+                      hover:shadow-[0_25px_70px_rgba(0,0,0,0.12)]
+                    "
                   >
-                    <div className="relative h-44 overflow-hidden bg-primary/5">
+                    {/* TOP IMAGE */}
+                    <div className="relative h-60 overflow-hidden bg-neutral-100">
                       {imageSrc ? (
-                        <img
-                          src={imageSrc}
-                          alt={item.title}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
+                        <>
+                          {/* IMAGE */}
+                          <img
+                            src={imageSrc}
+                            alt={item.title}
+                            className="
+                              h-full w-full object-cover
+                              transition duration-700 ease-out
+                              group-hover:scale-110
+                            "
+                          />
+
+                          {/* OVERLAYS */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,215,0,0.18),transparent_30%)]" />
+                        </>
                       ) : (
-                        <div className="flex h-full items-center justify-center bg-[linear-gradient(135deg,#18453B,#3D7A6B)]">
-                          <FiFileText className="text-5xl text-white/85" />
+                        <div className="relative flex h-full items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#163A33,#2F6F60)]">
+                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,215,0,0.18),transparent_35%)]" />
+
+                          <FiFileText className="relative z-10 text-6xl text-white/90" />
                         </div>
                       )}
-                      <span className="absolute left-4 top-4 bg-white px-3 py-1 text-xs font-bold text-primary shadow-card">
-                        {getResearchStatusLabel(item.status)}
-                      </span>
-                    </div>
 
-                    <div className="flex flex-1 flex-col p-5">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <span className="font-arabic text-sm font-semibold text-gold" dir="rtl">
-                          {item.researchCategory}
-                        </span>
-                        <span className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">
-                          {item.researchType}
+                      {/* STATUS */}
+                      <div className="absolute left-5 top-5">
+                        <span
+                          className="
+                            inline-flex items-center gap-2
+                            rounded-full
+                            border border-white/20
+                            bg-white/90
+                            px-4 py-2
+                            text-[11px] font-bold uppercase tracking-[0.14em]
+                            text-primary
+                            backdrop-blur-md
+                          "
+                        >
+                          {getResearchStatusLabel(item.status)}
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-bold leading-snug text-primary" dir="auto">
+                      {/* CATEGORY */}
+                      <div className="absolute bottom-5 left-5">
+                        <span
+                          className="
+                            rounded-full
+                            bg-black/50
+                            px-4 py-2
+                            font-arabic text-sm font-semibold
+                            text-white
+                            backdrop-blur-sm
+                          "
+                          dir="rtl"
+                        >
+                          {item.researchCategory}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* CONTENT */}
+                    <div className="flex flex-1 flex-col p-7">
+                      {/* TYPE */}
+                      <div className="mb-4 flex items-center justify-between gap-3">
+                        <span
+                          className="
+                            inline-flex items-center gap-2
+                            text-[11px] font-bold uppercase
+                            tracking-[0.16em]
+                            text-secondary
+                          "
+                        >
+                          <span className="h-2 w-2 rounded-full bg-secondary" />
+                          {item.researchType}
+                        </span>
+
+                        <span className="text-xs text-gray-400">
+                          {formatDate(item.createdAt)}
+                        </span>
+                      </div>
+
+                      {/* TITLE */}
+                      <h3
+                        className="
+                          text-2xl font-bold leading-tight tracking-tight
+                          text-primary
+                          transition duration-300
+                          group-hover:text-secondary
+                        "
+                        dir="auto"
+                      >
                         {item.title}
                       </h3>
 
+                      {/* AUTHOR */}
                       {item.staffId?._id ? (
                         <Link
                           to={`/staff/profile/${item.staffId._id}`}
-                          className="mt-3 flex items-center gap-3 border border-gray-100 bg-gray-50 p-3 transition hover:border-primary/30 hover:bg-primary/5"
+                          className="
+                            mt-5 flex items-center gap-4
+                            rounded-2xl border border-neutral-200
+                            bg-neutral-50/80
+                            p-4
+                            transition duration-300
+                            hover:border-primary/20
+                            hover:bg-primary/[0.03]
+                          "
                         >
-                          <img
-                            src={item.staffId.image}
-                            alt={item.staffId.name}
-                            className="h-11 w-11 shrink-0 rounded-full object-cover"
-                          />
-                          <span className="min-w-0">
-                            <span className="block text-xs font-semibold uppercase tracking-[0.12em] text-gray-400">
+                          <div className="relative">
+                            <img
+                              src={item.staffId.image}
+                              alt={item.staffId.name}
+                              className="
+                                h-14 w-14 rounded-full
+                                object-cover
+                                ring-2 ring-white
+                                shadow-md
+                              "
+                            />
+
+                            <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full border-2 border-white bg-secondary" />
+                          </div>
+
+                          <div className="min-w-0">
+                            <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
                               Conducted by
                             </span>
-                            <span className="block truncate text-sm font-bold text-primary">
+
+                            <span className="block truncate text-base font-bold text-primary">
                               {item.staffId.name}
                             </span>
-                          </span>
+                          </div>
                         </Link>
                       ) : (
-                        <p className="mt-2 text-sm font-medium text-gray-500">By {item.author}</p>
+                        <div className="mt-5 flex items-center gap-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <FiUsers />
+                          </div>
+
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+                              Author
+                            </p>
+
+                            <p className="font-semibold text-primary">
+                              {item.author}
+                            </p>
+                          </div>
+                        </div>
                       )}
 
-                      <p className="mt-4 line-clamp-4 flex-1 text-sm leading-7 text-gray-600" dir="auto">
+                      {/* SUMMARY */}
+                      <p
+                        className="
+                          mt-6 flex-1
+                          text-[15px] leading-8
+                          text-gray-600
+                          line-clamp-4
+                        "
+                        dir="auto"
+                      >
                         {item.summary}
                       </p>
 
-                      <div className="mt-5 flex flex-wrap gap-2">
-                        {(item.tags || []).slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            className="border border-gray-200 bg-gray-50 px-3 py-1 font-arabic text-xs font-semibold text-gray-600"
-                            dir="rtl"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                      {/* TAGS */}
+                      {(item.tags || []).length > 0 && (
+                        <div className="mt-6 flex flex-wrap gap-2">
+                          {(item.tags || []).slice(0, 4).map((tag) => (
+                            <span
+                              key={tag}
+                              className="
+                                rounded-full
+                                border border-neutral-200
+                                bg-neutral-50
+                                px-3 py-1.5
+                                font-arabic text-xs font-semibold
+                                text-gray-600
+                                transition duration-300
+                                hover:border-secondary/30
+                                hover:bg-secondary/5
+                                hover:text-secondary
+                              "
+                              dir="rtl"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
 
-                      <div className="mt-5 flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
-                        <div className="text-xs text-gray-500">
-                          <p className="font-semibold text-gray-700">Added</p>
-                          <p>{formatDate(item.createdAt)}</p>
+                      {/* FOOTER */}
+                      <div className="mt-7 flex items-center justify-between gap-4 border-t border-neutral-100 pt-5">
+                        {/* META */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/5 text-primary">
+                            <FiBookOpen />
+                          </div>
+
+                          <div>
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+                              Research Archive
+                            </p>
+
+                            <p className="text-sm font-semibold text-primary">
+                              Academic Publication
+                            </p>
+                          </div>
                         </div>
 
+                        {/* ACTION */}
                         {pdfSrc ? (
                           <a
                             href={pdfSrc}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-2 bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primaryLight"
+                            className="
+                              group/button relative inline-flex items-center gap-3
+                              overflow-hidden
+                              rounded-2xl
+                              bg-primary
+                              px-5 py-3
+                              text-sm font-semibold text-white
+                              shadow-lg shadow-primary/20
+                              transition-all duration-300
+                              hover:-translate-y-0.5
+                              hover:bg-secondary
+                              hover:shadow-xl hover:shadow-secondary/20
+                            "
                           >
-                            <FiDownload />
-                            PDF
+                            <span className="relative z-10 flex items-center gap-2">
+                              <FiDownload />
+                              Read PDF
+                            </span>
+
+                            <div
+                              className="
+                                absolute inset-0
+                                translate-y-full
+                                bg-white/10
+                                transition duration-500
+                                group-hover/button:translate-y-0
+                              "
+                            />
                           </a>
                         ) : (
-                          <span className="inline-flex items-center gap-2 bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-500">
+                          <span
+                            className="
+                              inline-flex items-center gap-2
+                              rounded-2xl
+                              bg-neutral-100
+                              px-5 py-3
+                              text-sm font-semibold text-gray-500
+                            "
+                          >
                             <FiBookOpen />
                             No PDF
                           </span>
                         )}
                       </div>
+                    </div>
+
+                    {/* HOVER GLOW */}
+                    <div
+                      className="
+                        pointer-events-none absolute inset-0
+                        opacity-0 transition duration-500
+                        group-hover:opacity-100
+                      "
+                    >
+                      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
                     </div>
                   </motion.article>
                 )
