@@ -4,6 +4,7 @@ import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync"
+import { logAdminActivity } from "../utils/activityLogger"
 
 const normalizeResearch = (item) => ({
   ...item,
@@ -53,22 +54,41 @@ const useStudentResearchAPI = (initialFilters = {}) => {
 
   const addResearch = async (data, secretKey) => {
     const response = await researchAPI.create(data, secretKey)
+    await logAdminActivity({
+      type: "research",
+      action: "Published research",
+      details: `${data.title || "A research item"} was added.`,
+      reference: response?.data?._id || response?.data?.id || "",
+    })
     await refreshResearch()
-    dispatchAdminDataUpdate({ research: true })
+    dispatchAdminDataUpdate({ research: true, activities: true })
     return response
   }
 
   const editResearch = async (id, data, secretKey) => {
     const response = await researchAPI.update(id, data, secretKey)
+    await logAdminActivity({
+      type: "research",
+      action: "Updated research",
+      details: `${data.title || "A research item"} was updated.`,
+      reference: id,
+    })
     await refreshResearch()
-    dispatchAdminDataUpdate({ research: true })
+    dispatchAdminDataUpdate({ research: true, activities: true })
     return response
   }
 
   const removeResearch = async (id, secretKey) => {
+    const existing = research.find((item) => item._id === id || item.id === id)
     await researchAPI.delete(id, secretKey)
+    await logAdminActivity({
+      type: "research",
+      action: "Deleted research",
+      details: `${existing?.title || "A research item"} was deleted.`,
+      reference: id,
+    })
     await refreshResearch()
-    dispatchAdminDataUpdate({ research: true })
+    dispatchAdminDataUpdate({ research: true, activities: true })
   }
 
   const publishedResearch = useMemo(

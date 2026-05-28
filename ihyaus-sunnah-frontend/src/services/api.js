@@ -524,6 +524,11 @@ export const activitiesAPI = {
         "x-secret-key": secretKey,
       },
     }),
+
+  deleteAll: () =>
+    apiCall("/activities", {
+      method: "DELETE",
+    }),
 };
 
 // ==================== AUTH API ====================

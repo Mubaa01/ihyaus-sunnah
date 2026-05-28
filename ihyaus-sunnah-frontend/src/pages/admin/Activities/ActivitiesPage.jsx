@@ -6,6 +6,8 @@ import {
   FaImages,
   FaDonate,
   FaClock,
+  FaFilePdf,
+  FaMosque,
   FaTrashAlt,
 } from "react-icons/fa"
 
@@ -19,6 +21,10 @@ const typeIcon = (type) => {
       return <FaBookOpen />
     case "media":
       return <FaImages />
+    case "research":
+      return <FaFilePdf />
+    case "majlis":
+      return <FaMosque />
     case "donation":
       return <FaDonate />
     default:
@@ -70,7 +76,7 @@ const ActivitiesPage = () => {
           ) : (
             sortedActivities.map((activity, index) => (
               <motion.div
-                key={activity.id}
+                key={activity._id || activity.id || `${activity.action}-${index}`}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.04 }}

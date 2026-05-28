@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from "react"
-// TODO: Replace all activities mock logic with real API
 
 import {
   dispatchAdminDataUpdate,
@@ -13,8 +12,8 @@ const useActivities = () => {
 
   const refreshActivities = async () => {
     try {
-      const data = await activitiesAPI.getAll()
-      setActivities(data)
+      const response = await activitiesAPI.getAll()
+      setActivities(Array.isArray(response) ? response : response.data || [])
     } catch (err) {
       setActivities([])
     }
@@ -34,15 +33,14 @@ const useActivities = () => {
 
   const addActivity = async (entry) => {
     await activitiesAPI.create(entry)
-    refreshActivities()
+    await refreshActivities()
     dispatchAdminDataUpdate({ activities: true })
   }
 
 
-  // Optionally implement resetActivities if needed
-  const resetActivities = () => {
-    // Not implemented: depends on backend support
-    refreshActivities()
+  const resetActivities = async () => {
+    await activitiesAPI.deleteAll()
+    await refreshActivities()
     dispatchAdminDataUpdate({ activities: true })
   }
 

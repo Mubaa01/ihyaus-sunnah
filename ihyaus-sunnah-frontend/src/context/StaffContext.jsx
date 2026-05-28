@@ -1,11 +1,12 @@
 // src/context/StaffContext.jsx
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import { staffAPI, activitiesAPI } from "../services/api";
+import { staffAPI } from "../services/api";
 import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync";
+import { logAdminActivity } from "../utils/activityLogger";
 
 const StaffContext = createContext();
 
@@ -50,8 +51,14 @@ export const StaffProvider = ({ children }) => {
   const addStaff = async (data, secretKey) => {
     try {
       const response = await staffAPI.create(data, secretKey);
+      await logAdminActivity({
+        type: "staff",
+        action: "Added staff member",
+        details: `${data.name || "A staff member"} was added.`,
+        reference: response?.data?._id || response?.data?.id || "",
+      });
       await refreshStaff();
-      dispatchAdminDataUpdate({ staff: true });
+      dispatchAdminDataUpdate({ staff: true, activities: true });
       return response;
     } catch (err) {
       throw err;
@@ -60,10 +67,15 @@ export const StaffProvider = ({ children }) => {
 
   const editStaff = async (id, data, secretKey) => {
     try {
-      console.log("[editStaff] Calling staffAPI.update", id, data, secretKey);
       const response = await staffAPI.update(id, data, secretKey);
+      await logAdminActivity({
+        type: "staff",
+        action: "Updated staff member",
+        details: `${data.name || "A staff member"} was updated.`,
+        reference: id,
+      });
       await refreshStaff();
-      dispatchAdminDataUpdate({ staff: true });
+      dispatchAdminDataUpdate({ staff: true, activities: true });
       return response;
     } catch (err) {
       throw err;
@@ -74,14 +86,14 @@ export const StaffProvider = ({ children }) => {
     try {
       const existing = staff.find((item) => item._id === id);
       await staffAPI.delete(id, secretKey);
-      await activitiesAPI.create({
+      await logAdminActivity({
         type: "staff",
         action: "Removed staff member",
         details: `${existing?.name || "A staff member"} was deleted`,
         reference: id,
       });
       await refreshStaff();
-      dispatchAdminDataUpdate({ staff: true });
+      dispatchAdminDataUpdate({ staff: true, activities: true });
     } catch (err) {
       throw err;
     }

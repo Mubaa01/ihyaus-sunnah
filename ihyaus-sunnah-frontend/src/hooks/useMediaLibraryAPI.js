@@ -7,6 +7,7 @@ import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync";
+import { logAdminActivity } from "../utils/activityLogger";
 
 const useMediaLibraryAPI = (initialFilters = {}) => {
   const [mediaItems, setMediaItems] = useState([]);
@@ -60,8 +61,14 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
   const addMedia = async (data, secretKey) => {
     try {
       const response = await mediaAPI.create(data, secretKey);
+      await logAdminActivity({
+        type: "media",
+        action: "Uploaded media",
+        details: `${data.title || "A media item"} was added to the library.`,
+        reference: response?.data?._id || response?.data?.id || "",
+      });
       await refreshMedia();
-      dispatchAdminDataUpdate({ media: true });
+      dispatchAdminDataUpdate({ media: true, activities: true });
       return response;
     } catch (err) {
       console.error("Failed to add media:", err);
@@ -72,8 +79,14 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
   const editMedia = async (id, data, secretKey) => {
     try {
       const response = await mediaAPI.update(id, data, secretKey);
+      await logAdminActivity({
+        type: "media",
+        action: "Updated media",
+        details: `${data.title || "A media item"} was updated.`,
+        reference: id,
+      });
       await refreshMedia();
-      dispatchAdminDataUpdate({ media: true });
+      dispatchAdminDataUpdate({ media: true, activities: true });
       return response;
     } catch (err) {
       console.error("Failed to edit media:", err);
@@ -83,10 +96,16 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
 
   const removeMedia = async (id, secretKey) => {
     try {
-      const existing = mediaItems.find((item) => item._id === id);
+      const existing = mediaItems.find((item) => item._id === id || item.id === id);
       await mediaAPI.delete(id, secretKey);
+      await logAdminActivity({
+        type: "media",
+        action: "Deleted media",
+        details: `${existing?.title || "A media item"} was removed from the library.`,
+        reference: id,
+      });
       await refreshMedia();
-      dispatchAdminDataUpdate({ media: true });
+      dispatchAdminDataUpdate({ media: true, activities: true });
     } catch (err) {
       console.error("Failed to remove media:", err);
       throw err;
@@ -96,8 +115,14 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
   const addPlaylist = async (data, secretKey) => {
     try {
       const response = await playlistsAPI.create(data, secretKey);
+      await logAdminActivity({
+        type: "media",
+        action: "Created playlist",
+        details: `${data.playlistName || "A playlist"} was added.`,
+        reference: response?.data?._id || response?.data?.id || "",
+      });
       await refreshPlaylists();
-      dispatchAdminDataUpdate({ playlists: true });
+      dispatchAdminDataUpdate({ playlists: true, activities: true });
       return response;
     } catch (err) {
       console.error("Failed to add playlist:", err);
@@ -108,8 +133,14 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
   const editPlaylist = async (id, data, secretKey) => {
     try {
       const response = await playlistsAPI.update(id, data, secretKey);
+      await logAdminActivity({
+        type: "media",
+        action: "Updated playlist",
+        details: `${data.playlistName || "A playlist"} was updated.`,
+        reference: id,
+      });
       await refreshPlaylists();
-      dispatchAdminDataUpdate({ playlists: true });
+      dispatchAdminDataUpdate({ playlists: true, activities: true });
       return response;
     } catch (err) {
       console.error("Failed to edit playlist:", err);

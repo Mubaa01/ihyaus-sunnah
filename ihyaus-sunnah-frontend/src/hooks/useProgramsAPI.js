@@ -122,6 +122,7 @@ import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync";
+import { logAdminActivity } from "../utils/activityLogger";
 
 const useProgramsAPI = () => {
   const [programs, setPrograms] = useState([]);
@@ -167,22 +168,41 @@ const useProgramsAPI = () => {
 
   const addProgram = async (data, secretKey) => {
     const res = await programsAPI.create(data, secretKey);
+    await logAdminActivity({
+      type: "program",
+      action: "Created program",
+      details: `${data.title || "A program"} was added.`,
+      reference: res?.data?._id || res?.data?.id || data.slug || "",
+    });
     await refreshPrograms();
-    dispatchAdminDataUpdate({ programs: true });
+    dispatchAdminDataUpdate({ programs: true, activities: true });
     return res;
   };
 
   const editProgram = async (id, data, secretKey) => {
     const res = await programsAPI.update(id, data, secretKey);
+    await logAdminActivity({
+      type: "program",
+      action: "Updated program",
+      details: `${data.title || "A program"} was updated.`,
+      reference: id,
+    });
     await refreshPrograms();
-    dispatchAdminDataUpdate({ programs: true });
+    dispatchAdminDataUpdate({ programs: true, activities: true });
     return res;
   };
 
   const removeProgram = async (id, secretKey) => {
+    const existing = programs.find((program) => program._id === id || program.id === id);
     await programsAPI.delete(id, secretKey);
+    await logAdminActivity({
+      type: "program",
+      action: "Deleted program",
+      details: `${existing?.title || "A program"} was deleted.`,
+      reference: id,
+    });
     await refreshPrograms();
-    dispatchAdminDataUpdate({ programs: true });
+    dispatchAdminDataUpdate({ programs: true, activities: true });
   };
 
   return {

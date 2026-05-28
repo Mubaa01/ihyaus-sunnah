@@ -27,6 +27,8 @@ const activityColors = {
   staff: "bg-blue-50 text-blue-600",
   program: "bg-green-50 text-green-600",
   media: "bg-purple-50 text-purple-600",
+  research: "bg-yellow-50 text-yellow-700",
+  majlis: "bg-brand-50 text-primary",
   donation: "bg-yellow-50 text-yellow-700",
   default: "bg-brand-50 text-primary",
 };
@@ -35,6 +37,8 @@ const activityIcon = {
   staff: <FaUsers />,
   program: <FaBookOpen />,
   media: <FaImages />,
+  research: <FaFilePdf />,
+  majlis: <FaMosque />,
   donation: <FaCheckCircle />,
   default: <FaClock />,
 };

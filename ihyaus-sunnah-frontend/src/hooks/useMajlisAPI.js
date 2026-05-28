@@ -6,6 +6,7 @@ import {
   dispatchAdminDataUpdate,
   subscribeAdminDataUpdates,
 } from "../utils/adminDataSync";
+import { logAdminActivity } from "../utils/activityLogger";
 
 const useMajlisAPI = () => {
   const [majlis, setMajlis] = useState([]);
@@ -49,8 +50,14 @@ const useMajlisAPI = () => {
     try {
       const response = await majlisAPI.create(data, secretKey);
 
+      await logAdminActivity({
+        type: "majlis",
+        action: "Created majlis",
+        details: `${data.title || data.name || "A majlis"} was added.`,
+        reference: response?.data?._id || response?.data?.id || "",
+      });
       await refreshMajlis();
-      dispatchAdminDataUpdate({ majlis: true });
+      dispatchAdminDataUpdate({ majlis: true, activities: true });
 
       return response;
     } catch (err) {
@@ -66,8 +73,14 @@ const useMajlisAPI = () => {
     try {
       const response = await majlisAPI.update(id, data, secretKey);
 
+      await logAdminActivity({
+        type: "majlis",
+        action: "Updated majlis",
+        details: `${data.title || data.name || "A majlis"} was updated.`,
+        reference: id,
+      });
       await refreshMajlis();
-      dispatchAdminDataUpdate({ majlis: true });
+      dispatchAdminDataUpdate({ majlis: true, activities: true });
 
       return response;
     } catch (err) {
@@ -82,9 +95,16 @@ const useMajlisAPI = () => {
   // =========================
   const removeMajlis = async (id, secretKey) => {
     try {
+      const existing = majlis.find((item) => item._id === id || item.id === id);
       await majlisAPI.delete(id, secretKey);
+      await logAdminActivity({
+        type: "majlis",
+        action: "Deleted majlis",
+        details: `${existing?.title || existing?.name || "A majlis"} was deleted.`,
+        reference: id,
+      });
       await refreshMajlis();
-      dispatchAdminDataUpdate({ majlis: true });
+      dispatchAdminDataUpdate({ majlis: true, activities: true });
     } catch (err) {
       console.error("Failed to delete majlis:", err);
       throw err;
