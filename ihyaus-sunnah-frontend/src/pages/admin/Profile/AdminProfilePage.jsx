@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaCheckCircle,
+  FaExclamationTriangle,
   FaExternalLinkAlt,
   FaEye,
   FaEyeSlash,
@@ -32,11 +33,45 @@ const AdminProfilePage = () => {
   const [confirmKey, setConfirmKey] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [secretFeedback, setSecretFeedback] = useState({
+    generate: null,
+    custom: null,
+  });
+  const [secretLoading, setSecretLoading] = useState({
+    generate: false,
+    custom: false,
+  });
   const [secretVisible, setSecretVisible] = useState(false);
 
   const memberSince = profile.createdAt
     ? new Date(profile.createdAt).toLocaleDateString()
     : "Not available";
+
+  const normalizeSecretError = (err, fallback) => {
+    const text = err?.message || fallback;
+
+    if (/invalid password/i.test(text)) {
+      return "Password is not correct. Please check it and try again.";
+    }
+
+    if (/unauthorized|not authenticated/i.test(text)) {
+      return "Your admin session is not verified. Please log in again and retry.";
+    }
+
+    return text;
+  };
+
+  const setGenerateFeedback = (feedback) => {
+    setSecretFeedback((prev) => ({ ...prev, generate: feedback }));
+  };
+
+  const setCustomFeedback = (feedback) => {
+    setSecretFeedback((prev) => ({ ...prev, custom: feedback }));
+  };
+
+  const setActionLoading = (key, value) => {
+    setSecretLoading((prev) => ({ ...prev, [key]: value }));
+  };
 
   const handleProfileSave = () => {
     const nextProfile = {
@@ -62,54 +97,120 @@ const AdminProfilePage = () => {
   const handleResetSecret = async () => {
     setError("");
     setMessage("");
+    setGenerateFeedback(null);
 
-    if (!randomPassword) {
-      setError("Enter your account password before resetting the secret key.");
+    if (!randomPassword.trim()) {
+      setGenerateFeedback({
+        type: "error",
+        title: "Password required",
+        body: "Enter your account password before generating a new secret key.",
+      });
+      return;
+    }
+
+    if (randomPassword.length < 6) {
+      setGenerateFeedback({
+        type: "error",
+        title: "Password too short",
+        body: "Account password must be at least 6 characters.",
+      });
       return;
     }
 
     try {
+      setActionLoading("generate", true);
       const data = await authAPI.generateSecretKey(randomPassword);
-      setMessage(
-        `Secret key reset successfully. ${
-          data.secretKey ? `New key: ${data.secretKey}` : "Check your email or profile for the new key."
-        }`
-      );
+      setGenerateFeedback({
+        type: "success",
+        title: "Generated key confirmed",
+        body: data.secretKey
+          ? "A new 4-digit secret key was generated. Save it now because it will not be shown again."
+          : "A new 4-digit secret key was generated successfully.",
+        secretKey: data.secretKey,
+      });
       setRandomPassword("");
     } catch (err) {
-      setError(err.message || "Failed to reset secret key.");
+      setGenerateFeedback({
+        type: "error",
+        title: "Could not generate key",
+        body: normalizeSecretError(err, "Failed to generate a new secret key."),
+      });
+    } finally {
+      setActionLoading("generate", false);
     }
   };
 
   const handleSetCustomKey = async () => {
     setError("");
     setMessage("");
+    setCustomFeedback(null);
 
-    if (!customPassword) {
-      setError("Enter your account password before setting a custom key.");
+    if (!customPassword.trim()) {
+      setCustomFeedback({
+        type: "error",
+        title: "Password required",
+        body: "Enter your account password before setting a custom key.",
+      });
       return;
     }
 
-    if (!newKey || newKey.length !== 4 || newKey !== confirmKey) {
-      setError("New key must be 4 digits and match the confirmation.");
+    if (customPassword.length < 6) {
+      setCustomFeedback({
+        type: "error",
+        title: "Password too short",
+        body: "Account password must be at least 6 characters.",
+      });
+      return;
+    }
+
+    if (!/^\d{4}$/.test(newKey)) {
+      setCustomFeedback({
+        type: "error",
+        title: "Invalid key",
+        body: "Custom key must be exactly 4 digits.",
+      });
+      return;
+    }
+
+    if (newKey !== confirmKey) {
+      setCustomFeedback({
+        type: "error",
+        title: "Keys do not match",
+        body: "The confirmation key must match the new custom key.",
+      });
       return;
     }
 
     try {
+      setActionLoading("custom", true);
       await authAPI.setCustomSecretKey({
         password: customPassword,
         secretKey: newKey,
       });
-      setMessage("Custom secret key set successfully.");
+      setCustomFeedback({
+        type: "success",
+        title: "Custom key confirmed",
+        body: "Your custom 4-digit secret key is now active for admin confirmations.",
+        secretKey: newKey,
+      });
       setCustomPassword("");
       setNewKey("");
       setConfirmKey("");
     } catch (err) {
-      setError(err.message || "Failed to set custom secret key.");
+      setCustomFeedback({
+        type: "error",
+        title: "Could not set custom key",
+        body: normalizeSecretError(err, "Failed to set custom secret key."),
+      });
+    } finally {
+      setActionLoading("custom", false);
     }
   };
 
   const keyStrength = newKey.length;
+  const keyIsComplete = /^\d{4}$/.test(newKey);
+  const keyMatches = keyIsComplete && newKey === confirmKey;
+  const keyMismatch = confirmKey.length > 0 && newKey !== confirmKey;
 
   return (
     <div className="space-y-6">
@@ -302,18 +403,24 @@ const AdminProfilePage = () => {
                   <input
                     type="password"
                     value={randomPassword}
-                    onChange={(event) => setRandomPassword(event.target.value)}
+                    onChange={(event) => {
+                      setRandomPassword(event.target.value);
+                      setGenerateFeedback(null);
+                    }}
                     className="h-11 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm outline-none transition focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-primary/10"
                     placeholder="Enter your account password"
                   />
                 </label>
 
+                <SecretFeedbackPanel feedback={secretFeedback.generate} />
+
                 <button
                   type="button"
                   onClick={handleResetSecret}
-                  className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 text-sm font-semibold text-primary transition-colors hover:bg-brand-50"
+                  disabled={secretLoading.generate}
+                  className="mt-4 inline-flex h-10 w-full items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 text-sm font-semibold text-primary transition-colors hover:bg-brand-50 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <FaUndo className="text-xs" /> Reset key
+                  <FaUndo className="text-xs" /> {secretLoading.generate ? "Generating..." : "Generate key"}
                 </button>
               </div>
 
@@ -336,7 +443,10 @@ const AdminProfilePage = () => {
                     <input
                       type="password"
                       value={customPassword}
-                      onChange={(event) => setCustomPassword(event.target.value)}
+                      onChange={(event) => {
+                        setCustomPassword(event.target.value);
+                        setCustomFeedback(null);
+                      }}
                       className="h-11 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm outline-none transition focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-primary/10"
                       placeholder="Enter your account password"
                     />
@@ -346,12 +456,17 @@ const AdminProfilePage = () => {
                     <input
                       type="password"
                       value={newKey}
-                      onChange={(event) =>
-                        setNewKey(event.target.value.replace(/\D/g, ""))
-                      }
+                      onChange={(event) => {
+                        setNewKey(event.target.value.replace(/\D/g, "").slice(0, 4));
+                        setCustomFeedback(null);
+                      }}
                       maxLength={4}
                       inputMode="numeric"
-                      className="h-11 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm outline-none transition focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-primary/10"
+                      className={`h-11 w-full rounded-lg border bg-neutral-50 px-3 text-sm outline-none transition focus:bg-white focus:ring-2 ${
+                        keyIsComplete
+                          ? "border-green-300 focus:border-green-400 focus:ring-green-100"
+                          : "border-neutral-200 focus:border-primary/40 focus:ring-primary/10"
+                      }`}
                       placeholder="1234"
                     />
                   </label>
@@ -360,12 +475,19 @@ const AdminProfilePage = () => {
                     <input
                       type="password"
                       value={confirmKey}
-                      onChange={(event) =>
-                        setConfirmKey(event.target.value.replace(/\D/g, ""))
-                      }
+                      onChange={(event) => {
+                        setConfirmKey(event.target.value.replace(/\D/g, "").slice(0, 4));
+                        setCustomFeedback(null);
+                      }}
                       maxLength={4}
                       inputMode="numeric"
-                      className="h-11 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm outline-none transition focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-primary/10"
+                      className={`h-11 w-full rounded-lg border bg-neutral-50 px-3 text-sm outline-none transition focus:bg-white focus:ring-2 ${
+                        keyMatches
+                          ? "border-green-300 focus:border-green-400 focus:ring-green-100"
+                          : keyMismatch
+                            ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+                            : "border-neutral-200 focus:border-primary/40 focus:ring-primary/10"
+                      }`}
                       placeholder="Repeat"
                     />
                   </label>
@@ -373,9 +495,10 @@ const AdminProfilePage = () => {
                     <button
                       type="button"
                       onClick={handleSetCustomKey}
-                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primaryLight"
+                      disabled={secretLoading.custom}
+                      className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primaryLight disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <FaCheckCircle className="text-xs" /> Apply
+                      <FaCheckCircle className="text-xs" /> {secretLoading.custom ? "Checking..." : "Apply"}
                     </button>
                   </div>
                 </div>
@@ -386,13 +509,65 @@ const AdminProfilePage = () => {
                     style={{ width: `${(keyStrength / 4) * 100}%` }}
                   />
                 </div>
-                <p className="mt-2 text-xs text-neutral-500">
-                  {keyStrength}/4 digits entered
+                <p
+                  className={`mt-2 text-xs ${
+                    keyMatches
+                      ? "text-green-700"
+                      : keyMismatch
+                        ? "text-red-600"
+                        : "text-neutral-500"
+                  }`}
+                >
+                  {keyMatches
+                    ? "Confirmed: keys match."
+                    : keyMismatch
+                      ? "Warning: confirmation does not match."
+                      : `${keyStrength}/4 digits entered`}
                 </p>
+
+                <SecretFeedbackPanel feedback={secretFeedback.custom} />
               </div>
             </div>
           </section>
         </main>
+      </div>
+    </div>
+  );
+};
+
+const SecretFeedbackPanel = ({ feedback }) => {
+  if (!feedback) return null;
+
+  const isSuccess = feedback.type === "success";
+
+  return (
+    <div
+      className={`mt-4 rounded-lg border px-4 py-3 text-sm ${
+        isSuccess
+          ? "border-green-200 bg-green-50 text-green-800"
+          : "border-red-200 bg-red-50 text-red-700"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        {isSuccess ? (
+          <FaCheckCircle className="mt-0.5 shrink-0" />
+        ) : (
+          <FaExclamationTriangle className="mt-0.5 shrink-0" />
+        )}
+        <div className="min-w-0">
+          <p className="font-semibold">{feedback.title}</p>
+          <p className="mt-1">{feedback.body}</p>
+          {feedback.secretKey && (
+            <div className="mt-3 rounded-lg border border-current/20 bg-white/80 px-3 py-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em]">
+                Active key
+              </p>
+              <p className="mt-1 font-mono text-lg tracking-[0.35em]">
+                {feedback.secretKey}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
