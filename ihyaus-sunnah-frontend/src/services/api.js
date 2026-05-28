@@ -569,3 +569,15 @@ export const authAPI = {
       }),
     }),
 };
+
+// ==================== CURRENT USER API ====================
+
+export const currentUserAPI = {
+  getProfile: () => apiCall("/users/me/profile"),
+
+  updateProfile: (data) =>
+    apiCall("/users/me/profile", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+};

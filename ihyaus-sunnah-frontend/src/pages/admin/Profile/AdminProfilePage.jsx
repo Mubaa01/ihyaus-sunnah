@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   FaCheckCircle,
@@ -13,7 +13,7 @@ import {
   FaUndo,
   FaUser,
 } from "react-icons/fa";
-import { authAPI } from "../../../services/api";
+import { authAPI, currentUserAPI } from "../../../services/api";
 
 const defaultProfile = {
   name: "Admin User",
@@ -33,6 +33,8 @@ const AdminProfilePage = () => {
   const [confirmKey, setConfirmKey] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [profileSaving, setProfileSaving] = useState(false);
   const [secretFeedback, setSecretFeedback] = useState({
     generate: null,
     custom: null,
@@ -46,6 +48,45 @@ const AdminProfilePage = () => {
   const memberSince = profile.createdAt
     ? new Date(profile.createdAt).toLocaleDateString()
     : "Not available";
+
+  const normalizeProfile = (user = {}) => ({
+    name: user.name || user.email?.split("@")[0] || defaultProfile.name,
+    email: user.email || defaultProfile.email,
+    role: user.role || defaultProfile.role,
+    createdAt: user.createdAt || null,
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadProfile = async () => {
+      try {
+        setProfileLoading(true);
+        const response = await currentUserAPI.getProfile();
+        if (!isMounted) return;
+
+        const nextProfile = normalizeProfile(response.data);
+        setProfile(nextProfile);
+        setName(nextProfile.name);
+        setEmail(nextProfile.email);
+        setRole(nextProfile.role);
+        setError("");
+      } catch (err) {
+        if (!isMounted) return;
+        setError(err.message || "Failed to load profile details.");
+      } finally {
+        if (isMounted) {
+          setProfileLoading(false);
+        }
+      }
+    };
+
+    loadProfile();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const normalizeSecretError = (err, fallback) => {
     const text = err?.message || fallback;
@@ -73,17 +114,44 @@ const AdminProfilePage = () => {
     setSecretLoading((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleProfileSave = () => {
-    const nextProfile = {
-      ...profile,
-      name: name.trim() || defaultProfile.name,
-      email: email.trim() || defaultProfile.email,
-      role: role.trim() || defaultProfile.role,
-    };
-
-    setProfile(nextProfile);
-    setMessage("Profile details saved locally. Connect the profile API to persist changes.");
+  const handleProfileSave = async () => {
     setError("");
+
+    const nextName = name.trim();
+    const nextEmail = email.trim().toLowerCase();
+
+    if (nextName.length < 2) {
+      setError("Name must be at least 2 characters.");
+      setMessage("");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nextEmail)) {
+      setError("Enter a valid email address.");
+      setMessage("");
+      return;
+    }
+
+    try {
+      setProfileSaving(true);
+      const response = await currentUserAPI.updateProfile({
+        name: nextName,
+        email: nextEmail,
+      });
+
+      const nextProfile = normalizeProfile(response.data);
+      setProfile(nextProfile);
+      setName(nextProfile.name);
+      setEmail(nextProfile.email);
+      setRole(nextProfile.role);
+      setMessage("Profile details saved successfully.");
+      setError("");
+    } catch (err) {
+      setError(err.message || "Failed to save profile details.");
+      setMessage("");
+    } finally {
+      setProfileSaving(false);
+    }
   };
 
   const handleResetProfile = () => {
@@ -347,8 +415,8 @@ const AdminProfilePage = () => {
                 Role
                 <input
                   value={role}
-                  onChange={(event) => setRole(event.target.value)}
-                  className="h-11 w-full rounded-lg border border-neutral-200 bg-neutral-50 px-3 text-sm outline-none transition focus:border-primary/40 focus:bg-white focus:ring-2 focus:ring-primary/10"
+                  readOnly
+                  className="h-11 w-full cursor-not-allowed rounded-lg border border-neutral-200 bg-neutral-100 px-3 text-sm text-neutral-500 outline-none"
                   placeholder="Administrator role"
                 />
               </label>
@@ -358,9 +426,10 @@ const AdminProfilePage = () => {
               <button
                 type="button"
                 onClick={handleProfileSave}
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primaryLight"
+                disabled={profileLoading || profileSaving}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primaryLight disabled:cursor-not-allowed disabled:opacity-60"
               >
-                <FaSave className="text-xs" /> Save profile
+                <FaSave className="text-xs" /> {profileSaving ? "Saving..." : "Save profile"}
               </button>
               <button
                 type="button"

@@ -1,7 +1,9 @@
 import express from "express";
 import {
+  getCurrentUser,
   getAllUsers,
   getUserById,
+  updateCurrentUser,
   updateUserRole,
   toggleUserActive,
   deleteUser
@@ -17,6 +19,10 @@ router.use(authorize(["director", "admin"]));
 
 // Get all users (READ - no secret key needed)
 router.get("/", getAllUsers);
+
+// Current authenticated profile
+router.get("/me/profile", getCurrentUser);
+router.patch("/me/profile", updateCurrentUser);
 
 // Get single user (READ - no secret key needed)
 router.get("/:id", getUserById);

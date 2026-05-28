@@ -1,6 +1,90 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 
+const getPublicUserFields = "-password -resetPasswordToken -resetPasswordExpiresAt -secretKey";
+
+export const getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId).select(getPublicUserFields);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    console.error("Get current user error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export const updateCurrentUser = async (req, res) => {
+  try {
+    const name = String(req.body.name || "").trim();
+    const email = String(req.body.email || "").trim().toLowerCase();
+
+    if (!name || name.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: "Name must be at least 2 characters"
+      });
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({
+        success: false,
+        message: "Enter a valid email address"
+      });
+    }
+
+    const emailOwner = await User.findOne({
+      email,
+      _id: { $ne: req.user.userId }
+    });
+
+    if (emailOwner) {
+      return res.status(409).json({
+        success: false,
+        message: "Email is already in use by another account"
+      });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { name, email },
+      { new: true, runValidators: true }
+    ).select(getPublicUserFields);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: user
+    });
+  } catch (error) {
+    console.error("Update current user error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 export const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 10, role, isActive } = req.query;
@@ -15,7 +99,7 @@ export const getAllUsers = async (req, res) => {
 
   
     const users = await User.find(filter)
-      .select("-password -resetPasswordToken -resetPasswordExpiresAt")
+      .select(getPublicUserFields)
       .skip(skip)
       .limit(Number(limit))
       .sort({ createdAt: -1 });
@@ -45,9 +129,7 @@ export const getUserById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(id).select(
-      "-password -resetPasswordToken -resetPasswordExpiresAt"
-    );
+    const user = await User.findById(id).select(getPublicUserFields);
 
     if (!user) {
       return res.status(404).json({
