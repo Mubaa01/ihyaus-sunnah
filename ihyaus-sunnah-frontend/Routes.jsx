@@ -47,6 +47,7 @@ function AppRoutes() {
         <Route path="/programs/:slug" element={<ProgramDetailsPage />} />
         <Route path="/research" element={<StudentResearchPage />} />
         <Route path="/media-library" element={<MediaLibraryPage />} />
+        <Route path="/media-library/audio/:trusteeId" element={<MediaLibraryPage />} />
         <Route path="/staff" element={<StaffDirectoryPage />} />
         {/* <Route path="/organization" element={<OrganizationPage />} /> */}
         <Route path="/lectures" element={<MajlisSchedulePage />} />

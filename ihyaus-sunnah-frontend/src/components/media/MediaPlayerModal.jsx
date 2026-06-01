@@ -212,10 +212,18 @@ const MediaPlayerModal = ({ media, isOpen, onClose }) => {
                   </div>
 
                   <div className="flex gap-3">
-                    <button className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-primary text-white rounded hover:bg-primary/90 transition-colors">
+                    <a
+                      href={sourceUrl || undefined}
+                      download={media.telegramFileName || `${media.title || mediaId}.mp3`}
+                      className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded transition-colors ${
+                        sourceUrl
+                          ? 'bg-primary text-white hover:bg-primary/90'
+                          : 'pointer-events-none bg-gray-200 text-gray-500'
+                      }`}
+                    >
                       <FiDownload className="w-4 h-4" />
                       Download
-                    </button>
+                    </a>
                     <button className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 text-gray-700 rounded hover:bg-gray-50 transition-colors">
                       <FiShare2 className="w-4 h-4" />
                       Share

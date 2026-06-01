@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { FiVideo, FiMusic, FiPlay, FiUsers, FiFolder, FiArrowLeft } from 'react-icons/fi'
+import { FiMusic, FiPlay, FiUsers, FiFolder, FiArrowLeft, FiExternalLink, FiHeadphones, FiDownload } from 'react-icons/fi'
 
 import MediaPlayerModal from '../../components/media/MediaPlayerModal'
 import useMediaLibraryAPI from '../../hooks/useMediaLibraryAPI'
 import useStaffAPI from '../../hooks/useStaffAPI'
 import QuranVersePanel from '../../components/common/QuranVersePanel'
+import { mediaAPI } from '../../services/api'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api'
 
@@ -16,24 +18,151 @@ const mediaVerse = {
   reference: 'Surah An-Nahl 16:125',
 }
 
+const AudioListItem = ({ media, onPlay, getThumbnail, getId }) => {
+  const [sourceUrl, setSourceUrl] = useState(media.provider === 'telegram' ? '' : media.url || '')
+  const [sourceError, setSourceError] = useState('')
+
+  useEffect(() => {
+    let isMounted = true
+
+    const loadSource = async () => {
+      setSourceError('')
+
+      if (media.provider !== 'telegram') {
+        setSourceUrl(media.url || '')
+        return
+      }
+
+      setSourceUrl('')
+
+      try {
+        const response = await mediaAPI.getTelegramUrl(media._id || media.id)
+        if (isMounted) {
+          setSourceUrl(response.data?.url || '')
+        }
+      } catch (error) {
+        if (isMounted) {
+          setSourceError(error.message)
+        }
+      }
+    }
+
+    loadSource()
+
+    return () => {
+      isMounted = false
+    }
+  }, [media])
+
+  const thumbnail = getThumbnail(media)
+  const uploadedDate = media.createdAt || media.uploadedAt
+
+  return (
+    <div className="rounded-lg border border-gray-100 bg-white p-4 shadow-soft transition-shadow hover:shadow-lg">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
+        <div className="flex min-w-0 flex-1 items-start gap-4">
+          {thumbnail ? (
+            <img
+              src={thumbnail}
+              alt={media.title}
+              className="h-16 w-16 shrink-0 rounded-lg object-cover"
+            />
+          ) : (
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <FiMusic className="h-7 w-7" />
+            </div>
+          )}
+
+          <div className="min-w-0">
+            <div className="mb-1 flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-gold">
+              <FiHeadphones className="h-3.5 w-3.5" />
+              Audio
+              {uploadedDate && (
+                <span className="normal-case tracking-normal text-gray-400">
+                  {new Date(uploadedDate).toLocaleDateString()}
+                </span>
+              )}
+            </div>
+            <h4 className="line-clamp-2 text-lg font-bold text-primary">{media.title}</h4>
+            <p className="mt-1 line-clamp-2 text-sm text-gray-600">{media.description || 'No description provided.'}</p>
+          </div>
+        </div>
+
+        <div className="min-w-0 flex-1 lg:max-w-xl">
+          {sourceError ? (
+            <div className="rounded border border-red-100 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {sourceError}
+            </div>
+          ) : sourceUrl ? (
+            <audio controls preload="none" className="w-full">
+              <source src={sourceUrl} type={media.telegramMimeType || 'audio/mpeg'} />
+              Your browser does not support the audio element.
+            </audio>
+          ) : (
+            <div className="rounded border border-gray-100 bg-gray-50 px-3 py-3 text-sm text-gray-500">
+              Loading audio...
+            </div>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => onPlay(media)}
+            className="inline-flex items-center justify-center gap-2 rounded bg-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-primary/90"
+          >
+            <FiPlay className="h-4 w-4" />
+            Play
+          </button>
+          <a
+            href={sourceUrl || undefined}
+            download={media.telegramFileName || `${media.title || getId(media)}.mp3`}
+            className={`inline-flex items-center justify-center gap-2 rounded border px-4 py-2 text-sm font-semibold transition-colors ${
+              sourceUrl
+                ? 'border-primary/20 text-primary hover:bg-primary/5'
+                : 'pointer-events-none border-gray-200 text-gray-400'
+            }`}
+          >
+            <FiDownload className="h-4 w-4" />
+            Download
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const MediaLibraryPage = () => {
-  const [activeTab, setActiveTab] = useState('video')
-  const [selectedStaff, setSelectedStaff] = useState(null)
+  const { trusteeId } = useParams()
+  const [activeTab, setActiveTab] = useState('audio')
   const [selectedPlaylist, setSelectedPlaylist] = useState(null)
   const [selectedMedia, setSelectedMedia] = useState(null)
 
   const { mediaItems, playlists } = useMediaLibraryAPI({ visibility: 'public' })
   const { groupedStaff } = useStaffAPI()
-  const seniorStaff = groupedStaff.senior || []
+  const trustees = [
+    ...(groupedStaff.directors || []),
+    ...(groupedStaff.board || []),
+    ...(groupedStaff.senior || []),
+  ].filter((member, index, members) => {
+    const memberId = member?._id || member?.id
+    return memberId && members.findIndex((item) => (item?._id || item?.id) === memberId) === index
+  })
 
   const tabs = [
-    { id: 'video', label: 'Senior Staff Videos', icon: FiVideo },
-    { id: 'audio', label: 'Senior Staff Audio', icon: FiMusic },
+    { id: 'audio', label: 'Trustee Audio', icon: FiHeadphones },
     { id: 'short', label: 'Short Videos', icon: FiPlay },
-    { id: 'student', label: 'Student Library', icon: FiUsers },
   ]
 
   const getId = (item) => item?._id || item?.id || ''
+  const selectedTrustee = trustees.find((staffMember) => getId(staffMember) === trusteeId)
+
+  useEffect(() => {
+    if (!trusteeId) return
+    setActiveTab('audio')
+    setSelectedPlaylist(null)
+    setSelectedMedia(null)
+  }, [trusteeId])
 
   const normalizeId = (value) => {
     if (!value) return ''
@@ -81,25 +210,30 @@ const MediaLibraryPage = () => {
     normalizeId(media.playlistId) === playlistId
   ))
 
-  const seniorPlaylistIds = new Set(
-    seniorStaff.flatMap((staffMember) =>
+  const getPlaylistCover = (playlist, staffMember) => {
+    const firstMediaWithThumbnail = getPlaylistMedia(getId(playlist)).find((media) => getMediaThumbnail(media))
+    return getMediaThumbnail(firstMediaWithThumbnail || {}) || staffMember?.image || ''
+  }
+
+  const trusteePlaylistIds = new Set(
+    trustees.flatMap((staffMember) =>
       getStaffPlaylists(getId(staffMember)).map((playlist) => getId(playlist))
     )
   )
 
   const generalItems = activeMedia.filter((media) => (
     !normalizeId(media.staffId) ||
-    !seniorPlaylistIds.has(normalizeId(media.playlistId))
+    !trusteePlaylistIds.has(normalizeId(media.playlistId))
   ))
 
   const handleTabChange = (tabId) => {
     setActiveTab(tabId)
-    setSelectedStaff(null)
     setSelectedPlaylist(null)
     setSelectedMedia(null)
   }
 
   const isShortMedia = (media) => media.type === 'short'
+  const isAudio = activeTab === 'audio'
 
   const renderMediaCard = (media, icon) => (
     <motion.div
@@ -112,7 +246,7 @@ const MediaLibraryPage = () => {
     >
       <div className={`${isShortMedia(media) ? 'aspect-[9/16]' : 'aspect-video'} relative bg-gray-100 overflow-hidden`}>
         {renderMediaThumbnail(media, icon)}
-        <div className="absolute inset-0 bg-black/20 flex items-center justify-center group-hover:bg-black/35 transition-colors">
+        <div className={`${isAudio ? 'bg-primary/10' : 'bg-black/20 group-hover:bg-black/35'} absolute inset-0 flex items-center justify-center transition-colors`}>
           <div className="bg-white/95 rounded-full p-3 shadow-lg scale-95 group-hover:scale-100 transition-transform">
             {icon}
           </div>
@@ -130,11 +264,11 @@ const MediaLibraryPage = () => {
     </motion.div>
   )
 
-  const renderOpenLibrary = (title, icon) => (
+  const renderShortLibrary = (title, icon) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-cream/70 border border-gray-100 p-5 md:p-8 shadow-soft rounded-lg"
+      className="rounded-lg border border-gray-100 bg-white p-5 shadow-soft md:p-8"
     >
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between mb-6">
         <div>
@@ -144,7 +278,7 @@ const MediaLibraryPage = () => {
         <span className="text-sm text-gray-500">{activeMedia.length} items</span>
       </div>
       {activeMedia.length > 0 ? (
-        <div className={`${activeTab === 'short' ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 items-start' : 'grid md:grid-cols-2 lg:grid-cols-3 gap-6'}`}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5 items-start">
           {activeMedia.map((media) => renderMediaCard(media, icon))}
         </div>
       ) : (
@@ -156,15 +290,44 @@ const MediaLibraryPage = () => {
     </motion.div>
   )
 
-  const renderStaffCollections = () => (
+  const renderAudioList = (audios) => (
+    <div className="space-y-4">
+      {audios.map((media) => (
+        <AudioListItem
+          key={getId(media)}
+          media={media}
+          onPlay={setSelectedMedia}
+          getThumbnail={getMediaThumbnail}
+          getId={getId}
+        />
+      ))}
+    </div>
+  )
+
+  const renderAudioCollections = () => (
     <>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        {seniorStaff.map((staffMember) => {
+      <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">Trustee Audio Folders</p>
+          <h2 className="mt-2 text-3xl font-bold text-primary md:text-4xl">Listen by trustee</h2>
+          <p className="mt-3 max-w-2xl text-gray-600">
+            Each trustee has a dedicated audio folder. Open a folder to browse lectures, reminders, and ongoing series.
+          </p>
+        </div>
+        <div className="rounded bg-primary/5 px-4 py-3 text-sm font-semibold text-primary">
+          {trustees.length} trustees | {activeMedia.length} audio items
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
+        {trustees.map((staffMember) => {
           const staffId = getId(staffMember)
           const staffPlaylists = getStaffPlaylists(staffId)
           const totalItems = staffPlaylists.reduce((sum, playlist) => (
             sum + getPlaylistMedia(getId(playlist)).length
           ), 0)
+          const featuredPlaylist = staffPlaylists[0]
+          const coverImage = featuredPlaylist ? getPlaylistCover(featuredPlaylist, staffMember) : staffMember.image
 
           return (
             <motion.div
@@ -172,37 +335,54 @@ const MediaLibraryPage = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               whileHover={{ y: -5 }}
-              className={`bg-white rounded-lg border border-gray-100 overflow-hidden shadow-soft cursor-pointer hover:shadow-xl transition-shadow ${totalItems === 0 ? 'opacity-50' : ''}`}
-              onClick={() => {
-                if (totalItems <= 0) return
-                setSelectedStaff(staffMember)
-                setSelectedPlaylist(null)
-              }}
+              className="group overflow-hidden rounded-lg border border-gray-100 bg-white shadow-soft transition-shadow hover:shadow-xl"
             >
-              <div className="aspect-square relative bg-gray-100">
-                {staffMember.image ? (
-                  <img
-                    src={staffMember.image}
-                    alt={staffMember.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-primary">
-                    <FiUsers className="w-10 h-10" />
+              <Link to={`/media-library/audio/${staffId}`} className="block w-full text-left">
+                <div className="flex gap-4 p-5">
+                  {coverImage ? (
+                    <img
+                      src={coverImage}
+                      alt={featuredPlaylist?.playlistName || staffMember.name}
+                      className="h-24 w-24 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                      <FiUsers className="h-8 w-8" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-3 inline-flex items-center gap-2 rounded bg-gold/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-gold">
+                      <FiFolder className="h-3.5 w-3.5" />
+                      Audio folder
+                    </div>
+                    <h3 className="line-clamp-2 text-xl font-bold text-primary">{staffMember.name}</h3>
+                    <p className="mt-1 line-clamp-1 text-sm text-gray-600">{staffMember.position}</p>
+                    {featuredPlaylist && (
+                      <p className="mt-2 line-clamp-1 text-sm font-semibold text-primary/80">
+                        {featuredPlaylist.playlistName}
+                      </p>
+                    )}
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent" />
-                <div className="absolute top-4 right-4 bg-white/95 text-primary text-xs font-semibold px-2.5 py-1 rounded shadow">
-                  {totalItems} items
                 </div>
-                <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-white drop-shadow font-bold text-lg mb-1">{staffMember.name}</h3>
-                  <p className="text-white/90 drop-shadow text-sm">{staffMember.position}</p>
-                  <p className="text-white/80 drop-shadow text-xs mt-2">
-                    {staffPlaylists.length} folders | {totalItems} items
-                  </p>
+
+                <div className="border-t border-gray-100 px-5 py-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="rounded bg-gray-50 px-3 py-2">
+                      <p className="font-bold text-primary">{staffPlaylists.length}</p>
+                      <p className="text-gray-500">Playlists</p>
+                    </div>
+                    <div className="rounded bg-gray-50 px-3 py-2">
+                      <p className="font-bold text-primary">{totalItems}</p>
+                      <p className="text-gray-500">Audios</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+
+                <div className="flex items-center justify-between border-t border-gray-100 px-5 py-4 text-sm font-semibold text-primary">
+                  <span>Open folder</span>
+                  <FiArrowLeft className="h-4 w-4 rotate-180 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
             </motion.div>
           )
         })}
@@ -216,104 +396,192 @@ const MediaLibraryPage = () => {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-primary">
-              Unassigned {activeTab === 'video' ? 'Videos' : 'Audio'}
+              General Audio
             </h2>
             <span className="text-sm text-gray-500">{generalItems.length} items</span>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {generalItems.map((media) => renderMediaCard(
-              media,
-              activeTab === 'video' ? <FiVideo className="w-6 h-6 text-primary" /> : <FiMusic className="w-6 h-6 text-primary" />
-            ))}
-          </div>
-        </motion.div>
-      )}
-
-      {selectedStaff && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-cream/70 rounded-lg border border-gray-100 p-5 md:p-8 shadow-soft"
-        >
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-            <div className="flex items-center gap-4 min-w-0">
-              {selectedStaff.image ? (
-                <img
-                  src={selectedStaff.image}
-                  alt={selectedStaff.name}
-                  className="w-16 h-16 rounded-full object-cover shrink-0"
-                />
-              ) : (
-                <div className="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <FiUsers className="w-7 h-7" />
-                </div>
-              )}
-              <div className="min-w-0">
-                <h2 className="text-2xl font-bold text-primary">{selectedStaff.name}</h2>
-                <p className="text-gray-600">{selectedStaff.position}</p>
-              </div>
+            <div className="md:col-span-2 lg:col-span-3">
+              {renderAudioList(generalItems)}
             </div>
-            <button
-              onClick={() => {
-                setSelectedStaff(null)
-                setSelectedPlaylist(null)
-              }}
-              className="inline-flex items-center justify-center gap-2 px-3 py-2 border border-gray-200 bg-white text-gray-600 hover:text-primary hover:border-primary/30 rounded transition-colors"
-            >
-              <FiArrowLeft className="w-4 h-4" />
-              Back
-            </button>
           </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
-            {getStaffPlaylists(getId(selectedStaff)).map((playlist) => {
-              const playlistId = getId(playlist)
-              const playlistMedia = getPlaylistMedia(playlistId)
-
-              return (
-                <button
-                  key={playlistId}
-                  type="button"
-                  onClick={() => setSelectedPlaylist(playlist)}
-                  className={`text-left bg-white border rounded-lg p-5 shadow-soft hover:shadow-xl transition ${
-                    getId(selectedPlaylist) === playlistId ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded bg-primary/10 text-primary flex items-center justify-center">
-                      <FiFolder className="w-6 h-6" />
-                    </div>
-                    <span className="text-sm text-gray-500">{playlistMedia.length} items</span>
-                  </div>
-                  <h3 className="text-xl font-bold text-primary line-clamp-2">{playlist.playlistName}</h3>
-                  <p className="text-sm text-gray-500 mt-2">
-                    {activeTab === 'video' ? 'Video folder' : 'Audio folder'}
-                  </p>
-                </button>
-              )
-            })}
-          </div>
-
-          {selectedPlaylist && (
-            <div className="border-t border-gray-200 pt-8">
-              <div className="flex items-center justify-between mb-5">
-                <h3 className="text-xl font-bold text-primary">{selectedPlaylist.playlistName}</h3>
-                <span className="text-sm text-gray-500">
-                  {getPlaylistMedia(getId(selectedPlaylist)).length} items
-                </span>
-              </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5">
-                {getPlaylistMedia(getId(selectedPlaylist)).map((media) => renderMediaCard(
-                  media,
-                  activeTab === 'video' ? <FiVideo className="w-6 h-6 text-primary" /> : <FiMusic className="w-6 h-6 text-primary" />
-                ))}
-              </div>
-            </div>
-          )}
         </motion.div>
       )}
     </>
   )
+
+  const renderTrusteeAudioPage = () => {
+    if (!selectedTrustee) {
+      return (
+        <div className="rounded-lg border border-dashed border-primary/20 bg-white p-8 text-center shadow-soft">
+          <p className="font-semibold text-primary">Trustee folder not found.</p>
+          <Link to="/media-library" className="mt-4 inline-flex items-center justify-center gap-2 rounded bg-primary px-4 py-2 text-white">
+            <FiArrowLeft className="w-4 h-4" />
+            Back to media library
+          </Link>
+        </div>
+      )
+    }
+
+    const trusteePlaylists = getStaffPlaylists(getId(selectedTrustee))
+    const playlistIds = new Set(trusteePlaylists.map((playlist) => getId(playlist)))
+    const trusteeAudios = activeMedia.filter((media) => (
+      normalizeId(media.staffId) === getId(selectedTrustee) ||
+      playlistIds.has(normalizeId(media.playlistId))
+    ))
+    const displayedAudios = selectedPlaylist
+      ? getPlaylistMedia(getId(selectedPlaylist))
+      : trusteeAudios
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-8"
+      >
+        <div className="rounded-lg border border-gray-100 bg-cream/70 p-5 shadow-soft md:p-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center gap-4 min-w-0">
+              {selectedTrustee.image ? (
+                <img
+                  src={selectedTrustee.image}
+                  alt={selectedTrustee.name}
+                  className="h-20 w-20 shrink-0 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <FiUsers className="w-8 h-8" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-gold">Trustee Audio Folder</p>
+                <h2 className="mt-1 text-3xl font-bold text-primary">{selectedTrustee.name}</h2>
+                <p className="mt-1 text-gray-600">{selectedTrustee.position}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link
+                to="/media-library"
+                className="inline-flex items-center justify-center gap-2 rounded border border-gray-200 bg-white px-3 py-2 text-gray-700 transition-colors hover:border-primary/30 hover:text-primary"
+              >
+                <FiArrowLeft className="w-4 h-4" />
+                Back
+              </Link>
+              <Link
+                to={`/staff/profile/${getId(selectedTrustee)}`}
+                className="inline-flex items-center justify-center gap-2 rounded border border-primary/20 bg-white px-3 py-2 text-primary transition-colors hover:border-primary/40 hover:bg-primary/5"
+              >
+                View profile
+                <FiExternalLink className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-soft md:p-8">
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-gold">Playlists</p>
+              <h3 className="mt-1 text-2xl font-bold text-primary">Audio series</h3>
+            </div>
+            <span className="text-sm text-gray-500">{trusteePlaylists.length} playlists</span>
+          </div>
+
+          {trusteePlaylists.length > 0 ? (
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+              <button
+                type="button"
+                onClick={() => setSelectedPlaylist(null)}
+                className={`text-left rounded-lg border p-5 shadow-soft transition hover:shadow-xl ${
+                  !selectedPlaylist ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100'
+                }`}
+              >
+                <div className="mb-4 flex h-24 w-full items-center justify-center overflow-hidden rounded bg-primary/10 text-primary">
+                  {selectedTrustee.image ? (
+                    <img
+                      src={selectedTrustee.image}
+                      alt={selectedTrustee.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <FiHeadphones className="w-8 h-8" />
+                  )}
+                </div>
+                <h4 className="text-xl font-bold text-primary">All audios</h4>
+                <p className="mt-2 text-sm text-gray-500">{trusteeAudios.length} items</p>
+              </button>
+
+              {trusteePlaylists.map((playlist) => {
+                const playlistId = getId(playlist)
+                const playlistMedia = getPlaylistMedia(playlistId)
+                const playlistCover = getPlaylistCover(playlist, selectedTrustee)
+
+                return (
+                  <button
+                    key={playlistId}
+                    type="button"
+                    onClick={() => setSelectedPlaylist(playlist)}
+                    className={`text-left rounded-lg border p-5 shadow-soft transition hover:shadow-xl ${
+                      getId(selectedPlaylist) === playlistId ? 'border-primary ring-2 ring-primary/20' : 'border-gray-100'
+                    }`}
+                  >
+                    <div className="mb-4 overflow-hidden rounded bg-primary/10">
+                      {playlistCover ? (
+                        <img
+                          src={playlistCover}
+                          alt={playlist.playlistName}
+                          className="h-28 w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-28 w-full items-center justify-center text-primary">
+                          <FiFolder className="w-7 h-7" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0">
+                        <h4 className="line-clamp-2 text-xl font-bold text-primary">{playlist.playlistName}</h4>
+                        <p className="mt-2 text-sm text-gray-500">Audio playlist</p>
+                      </div>
+                      <span className="shrink-0 rounded bg-gray-50 px-2 py-1 text-sm text-gray-500">{playlistMedia.length}</span>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="rounded-lg border border-dashed border-primary/20 bg-cream/50 p-8 text-center">
+              <FiMusic className="mx-auto mb-3 h-8 w-8 text-primary" />
+              <p className="font-semibold text-primary">No audio playlists yet.</p>
+              <p className="mt-1 text-sm text-gray-600">New audio uploads assigned to this trustee will appear here.</p>
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-gray-100 bg-white p-5 shadow-soft md:p-8">
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-gold">Audios</p>
+              <h3 className="mt-1 text-2xl font-bold text-primary">
+                {selectedPlaylist ? selectedPlaylist.playlistName : 'All audio lessons'}
+              </h3>
+            </div>
+            <span className="text-sm text-gray-500">{displayedAudios.length} items</span>
+          </div>
+
+          {displayedAudios.length > 0 ? (
+            renderAudioList(displayedAudios)
+          ) : (
+            <div className="rounded-lg border border-dashed border-primary/20 bg-cream/50 p-8 text-center">
+              <p className="font-semibold text-primary">No audio available yet.</p>
+              <p className="mt-1 text-sm text-gray-600">Upload audio with this trustee name to fill this folder.</p>
+            </div>
+          )}
+        </div>
+      </motion.div>
+    )
+  }
 
   return (
     <div className="overflow-hidden bg-white">
@@ -350,7 +618,7 @@ const MediaLibraryPage = () => {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-2xl text-white/90 max-w-3xl leading-relaxed mb-8"
           >
-            Browse senior staff video and audio collections organized into folders such as Tafseer, Seerah, reminders, and lectures. Short videos and student media remain open for quick access.
+            Browse trustee audio collections organized into clear folders, then switch to short videos for quick reminders and highlights.
           </motion.p>
 
           <QuranVersePanel {...mediaVerse} className="max-w-3xl" />
@@ -359,30 +627,32 @@ const MediaLibraryPage = () => {
 
       <section className="section-padding py-20 bg-white">
         <div className="container-custom">
-          <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => handleTabChange(tab.id)}
-                className={`flex items-center gap-2 px-4 md:px-6 py-3 rounded-t font-semibold transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-primary text-white border-b-2 border-primary'
-                    : 'text-gray-600 hover:text-primary hover:bg-gray-50'
-                }`}
-              >
-                <tab.icon />
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {!trusteeId && (
+            <div className="flex flex-wrap gap-2 mb-8 border-b border-gray-200">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => handleTabChange(tab.id)}
+                  className={`flex items-center gap-2 px-4 md:px-6 py-3 rounded-t font-semibold transition-colors ${
+                    activeTab === tab.id
+                      ? 'bg-primary text-white border-b-2 border-primary'
+                      : 'text-gray-600 hover:text-primary hover:bg-gray-50'
+                  }`}
+                >
+                  <tab.icon />
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div className="py-16">
-            {activeTab === 'student' ? (
-              renderOpenLibrary('Student Library', <FiUsers className="w-6 h-6 text-primary" />)
+            {trusteeId ? (
+              renderTrusteeAudioPage()
             ) : activeTab === 'short' ? (
-              renderOpenLibrary('Short Videos', <FiPlay className="w-6 h-6 text-primary" />)
+              renderShortLibrary('Short Videos', <FiPlay className="w-6 h-6 text-primary" />)
             ) : (
-              renderStaffCollections()
+              renderAudioCollections()
             )}
           </div>
         </div>
