@@ -23,8 +23,8 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     if (
-      origin === "https://ihyaussunnah.netlify.app" ||
-      origin.endsWith("--ihyaussunnah.netlify.app")
+      origin === "https://ihyau.netlify.app" ||
+      origin.endsWith("--ihyau.netlify.app")
     ) {
       return callback(null, true);
     }
