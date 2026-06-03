@@ -22,21 +22,31 @@ const app = express();
 /* =========================
    CORS CONFIG
 ========================= */
-app.use(
-  cors({
-    origin: [
+// app.use(
+//   cors({
+//     origin: [
       
-      "https://ihyaus-sunnah-2.onrender.com",
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:3001",
-      "http://127.0.0.1:3002",
-    ],
-    credentials: true,
-  })
-);
+//       "https://ihyaus-sunnah-2.onrender.com",
+//       "http://localhost:3000",
+//       "http://localhost:3001",
+//       "http://localhost:3002",
+//       "http://127.0.0.1:3000",
+//       "http://127.0.0.1:3001",
+//       "http://127.0.0.1:3002",
+//     ],
+//     credentials: true,
+//   })
+// );
+
+const cors = require("cors");
+
+// ✅ CORRECT configuration for credentials
+app.use(cors({
+    origin: "https://ihyaussunnah.netlify.app",  // Your exact Netlify URL
+    credentials: true,  // Keep this true for cookies/auth
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+}));
 
 /* =========================
    BODY PARSERS (FIX APPLIED HERE)
