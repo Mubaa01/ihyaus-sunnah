@@ -19,6 +19,7 @@
 
 .hero {
   position: relative;
+  overflow: hidden;
 
   .base,
   .framework,
@@ -36,6 +37,7 @@
   .framework,
   .vite {
     position: absolute;
+    transform-origin: center center;
   }
 
   .framework {
@@ -43,7 +45,7 @@
     top: 34px;
     height: 28px;
     transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
+      scale(1.05);
   }
 
   .vite {
@@ -52,7 +54,23 @@
     height: 26px;
     width: auto;
     transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
+      scale(0.9);
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero {
+    overflow: hidden;
+
+    .framework,
+    .vite {
+      transform: none;
+      position: relative;
+      top: 0 !important;
+      left: 0 !important;
+      height: auto;
+      margin: 0 auto;
+    }
   }
 }
 
