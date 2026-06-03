@@ -18,20 +18,21 @@ import completedMajlisRoutes from "./routes/completedMajlisRoutes.js";
 
 const app = express();
 
-// const corsOptions = {
-//   origin: [
-//     "https://ihyaussunnah.netlify.app",
-//     "https://6a20102e7232f710df350db4--ihyaussunnah.netlify.app"
-//   ],
-//   credentials: true
-// };
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    if (
+      origin === "https://ihyaussunnah.netlify.app" ||
+      origin.endsWith("--ihyaussunnah.netlify.app")
+    ) {
+      return callback(null, true);
+    }
+
+    callback(new Error("Not allowed by CORS"));
+  },
   credentials: true
 }));
-// CORS MUST BE FIRST
-//app.use(cors(corsOptions));
-//app.options("*", cors(corsOptions));
 
 // BODY PARSER
 app.use(express.json({ limit: "10mb" }));
