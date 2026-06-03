@@ -41,11 +41,12 @@ const app = express();
 const cors = require("cors");
 
 // ✅ CORRECT configuration for credentials
-app.use(cors({
-    origin: "https://ihyaussunnah.netlify.app",  // Your exact Netlify URL
-    credentials: true,  // Keep this true for cookies/auth
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
+aapp.use(cors({
+  origin: [
+    "https://ihyaussunnah.netlify.app",
+    "https://6a20102e7232f710df350db4--ihyaussunnah.netlify.app"
+  ],
+  credentials: true
 }));
 
 /* =========================
