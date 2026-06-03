@@ -42,7 +42,7 @@ const Navbar = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 md: pb-6 ${
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-500 ${
           scrolled
             ? "bg-white/90 backdrop-blur-xl shadow-navbar py-2"
             : "bg-primary py-3"
@@ -59,7 +59,7 @@ const Navbar = () => {
             >
               <div className="relative">
                 <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg flex items-center justify-center shadow-md group-hover:scale-105 transition duration-300">
-                    <img className="w-10 h-10 md:w-12 md:h-12 object-contain" src="/ihyau.svg" alt="Logo" />
+                    <img className="w-10 h-10 md:w-12 md:h-12 object-contain" src="./ihyau.svg" alt="Logo" />
                 </div>
 
                 <div className="absolute inset-0 blur-2xl bg-gold/30 opacity-0 group-hover:opacity-100 transition"></div>

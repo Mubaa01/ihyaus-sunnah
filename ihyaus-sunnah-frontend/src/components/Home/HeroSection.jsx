@@ -28,7 +28,7 @@ const highlights = [
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[92vh] overflow-hidden">
+    <section className="relative min-h-[82vh] overflow-hidden">
       <div className="absolute inset-0">
         <img
           src="ihyau.jpg"
@@ -39,8 +39,8 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-primaryDark/80 via-transparent to-primaryDark/20" />
       </div>
 
-      <div className="relative z-10 flex min-h-[92vh] items-end">
-        <div className="container-custom w-full pb-10 pt-32 md:pb-14 lg:pb-16">
+      <div className="relative z-10 flex min-h-[82vh] items-end">
+        <div className="container-custom w-full pb-10 pt-28 md:pb-12 lg:pb-14">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
             <div className="max-w-4xl">
               {/* <motion.div
@@ -58,7 +58,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.05 }}
                 dir="rtl"
-                className="mx-auto mb-8 mt-5 max-w-[760px] text-center font-arabic text-3xl leading-relaxed text-goldSoft md:text-5xl lg:mx-0"
+                className="mx-auto mb-7 mt-5 max-w-[760px] text-center font-arabic text-3xl leading-relaxed text-goldSoft md:text-4xl lg:mx-0"
               >
                 عَلِّمُوا مَجَّانًا كَمَا عُلِّمْتُمْ مَجَّانًا
               </motion.p>
@@ -67,7 +67,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.08 }}
-                className="mx-auto mb-20 mt-3 max-w-[760px] text-center text-base font-semibold uppercase tracking-[0.16em] text-white/85 md:text-lg lg:mx-0"
+                className="mx-auto mb-14 mt-3 max-w-[760px] text-center text-base font-semibold uppercase tracking-[0.16em] text-white/85 md:text-lg lg:mx-0"
               >
                 Teach freely as you were taught freely
               </motion.p>
@@ -76,7 +76,7 @@ const HeroSection = () => {
                 initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="mx-auto mt-9 max-w-[760px] text-center text-4xl font-semibold leading-tight text-white md:text-6xl lg:mx-0 lg:text-7xl"
+                className="mx-auto mt-8 max-w-[760px] text-center text-4xl font-semibold leading-tight text-white md:text-5xl lg:mx-0 lg:text-6xl"
               >
                 <span className="block">Ihyaus Sunnah</span>
                 <span className="mt-4 block text-[0.72em] uppercase tracking-[0.32em] text-yellow-200 md:mt-5">
@@ -90,7 +90,7 @@ const HeroSection = () => {
                 transition={{ duration: 0.7, delay: 0.16 }}
                 className="mx-auto mt-6 block w-full max-w-[760px] lg:mx-0"
               >
-                <p className="block md:max-w-700s text-center text-base leading-7 text-white/85 md:text-lg px-20">
+                <p className="block text-center text-base leading-7 text-white/85 md:text-lg sm:px-6 lg:px-0">
                   Teaching freely, serving sincerely, and nurturing a community
                   rooted in Islamic knowledge, character, and compassion.
                 </p>
