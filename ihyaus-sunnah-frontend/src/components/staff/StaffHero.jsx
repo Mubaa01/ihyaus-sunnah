@@ -13,7 +13,7 @@ const StaffHero = () => {
   return (
     <section className="relative overflow-hidden">
       <div
-        className="h-[80vh] bg-cover bg-center relative"
+        className="min-h-[60vh] lg:min-h-[70vh] py-20 lg:py-28 bg-cover bg-center relative flex items-center"
         style={{
           backgroundImage:
             "url('https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=2000&auto=format&fit=crop')",
@@ -21,7 +21,7 @@ const StaffHero = () => {
       >
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary-dark/90" />
 
-        <div className="relative z-10 container-custom h-full flex items-center">
+        <div className="relative z-10 container-custom w-full flex items-center">
           <div className="max-w-4xl text-white">
             <motion.p
               initial={{ opacity: 0, y: 20 }}

@@ -585,7 +585,7 @@ const MediaLibraryPage = () => {
 
   return (
     <div className="overflow-hidden bg-white">
-      <section className="relative min-h-[86vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1552664730-d307ca884978?q=80&w=2000&auto=format&fit=crop"
@@ -595,7 +595,7 @@ const MediaLibraryPage = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-primary/70" />
         </div>
 
-        <div className="container-custom relative z-10 py-32 text-white">
+        <div className="container-custom relative z-10 py-20 lg:py-28 text-white">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

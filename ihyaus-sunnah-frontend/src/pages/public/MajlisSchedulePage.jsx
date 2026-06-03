@@ -126,7 +126,7 @@ const MajlisSchedulePage = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-black/70" />
         </div>
 
-        <div className="container-custom relative z-10 min-h-[76vh] py-24 flex items-center">
+        <div className="container-custom relative z-10 min-h-[50vh] lg:min-h-[60vh] py-20 lg:py-28 flex items-center">
           <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-14 items-center w-full">
             <motion.div
               initial={{ opacity: 0, y: 30 }}

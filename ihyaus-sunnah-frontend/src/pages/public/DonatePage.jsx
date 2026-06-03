@@ -66,7 +66,7 @@ const DonatePage = () => {
   return (
     <div className="overflow-hidden">
       {/* HERO SECTION */}
-      <section className="relative min-h-[85vh] overflow-hidden">
+      <section className="relative min-h-[50vh] lg:min-h-[60vh] overflow-hidden">
         <img
           src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2000&auto=format&fit=crop"
           alt="Donate Hero"
@@ -75,7 +75,7 @@ const DonatePage = () => {
 
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-black/60" />
 
-        <div className="relative container-custom flex min-h-[85vh] items-center py-24">
+        <div className="relative container-custom flex min-h-[50vh] lg:min-h-[60vh] items-center py-20 lg:py-28">
           <div className="max-w-4xl text-white">
             <div className="mb-6 inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 px-5 py-3 backdrop-blur-md">
               <FaHandHoldingHeart className="text-yellow-400" />

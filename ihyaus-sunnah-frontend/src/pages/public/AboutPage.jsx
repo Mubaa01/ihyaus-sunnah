@@ -98,7 +98,7 @@ const AboutPage = () => {
   return (
     <div className="bg-white overflow-hidden">
       {/* HERO SECTION */}
-      <section className="relative min-h-[85vh] flex items-center">
+      <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -109,7 +109,7 @@ const AboutPage = () => {
 
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-black/70" />
 
-        <div className="relative container-custom py-32 z-10">
+        <div className="relative container-custom py-20 lg:py-28 z-10">
           <motion.div
             initial="hidden"
             animate="visible"

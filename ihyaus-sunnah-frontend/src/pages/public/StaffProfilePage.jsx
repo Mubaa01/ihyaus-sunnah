@@ -79,7 +79,7 @@ const StaffProfilePage = () => {
     <div className="bg-cream min-h-screen overflow-hidden">
 
       {/* HERO */}
-      <section className="relative overflow-hidden min-h-[85vh] bg-primary text-white">
+      <section className="relative overflow-hidden min-h-[50vh] lg:min-h-[60vh] bg-primary text-white">
 
         {/* BG IMAGE */}
         <div className="absolute inset-0">
@@ -93,7 +93,7 @@ const StaffProfilePage = () => {
         </div>
 
         {/* CONTENT */}
-        <div className="relative container-custom py-24">
+        <div className="relative container-custom py-20 lg:py-28">
 
           {/* BACK */}
           <Link

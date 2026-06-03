@@ -147,7 +147,7 @@ const ProgramHeroSection = ({ program }) => {
 
   return (
     <section
-      className="relative flex min-h-[92vh] items-center overflow-hidden bg-primaryDark"
+      className="relative flex min-h-[60vh] lg:min-h-[70vh] items-center overflow-hidden bg-primaryDark"
       style={{
         backgroundImage: `url(${heroImage})`,
         backgroundSize: "cover",
@@ -156,9 +156,9 @@ const ProgramHeroSection = ({ program }) => {
     >
       <div className={`absolute inset-0 bg-gradient-to-r ${theme.overlay}`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_26%,rgba(254,243,199,0.16),transparent_34%),radial-gradient(circle_at_82%_16%,rgba(109,184,162,0.13),transparent_32%)]" />
-      <div className="absolute inset-x-0 bottom-0 h-44 bg-gradient-to-t from-white via-white/70 to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-white via-white/40 to-transparent" />
 
-      <div className="container-custom relative z-10 py-24 text-white md:py-32">
+      <div className="container-custom relative z-10 py-20 text-white lg:py-28">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -174,7 +174,7 @@ const ProgramHeroSection = ({ program }) => {
           </Link>
         </motion.div>
 
-        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(360px,0.72fr)]">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
           <div>
             <motion.span
               initial={{ opacity: 0, y: 20 }}
@@ -190,7 +190,7 @@ const ProgramHeroSection = ({ program }) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="mb-6 max-w-5xl text-4xl font-bold leading-[1.08] text-white sm:text-5xl md:text-6xl xl:text-7xl"
+              className="mb-6 max-w-5xl text-4xl font-bold leading-[1.1] text-white sm:text-5xl md:text-6xl"
             >
               {title}
             </motion.h1>
@@ -199,7 +199,7 @@ const ProgramHeroSection = ({ program }) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
-              className="mb-8 max-w-3xl text-lg leading-relaxed text-gray-100 md:text-xl"
+              className="mb-10 max-w-3xl text-lg leading-relaxed text-gray-100 md:text-xl"
             >
               {programSummary}
             </motion.p>
@@ -208,45 +208,23 @@ const ProgramHeroSection = ({ program }) => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9 }}
-              className="mb-9 grid max-w-4xl gap-3 sm:grid-cols-2 xl:grid-cols-3"
-            >
-              {heroFacts.map((fact) => (
-                <div
-                  key={fact.label}
-                  className="rounded-lg border border-white/15 bg-white/10 px-4 py-3 backdrop-blur-md"
-                >
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-gray-300">
-                    <span className={theme.accent}>{fact.icon}</span>
-                    {fact.label}
-                  </p>
-                  <p className={`mt-1 truncate text-base font-bold text-white ${fact.className || ""}`}>
-                    {fact.value}
-                  </p>
-                </div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
               className="flex flex-wrap gap-4"
             >
               <a href={`mailto:info@ihyaussunnah.org?subject=${enrollSubject}`}>
-                <button className="btn-primary px-8 py-4 text-base md:text-lg">
+                <button className="btn-primary px-8 py-4 text-base font-semibold">
                   {cta.primary}
                 </button>
               </a>
 
               {program.status === "completed" ? (
                 <Link to="/programs">
-                  <button className="btn-outline-light px-8 py-4 text-base md:text-lg">
+                  <button className="btn-outline-light px-8 py-4 text-base font-semibold">
                     {cta.secondary}
                   </button>
                 </Link>
               ) : (
                 <a href={`mailto:info@ihyaussunnah.org?subject=${enrollSubject}`}>
-                  <button className="btn-outline-light px-8 py-4 text-base md:text-lg">
+                  <button className="btn-outline-light px-8 py-4 text-base font-semibold">
                     {cta.secondary}
                   </button>
                 </a>
@@ -255,48 +233,41 @@ const ProgramHeroSection = ({ program }) => {
           </div>
 
           <motion.aside
-            initial={{ opacity: 0, x: 28 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.15 }}
             className="relative hidden lg:block"
           >
             <div className={`absolute -inset-8 rounded-full bg-gradient-to-br ${theme.glow} to-transparent blur-3xl`} />
-            <div className="relative overflow-hidden rounded-lg border border-white/20 bg-white/10 p-5 shadow-premium backdrop-blur-xl">
-              <div className="relative overflow-hidden rounded-lg">
-                <img
-                  src={heroImage}
-                  alt={`${title} program`}
-                  className="aspect-[4/3] w-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/72 via-black/10 to-transparent" />
-                {program.schedule && (
-                  <div className="absolute bottom-4 left-4 right-4 rounded-lg border border-white/15 bg-black/40 p-4 backdrop-blur-md">
-                    <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-gray-200">
-                      <FaCalendarAlt className={theme.accent} />
-                      Schedule
-                    </p>
-                    <p className="text-lg font-bold text-white">
-                      {program.schedule.days || "Scheduled"} &bull; {program.schedule.time || "Time TBA"}
-                    </p>
+            <div className="relative overflow-hidden rounded-lg border border-white/20 bg-white/10 p-6 shadow-premium backdrop-blur-xl">
+              <p className="px-2 text-xs font-semibold uppercase tracking-[0.14em] text-yellow-200">
+                Program Highlights
+              </p>
+              
+              <div className="mt-4 grid gap-3">
+                {heroFacts.map((fact) => (
+                  <div
+                    key={fact.label}
+                    className="flex items-center gap-4 rounded-lg bg-white/10 p-3"
+                  >
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-400 text-lg text-primary">
+                      {fact.icon}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-[10px] font-semibold uppercase tracking-wider text-gray-300">
+                        {fact.label}
+                      </span>
+                      <span className={`block truncate text-base font-bold text-white ${fact.className || ""}`}>
+                        {fact.value}
+                      </span>
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
 
-              <QuranVersePanel {...verse} className="mt-5" compact />
-
-              {featurePreview.length > 0 && (
-                <div className="mt-5 grid gap-3">
-                  {featurePreview.map((feature) => (
-                    <div
-                      key={feature}
-                      className="flex items-start gap-3 rounded-lg border border-white/10 bg-white/10 px-4 py-3 text-sm text-white/90"
-                    >
-                      <span className={`mt-1 h-2 w-2 shrink-0 rounded-full ${theme.dot}`} />
-                      <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div className="mt-5 border-t border-white/10 pt-4">
+                <QuranVersePanel {...verse} compact />
+              </div>
             </div>
           </motion.aside>
         </div>

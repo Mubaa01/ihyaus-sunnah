@@ -150,7 +150,7 @@ const OrganizationPage = () => {
     <div className="bg-cream min-h-screen">
 
       {/* HERO */}
-      <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+      <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center overflow-hidden">
         
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -162,7 +162,7 @@ const OrganizationPage = () => {
 
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-black/60" />
 
-        <div className="relative container-custom py-32 z-10">
+        <div className="relative container-custom py-20 lg:py-28 z-10">
           <motion.div
             initial="hidden"
             animate="visible"

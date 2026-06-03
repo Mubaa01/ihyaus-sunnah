@@ -28,7 +28,7 @@ const highlights = [
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[82vh] overflow-hidden">
+    <section className="relative min-h-[60vh] lg:min-h-[70vh] overflow-hidden">
       <div className="absolute inset-0">
         <img
           src="ihyau.jpg"
@@ -39,8 +39,8 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-primaryDark/80 via-transparent to-primaryDark/20" />
       </div>
 
-      <div className="relative z-10 flex min-h-[82vh] items-end">
-        <div className="container-custom w-full pb-10 pt-28 md:pb-12 lg:pb-14">
+      <div className="relative z-10 flex min-h-[60vh] lg:min-h-[70vh] items-center py-20 lg:py-28">
+        <div className="container-custom w-full">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
             <div className="max-w-4xl">
               {/* <motion.div

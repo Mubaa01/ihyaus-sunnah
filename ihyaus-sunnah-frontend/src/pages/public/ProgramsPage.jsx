@@ -122,7 +122,7 @@ const ProgramsPage = () => {
 
   return (
     <div className="overflow-hidden bg-white">
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      <section className="relative min-h-[50vh] lg:min-h-[65vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1519817650390-64a93db51149?q=80&w=2000&auto=format&fit=crop"
@@ -136,7 +136,7 @@ const ProgramsPage = () => {
 
        
 
-        <div className="relative z-10 container-custom py-32">
+        <div className="relative z-10 container-custom py-20 lg:py-28">
           <div className="max-w-5xl">
             {/* <motion.p
               initial={{ opacity: 0, y: 30 }}

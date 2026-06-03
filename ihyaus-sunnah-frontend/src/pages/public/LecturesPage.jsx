@@ -243,7 +243,7 @@ const LecturesPage = () => {
   return (
     <div className="bg-cream overflow-hidden">
       {/* HERO SECTION */}
-      <section className="relative min-h-[70vh] flex items-center">
+      <section className="relative min-h-[50vh] lg:min-h-[60vh] flex items-center">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
@@ -254,7 +254,7 @@ const LecturesPage = () => {
 
         <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/85 to-black/70" />
 
-        <div className="container-custom relative z-10 py-28">
+        <div className="container-custom relative z-10 py-20 lg:py-28">
           <div className="max-w-4xl">
             <span className="inline-flex items-center gap-2 bg-gold/20 border border-gold/30 text-gold px-5 py-2 rounded-full text-sm font-semibold backdrop-blur-md mb-8">
               <FaMosque className="text-gold" />
