@@ -35,6 +35,7 @@ import AdminProfilePage from './src/pages/admin/Profile/AdminProfilePage'
 import ResearchListPage from './src/pages/admin/ResearchManagement/ResearchListPage'
 import ResearchFormPage from './src/pages/admin/ResearchManagement/ResearchFormPage'
 import DashboardHome from './src/pages/admin/Dashboard/DashboardHome'
+import PrivateRoute from './src/components/common/PrivateRoute'
 
 function AppRoutes() {
   return (
@@ -62,29 +63,31 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
 
       {/* Admin Routes */}
-      <Route path="/admin" element={<AdminLayout />}>
-        <Route index element={<DashboardHome />} />
-        <Route path="staff" element={<StaffListPage />} />
-        <Route path="staff/create" element={<StaffFormPage />} />
-        <Route path="staff/view/:id" element={<StaffDetailsPage />} />
-        <Route path="staff/:id" element={<StaffFormPage />} />
-        <Route path="programs" element={<ProgramListPage />} />
-        <Route path="programs/create" element={<ProgramFormPage />} />
-        <Route path="programs/:id" element={<ProgramFormPage />} />
-        <Route path="research" element={<ResearchListPage />} />
-        <Route path="research/create" element={<ResearchFormPage />} />
-        <Route path="research/:id" element={<ResearchFormPage />} />
-        <Route path="media" element={<MediaListPage />} />
-        <Route path="media/create" element={<MediaFormPage />} />
-        <Route path="media/:id" element={<MediaFormPage />} />
-        <Route path="activities" element={<ActivitiesPage />} />
-        <Route path="notifications" element={<NotificationsPage />} />
-        <Route path="profile" element={<AdminProfilePage />} />
-        <Route path="settings" element={<SettingsPage />} />
-        <Route path="majlis" element={<MajlisManagementPage />} />
-        <Route path="media/playlists" element={<PlaylistListPage />} />
-        <Route path="media/playlists/create" element={<PlaylistFormPage />} />
-        <Route path="media/playlists/:id" element={<PlaylistFormPage />} />
+      <Route element={<PrivateRoute />}>
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<DashboardHome />} />
+          <Route path="staff" element={<StaffListPage />} />
+          <Route path="staff/create" element={<StaffFormPage />} />
+          <Route path="staff/view/:id" element={<StaffDetailsPage />} />
+          <Route path="staff/:id" element={<StaffFormPage />} />
+          <Route path="programs" element={<ProgramListPage />} />
+          <Route path="programs/create" element={<ProgramFormPage />} />
+          <Route path="programs/:id" element={<ProgramFormPage />} />
+          <Route path="research" element={<ResearchListPage />} />
+          <Route path="research/create" element={<ResearchFormPage />} />
+          <Route path="research/:id" element={<ResearchFormPage />} />
+          <Route path="media" element={<MediaListPage />} />
+          <Route path="media/create" element={<MediaFormPage />} />
+          <Route path="media/:id" element={<MediaFormPage />} />
+          <Route path="activities" element={<ActivitiesPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="profile" element={<AdminProfilePage />} />
+          <Route path="settings" element={<SettingsPage />} />
+          <Route path="majlis" element={<MajlisManagementPage />} />
+          <Route path="media/playlists" element={<PlaylistListPage />} />
+          <Route path="media/playlists/create" element={<PlaylistFormPage />} />
+          <Route path="media/playlists/:id" element={<PlaylistFormPage />} />
+        </Route>
       </Route>
     </Routes>
   )

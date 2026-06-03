@@ -390,6 +390,26 @@ textarea {
 }
 
 /* =========================
+   ADMIN LOGIN PAGE
+========================= */
+
+.login-background {
+  @apply min-h-screen bg-brand-50;
+}
+
+.login-card {
+  @apply w-full max-w-lg rounded-[2rem] border border-brand-100 bg-white/95 shadow-soft p-8 backdrop-blur-xl;
+}
+
+.login-field {
+  @apply mt-2 w-full rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-700 shadow-sm transition focus:border-brand-400 focus:outline-none focus:ring-2 focus:ring-brand-100;
+}
+
+.login-error {
+  @apply rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700;
+}
+
+/* =========================
    SCROLLBAR
 ========================= */
 

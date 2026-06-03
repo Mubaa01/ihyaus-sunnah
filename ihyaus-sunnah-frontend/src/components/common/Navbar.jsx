@@ -248,9 +248,9 @@ const Navbar = () => {
                 </button>
               </Link>
 
-              <Link to="/admin">
+              <Link to="/login">
                 <button className="w-full btn-dark-outline">
-                  Admin Dashboard
+                  Admin Login
                 </button>
               </Link>
 
