@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Routes
 import staffRoutes from "./routes/staffRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -19,51 +18,26 @@ import completedMajlisRoutes from "./routes/completedMajlisRoutes.js";
 
 const app = express();
 
-/* =========================
-   CORS CONFIG
-========================= */
-// app.use(
-//   cors({
-//     origin: [
-      
-//       "https://ihyaus-sunnah-2.onrender.com",
-//       "http://localhost:3000",
-//       "http://localhost:3001",
-//       "http://localhost:3002",
-//       "http://127.0.0.1:3000",
-//       "http://127.0.0.1:3001",
-//       "http://127.0.0.1:3002",
-//     ],
-//     credentials: true,
-//   })
-// );
-
-const cors = require("cors");
-
-// ✅ CORRECT configuration for credentials
-aapp.use(cors({
+const corsOptions = {
   origin: [
     "https://ihyaussunnah.netlify.app",
     "https://6a20102e7232f710df350db4--ihyaussunnah.netlify.app"
   ],
   credentials: true
-}));
+};
 
-/* =========================
-   BODY PARSERS (FIX APPLIED HERE)
-   THIS FIXES PayloadTooLargeError
-========================= */
+// CORS MUST BE FIRST
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// BODY PARSER
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-/* =========================
-   COOKIE PARSER
-========================= */
+// COOKIE
 app.use(cookieParser());
 
-/* =========================
-   ROUTES
-========================= */
+// ROUTES
 app.use("/api/staff", staffRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
