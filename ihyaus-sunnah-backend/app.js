@@ -25,6 +25,8 @@ const app = express();
 app.use(
   cors({
     origin: [
+      
+      "https://ihyaus-sunnah-2.onrender.com",
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3002",
