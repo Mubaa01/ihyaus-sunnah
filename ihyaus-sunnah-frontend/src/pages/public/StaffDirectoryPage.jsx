@@ -310,7 +310,7 @@ const TrusteeLeadershipSection = ({ section, directorMembers, seniorMembers }) =
 
       <TrusteeRoleGroup
         title="Director"
-        description="The Director remains a standalone executive trustee role at the center of the leadership structure."
+        description=""
         members={directorMembers}
         badges={["Trustee", "Director"]}
         centered
@@ -812,10 +812,6 @@ const StaffDirectoryPage = () => {
                   {staff.length}
                 </span>{" "}
                 staff profiles
-              </p>
-
-              <p className="font-medium text-brand-400">
-                Board filters include Director and Senior Staff trustees
               </p>
             </div>
           </div>

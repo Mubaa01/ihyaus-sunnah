@@ -210,7 +210,7 @@ const AboutPage = () => {
               <img
                 src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop"
                 alt="About"
-                className="rounded-[40px] shadow-premium object-cover h-[400px] w-full"
+                className="rounded-[40px] shadow-premium object-cover h-[300px] w-full"
               />
 
               <div className="absolute -bottom-10 -left-10 bg-white rounded-3xl shadow-premium p-8 w-72">

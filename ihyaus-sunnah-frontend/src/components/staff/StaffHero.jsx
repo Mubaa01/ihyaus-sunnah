@@ -58,7 +58,7 @@ const StaffHero = () => {
               {[
                 { value: "50+", label: "Staff Members" },
                 { value: "6", label: "Departments" },
-                { value: "10+", label: "Years Service" },
+                { value: "25+", label: "Years Service" },
                 { value: "1000+", label: "Students Served" },
               ].map((item, index) => (
                 <motion.div

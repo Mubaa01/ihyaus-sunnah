@@ -508,15 +508,15 @@ const ProgramCard = ({
         group
         relative
         overflow-hidden
-        rounded-[28px]
+        rounded-2xl
         border
         border-black/5
         bg-white
-        shadow-[0_10px_40px_rgba(0,0,0,0.04)]
+        shadow-[0_8px_26px_rgba(0,0,0,0.04)]
         transition-all
         duration-500
         hover:border-primary/10
-        hover:shadow-[0_20px_60px_rgba(0,0,0,0.08)]
+        hover:shadow-[0_14px_38px_rgba(0,0,0,0.07)]
       "
     >
 
@@ -538,8 +538,8 @@ const ProgramCard = ({
             absolute
             -top-24
             right-0
-            h-56
-            w-56
+            h-44
+            w-44
             rounded-full
             bg-primary/10
             blur-3xl
@@ -549,9 +549,9 @@ const ProgramCard = ({
 
       {/* IMAGE */}
 
-      <div className="relative overflow-hidden p-3">
+      <div className="relative overflow-hidden p-2.5">
 
-        <div className="relative overflow-hidden rounded-[24px]">
+        <div className="relative overflow-hidden rounded-xl">
 
           <motion.img
             src={image}
@@ -591,9 +591,9 @@ const ProgramCard = ({
           <div
             className="
               absolute
-              left-5
-              right-5
-              top-5
+              left-4
+              right-4
+              top-4
               flex
               items-center
               justify-between
@@ -608,8 +608,8 @@ const ProgramCard = ({
                 border
                 border-white/20
                 bg-white/10
-                px-4
-                py-2
+                px-3
+                py-1.5
                 text-[11px]
                 font-semibold
                 uppercase
@@ -627,8 +627,8 @@ const ProgramCard = ({
               className={`
                 rounded-full
                 border
-                px-4
-                py-2
+                px-3
+                py-1.5
                 text-[11px]
                 font-semibold
                 uppercase
@@ -648,7 +648,7 @@ const ProgramCard = ({
 
       {/* CONTENT */}
 
-      <div className="flex flex-col px-7 pb-7 pt-2">
+      <div className="flex flex-col px-5 pb-5 pt-2">
 
         {/* Title */}
 
@@ -657,7 +657,7 @@ const ProgramCard = ({
           layout
 
           className="
-            text-[1.55rem]
+            text-[1.3rem]
             font-bold
             leading-tight
             tracking-[-0.03em]
@@ -671,10 +671,10 @@ const ProgramCard = ({
 
         <p
           className="
-            mt-4
+            mt-3
             line-clamp-3
-            text-[15px]
-            leading-7
+            text-sm
+            leading-6
             text-muted
           "
         >
@@ -685,7 +685,7 @@ const ProgramCard = ({
 
         <div
           className="
-            mt-6
+            mt-5
             flex
             items-center
             gap-3
@@ -695,11 +695,11 @@ const ProgramCard = ({
           <div
             className="
               flex
-              h-11
-              w-11
+              h-10
+              w-10
               items-center
               justify-center
-              rounded-2xl
+              rounded-lg
               bg-primary/10
               text-primary
             "
@@ -738,7 +738,7 @@ const ProgramCard = ({
 
         {/* CTA */}
 
-        <div className="mt-8">
+        <div className="mt-6">
 
           {detailPath ? (
 
@@ -750,10 +750,10 @@ const ProgramCard = ({
                 inline-flex
                 items-center
                 gap-3
-                rounded-2xl
+                rounded-lg
                 bg-primary
-                px-6
-                py-4
+                px-5
+                py-3
                 text-sm
                 font-semibold
                 text-white
@@ -783,10 +783,10 @@ const ProgramCard = ({
               className="
                 inline-flex
                 items-center
-                rounded-2xl
+                rounded-lg
                 bg-neutral-100
-                px-6
-                py-4
+                px-5
+                py-3
                 text-sm
                 font-semibold
                 text-neutral-500

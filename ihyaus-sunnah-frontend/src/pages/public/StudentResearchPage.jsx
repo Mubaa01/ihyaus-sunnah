@@ -124,12 +124,13 @@ const StudentResearchPage = () => {
 
   return (
     <div className="bg-neutral-50 text-dark">
-      <section className="relative min-h-[50vh] lg:min-h-[60vh] overflow-hidden bg-primary">
-        <img
-          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2000&auto=format&fit=crop"
-          alt="Arabic research library"
-          className="absolute inset-0 h-full w-full object-cover opacity-35"
-        />
+      <section
+        className="relative min-h-[50vh] lg:min-h-[60vh] overflow-hidden bg-cover bg-center"
+        style={{
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1497633762265-9d179a990aa6?q=80&w=2000&auto=format&fit=crop')",
+        }}
+      >
         <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(7,38,29,0.98),rgba(7,38,29,0.86),rgba(7,38,29,0.54))]" />
 
         <div className="container-custom relative z-10 flex min-h-[50vh] lg:min-h-[60vh] items-center py-20 lg:py-28 text-white">

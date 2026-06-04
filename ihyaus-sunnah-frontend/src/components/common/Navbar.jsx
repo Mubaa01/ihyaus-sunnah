@@ -3,7 +3,6 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   FiMenu,
   FiX,
-  FiArrowRight,
 } from "react-icons/fi";
 
 const Navbar = () => {
@@ -48,7 +47,7 @@ const Navbar = () => {
             : "bg-primary py-3"
         } `}
       >
-        <div className="px-4 sm:px-8 lg:px-12 xl:px-16 mb-2">
+        <div className="px-4 sm:px-8 lg:px-12 xl:px-16 mb-5">
 
           <div className="flex items-center justify-between">
 
@@ -127,20 +126,6 @@ const Navbar = () => {
                 <Link to="/donate">
                   <button className="btn-primary px-5 py-2.5">
                     Donate
-                  </button>
-                </Link>
-
-
-                <Link to="/login">
-                  <button
-                    className={`group px-4 py-2.5 rounded-lg border font-semibold transition duration-300 flex items-center gap-2 ${
-                      scrolled
-                        ? "border-primary text-primary hover:bg-primary hover:text-white"
-                        : "border-white text-white hover:bg-white hover:text-primary"
-                    }`}
-                  >
-                    Admin
-                    <FiArrowRight className="group-hover:translate-x-1 transition" />
                   </button>
                 </Link>
 
@@ -247,13 +232,6 @@ const Navbar = () => {
                   Support the Foundation
                 </button>
               </Link>
-
-              <Link to="/login">
-                <button className="w-full btn-dark-outline">
-                  Admin Login
-                </button>
-              </Link>
-
               {/* ARABIC */}
               <div className="pt-8 border-t border-gray-200 text-center">
                 <p

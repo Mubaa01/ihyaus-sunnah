@@ -30,16 +30,13 @@ const LoginPage = () => {
   return (
     <div className="login-background flex items-center justify-center px-4 py-10">
       <div className="login-card">
-        <div className="text-center mb-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-400">
-            Administrator Access
+        <div className="mb-7 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-400">
+            Secure Access
           </p>
-          <h1 className="mt-4 text-4xl font-heading font-bold text-primary">
+          <h1 className="mt-3 text-3xl font-heading font-bold text-primary">
             Admin Login
           </h1>
-          <p className="mt-3 text-sm text-neutral-600 max-w-xl mx-auto">
-            Sign in to manage staff, programs, media, notifications, and schedule data.
-          </p>
         </div>
 
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -58,7 +55,7 @@ const LoginPage = () => {
                 type="email"
                 required
                 className="login-field"
-                placeholder="admin@ihyaussunnah.org"
+                placeholder="name@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />

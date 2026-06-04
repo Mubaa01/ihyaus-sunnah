@@ -117,6 +117,22 @@ module.exports = {
         bold: "600",
       },
 
+      fontSize: {
+        xs: ["0.72rem", { lineHeight: "1rem" }],
+        sm: ["0.82rem", { lineHeight: "1.2rem" }],
+        base: ["0.94rem", { lineHeight: "1.55rem" }],
+        lg: ["1.04rem", { lineHeight: "1.65rem" }],
+        xl: ["1.16rem", { lineHeight: "1.75rem" }],
+        "2xl": ["1.34rem", { lineHeight: "1.95rem" }],
+        "3xl": ["1.68rem", { lineHeight: "2.1rem" }],
+        "4xl": ["2rem", { lineHeight: "2.35rem" }],
+        "5xl": ["2.45rem", { lineHeight: "2.8rem" }],
+        "6xl": ["3rem", { lineHeight: "3.35rem" }],
+        "7xl": ["3.55rem", { lineHeight: "3.85rem" }],
+        "8xl": ["4.2rem", { lineHeight: "1" }],
+        "9xl": ["5.2rem", { lineHeight: "1" }],
+      },
+
       /* =========================
          CONTAINER
       ========================= */
@@ -124,11 +140,11 @@ module.exports = {
       container: {
         center: true,
         padding: {
-          DEFAULT: "1.5rem",
-          sm: "2rem",
-          lg: "4rem",
-          xl: "5rem",
-          "2xl": "6rem",
+          DEFAULT: "1rem",
+          sm: "1.5rem",
+          lg: "2.5rem",
+          xl: "3.25rem",
+          "2xl": "4rem",
         },
       },
 
@@ -137,13 +153,13 @@ module.exports = {
       ========================= */
 
       boxShadow: {
-        soft: "0 10px 30px rgba(0,0,0,0.08)",
+        soft: "0 8px 22px rgba(0,0,0,0.06)",
 
-        card: "0 8px 24px rgba(0,0,0,0.06)",
+        card: "0 6px 18px rgba(0,0,0,0.05)",
 
-        glow: "0 0 25px rgba(24, 69, 59, 0.22)",
+        glow: "0 0 18px rgba(24, 69, 59, 0.18)",
 
-        navbar: "0 8px 30px rgba(0,0,0,0.08)",
+        navbar: "0 6px 22px rgba(0,0,0,0.06)",
       },
 
       /* =========================
@@ -151,8 +167,8 @@ module.exports = {
       ========================= */
 
       borderRadius: {
-        xl2: "1.5rem",
-        xl3: "2rem",
+        xl2: "1.1rem",
+        xl3: "1.4rem",
       },
 
       /* =========================

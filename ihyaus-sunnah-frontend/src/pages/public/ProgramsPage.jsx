@@ -18,9 +18,9 @@ import ProgramCard from "../../components/programs/ProgramCard"
 import QuranVersePanel from "../../components/common/QuranVersePanel"
 
 const programsVerse = {
-  arabic: "اقْرَأْ بِاسْمِ رَبِّكَ الَّذِي خَلَقَ",
-  translation: "Read in the name of your Lord who created.",
-  reference: "Surah Al-Alaq 96:1",
+  arabic: "لَا خَيْرَ فِي كَثِيرٍ مِّن نَّجْوَاهُمْ إِلَّا مَنْ أَمَرَ بِصَدَقَةٍ أَوْ مَعْرُوفٍ أَوْ إِصْلَاحٍ بَيْنَ النَّاسِ",
+  translation: "There is no good in much of their private conversation, except for those who advocate charity or what is right or conciliation between people.",
+  reference: "Surah An-Nisa 4:114",
 }
 
 const fallbackFeaturedImage =

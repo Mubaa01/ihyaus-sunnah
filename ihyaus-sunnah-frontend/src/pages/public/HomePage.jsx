@@ -45,15 +45,15 @@ const HomePage = () => {
     <div className="overflow-hidden">
       <HeroSection />
 
-      <section className="relative overflow-hidden bg-cream py-24 md:py-28">
+      <section className="relative overflow-hidden bg-cream py-16 md:py-20">
         <div className="container-custom relative z-10">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
+          <div className="mx-auto mb-10 max-w-3xl text-center">
             <motion.p
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gold"
+              className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-gold"
             >
               Our Programs
             </motion.p>
@@ -62,7 +62,7 @@ const HomePage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               viewport={{ once: true }}
-              className="text-4xl font-semibold text-primary md:text-5xl"
+              className="text-3xl font-semibold text-primary md:text-4xl"
             >
               Educational & Community Initiatives
             </motion.h2>
@@ -71,7 +71,7 @@ const HomePage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
               viewport={{ once: true }}
-              className="mt-5 text-lg leading-relaxed"
+              className="mt-4 text-base leading-relaxed"
             >
               We provide comprehensive educational programs and impactful
               community initiatives designed to nurture knowledge, character,
@@ -79,7 +79,7 @@ const HomePage = () => {
             </motion.p>
           </div>
 
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {loading ? (
               <div className="col-span-full py-20 text-center font-semibold text-primary">
                 Loading programs...
@@ -93,16 +93,16 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-white py-24 md:py-28">
+      <section className="relative overflow-hidden bg-white py-16 md:py-20">
         <div className="container-custom">
-          <div className="mx-auto mb-14 max-w-3xl text-center">
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-gold">
+          <div className="mx-auto mb-10 max-w-3xl text-center">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-gold">
               Our Values
             </p>
-            <h2 className="text-4xl font-semibold text-primary md:text-5xl">
+            <h2 className="text-3xl font-semibold text-primary md:text-4xl">
               Principles That Guide Our Mission
             </h2>
-            <p className="mt-5 text-lg leading-relaxed text-muted">
+            <p className="mt-4 text-base leading-relaxed text-muted">
               Everything we do is rooted in Islamic values, sincerity,
               educational excellence, and service to humanity.
             </p>
@@ -116,12 +116,12 @@ const HomePage = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: idx * 0.08 }}
                 viewport={{ once: true }}
-                className="group rounded-lg border border-neutral-200 bg-white p-8 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-card"
+                className="group rounded-lg border border-neutral-200 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-card"
               >
-                <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-gold">
+                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary transition group-hover:bg-gold">
                   {value.icon}
                 </div>
-                <h3 className="mb-3 text-2xl font-semibold text-primary">
+                <h3 className="mb-2 text-xl font-semibold text-primary">
                   {value.title}
                 </h3>
                 <p className="leading-relaxed text-muted">{value.description}</p>
@@ -131,7 +131,7 @@ const HomePage = () => {
         </div>
       </section>
 
-      <section className="relative overflow-hidden py-24 md:py-28">
+      <section className="relative overflow-hidden py-16 md:py-20">
         <div className="absolute inset-0">
           <img
             src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2000&auto=format&fit=crop"
@@ -149,18 +149,18 @@ const HomePage = () => {
             viewport={{ once: true }}
             className="mx-auto max-w-4xl"
           >
-            <p className="mb-4 text-sm font-semibold uppercase tracking-[0.2em] text-goldSoft">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-[0.16em] text-goldSoft">
               Support Our Mission
             </p>
-            <h2 className="text-4xl font-semibold leading-tight text-white md:text-6xl">
+            <h2 className="text-3xl font-semibold leading-tight text-white md:text-5xl">
               Help sustain knowledge, character, and community.
             </h2>
-            <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-white/80 md:text-xl">
+            <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-white/80 md:text-lg">
               Your support helps us provide affordable Islamic education,
               support orphans, organize public lectures, and strengthen the
               Muslim community through impactful programs.
             </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
+            <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link
                 to="/donate"
                 className="inline-flex h-12 items-center justify-center rounded-lg bg-yellow-400 px-6 text-sm font-semibold text-primary transition-colors hover:bg-goldSoft"
