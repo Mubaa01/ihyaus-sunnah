@@ -210,12 +210,12 @@ const AboutPage = () => {
               <img
                 src="https://images.unsplash.com/photo-1609599006353-e629aaabfeae?q=80&w=1200&auto=format&fit=crop"
                 alt="About"
-                className="rounded-[40px] shadow-premium object-cover h-[600px] w-full"
+                className="rounded-[40px] shadow-premium object-cover h-[400px] w-full"
               />
 
               <div className="absolute -bottom-10 -left-10 bg-white rounded-3xl shadow-premium p-8 w-72">
-                <h3 className="text-5xl font-bold text-primary mb-2">
-                  7+
+                <h3 className="text-3xl font-bold text-primary mb-2">
+                  20+
                 </h3>
 
                 <p className="text-gray-600">
@@ -242,7 +242,7 @@ const AboutPage = () => {
                 Our Mission
               </span>
 
-              <h2 className="text-4xl font-heading font-bold text-primary mb-6">
+              <h2 className="text-3xl font-heading font-bold text-primary mb-6">
                 What Drives Us
               </h2>
 
@@ -264,7 +264,7 @@ const AboutPage = () => {
                 Our Vision
               </span>
 
-              <h2 className="text-4xl font-heading font-bold text-white mb-6 mt-5">
+              <h2 className="text-3xl font-heading font-bold text-white mb-6 mt-5">
                 Future We Aim For
               </h2>
 
@@ -291,7 +291,7 @@ const AboutPage = () => {
             </h2>
           </div>
 
-          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
             {values.map((value, index) => (
               <motion.div
                 key={value.title}
@@ -330,12 +330,12 @@ const AboutPage = () => {
               Foundation Journey
             </span>
 
-            <h2 className="text-4xl md:text-5xl font-heading font-bold text-white mt-5">
+            <h2 className="text-3xl md:text-4xl font-heading font-bold text-white mt-5">
               Our Timeline
             </h2>
           </div>
 
-          <div className="max-w-5xl mx-auto space-y-10">
+          <div className="max-w-lg md:max-w-xl lg:max-w-2xl mx-auto space-y-10">
             {timeline.map((item, index) => (
               <motion.div
                 key={item.year}
@@ -346,12 +346,12 @@ const AboutPage = () => {
                 variants={fadeUp}
                 className="grid md:grid-cols-[180px_1fr] gap-8 items-start"
               >
-                <div className="text-yellow-400 text-5xl font-bold">
+                <div className="text-yellow-400 text-2xl font-bold">
                   {item.year}
                 </div>
 
                 <div className="glass-card rounded-3xl p-8">
-                  <h3 className="text-2xl font-heading font-bold text-white mb-4">
+                  <h3 className="text-lg font-heading font-bold text-white mb-4">
                     {item.title}
                   </h3>
 
@@ -366,9 +366,9 @@ const AboutPage = () => {
       </section>
 
       {/* STATS */}
-      <section className="section-padding bg-white">
+      <section className="section-padding bg-white ">
         <div className="container-custom">
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
             {stats.map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -380,7 +380,7 @@ const AboutPage = () => {
                 whileHover={{ scale: 1.04 }}
                 className="bg-cream rounded-[32px] p-10 text-center shadow-soft"
               >
-                <h3 className="text-5xl font-bold text-primary mb-4">
+                <h3 className="text-lg font-bold text-primary mb-4">
                   {stat.number}
                 </h3>
 
@@ -409,14 +409,14 @@ const AboutPage = () => {
               Become Part Of The Mission
             </span>
 
-            <h2 className="text-4xl md:text-6xl font-heading font-bold leading-tight mt-6 mb-8">
+            <h2 className="text-2xl md:text-4xl font-heading font-bold leading-tight mt-6 mb-8">
               Help Us Build Future Generations Through
               <span className="text-yellow-400 block mt-2">
                 Knowledge & Character
               </span>
             </h2>
 
-            <p className="text-xl text-gray-200 leading-relaxed mb-12">
+            <p className="text-lg text-gray-200 leading-relaxed mb-12">
               Support our educational and community initiatives in spreading
               beneficial knowledge and uplifting society.
             </p>

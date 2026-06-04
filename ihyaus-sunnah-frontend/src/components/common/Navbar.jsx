@@ -48,7 +48,7 @@ const Navbar = () => {
             : "bg-primary py-3"
         } `}
       >
-        <div className="px-4 sm:px-8 lg:px-12 xl:px-16">
+        <div className="px-4 sm:px-8 lg:px-12 xl:px-16 mb-2">
 
           <div className="flex items-center justify-between">
 

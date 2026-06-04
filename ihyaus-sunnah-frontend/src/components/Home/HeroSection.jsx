@@ -28,7 +28,7 @@ const highlights = [
 
 const HeroSection = () => {
   return (
-    <section className="relative min-h-[60vh] lg:min-h-[70vh] overflow-hidden">
+    <section className="relative min-h-[82vh] overflow-hidden mt-0">
       <div className="absolute inset-0">
         <img
           src="ihyau.jpg"
@@ -39,8 +39,8 @@ const HeroSection = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-primaryDark/80 via-transparent to-primaryDark/20" />
       </div>
 
-      <div className="relative z-10 flex min-h-[60vh] lg:min-h-[70vh] items-center py-20 lg:py-28">
-        <div className="container-custom w-full">
+      <div className="relative z-10 flex min-h-[82vh] items-end">
+        <div className="container-custom w-full pb-10 pt-28 md:pb-12 lg:pb-14">
           <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-end">
             <div className="max-w-4xl">
               {/* <motion.div
@@ -58,7 +58,7 @@ const HeroSection = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.05 }}
                 dir="rtl"
-                className="mx-auto mb-7 mt-5 max-w-[760px] text-center font-arabic text-3xl leading-relaxed text-goldSoft md:text-4xl lg:mx-0"
+                className="mx-auto mb-7 mt-5 max-w-[760px] text-center font-arabic text-5xl leading-relaxed text-goldSoft md:text-6xl lg:mx-0 pt-0"
               >
                 عَلِّمُوا مَجَّانًا كَمَا عُلِّمْتُمْ مَجَّانًا
               </motion.p>
@@ -129,23 +129,24 @@ const HeroSection = () => {
               transition={{ duration: 0.7, delay: 0.28 }}
               className="rounded-lg border border-white/15 bg-white/10 p-4 backdrop-blur-md"
             >
-              <p className="px-2 text-sm font-semibold uppercase tracking-[0.12em] text-yellow-400Soft">
+              <p className="px-2 text-sm font-semibold uppercase tracking-[0.12em] text-yellow-200">
                 Our work
               </p>
+
               <div className="mt-3 grid gap-2">
                 {highlights.map((item) => (
                   <div
                     key={item.label}
                     className="flex items-center gap-3 rounded-lg bg-white/10 p-3"
                   >
-                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-400 text-lg text-primary">
+                    <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-yellow-400 text-lg text-yellow-200">
                       {item.icon}
                     </span>
                     <span>
                       <span className="block text-xl font-semibold text-white">
                         {item.value}
                       </span>
-                      <span className="block text-sm text-white/72">
+                      <span className="block text-sm text-yellow-200">
                         {item.label}
                       </span>
                     </span>

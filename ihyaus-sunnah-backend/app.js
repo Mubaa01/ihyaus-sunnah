@@ -23,6 +23,7 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     if (
+      origin === "http://localhost:3000" ||
       origin === "https://ihyau.netlify.app" ||
       origin.endsWith("--ihyau.netlify.app")
     ) {
