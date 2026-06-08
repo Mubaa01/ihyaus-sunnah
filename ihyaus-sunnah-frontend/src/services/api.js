@@ -54,7 +54,7 @@ const apiCall = async (
 ) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+  const timeoutId = window.setTimeout(() => controller.abort(), 30000);
 
   const defaultOptions = {
     headers: {

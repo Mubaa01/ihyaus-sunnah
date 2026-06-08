@@ -44,4 +44,11 @@ const staffSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Add indexes for frequently queried fields
+staffSchema.index({ role: 1 });
+staffSchema.index({ sections: 1 });
+staffSchema.index({ name: "text" });
+staffSchema.index({ createdAt: -1 });
+staffSchema.index({ isActive: 1 });
+
 export const Staff = mongoose.model("Staff", staffSchema);

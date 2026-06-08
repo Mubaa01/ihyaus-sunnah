@@ -19,10 +19,21 @@ export const StaffProvider = ({ children }) => {
     try {
       setLoading(true);
       const response = await staffAPI.getAll();
-      setStaff(response.data || []);
+      
+      if (!response) {
+        throw new Error("No response from server");
+      }
+      
+      if (!response.data) {
+        console.warn("Invalid response structure from /staff:", response);
+        throw new Error("Invalid response format: missing data field");
+      }
+      
+      setStaff(Array.isArray(response.data) ? response.data : []);
       setError(null);
     } catch (err) {
-      setError(err.message);
+      console.error("Error fetching staff:", err);
+      setError(err.message || "Failed to load staff data");
       setStaff([]);
     } finally {
       setLoading(false);
