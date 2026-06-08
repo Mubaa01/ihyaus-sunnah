@@ -153,12 +153,11 @@ const HomePage = () => {
               Support Our Mission
             </p>
             <h2 className="text-3xl font-semibold leading-tight text-white md:text-5xl">
-              Help sustain knowledge, character, and community.
+             Give for yourself, invest in your reward.
+
             </h2>
             <p className="mx-auto mt-5 max-w-3xl text-base leading-relaxed text-white/80 md:text-lg">
-              Your support helps us provide affordable Islamic education,
-              support orphans, organize public lectures, and strengthen the
-              Muslim community through impactful programs.
+             Your support is a personal investment in sadaqah jariyah helping educate, uplift orphans, and serve the Muslim community through meaningful programs.
             </p>
             <div className="mt-7 flex flex-wrap justify-center gap-3">
               <Link

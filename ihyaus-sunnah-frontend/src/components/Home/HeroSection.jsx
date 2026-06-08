@@ -105,7 +105,7 @@ const HeroSection = () => {
                 variants={entry(0.55)}
               >
                 <span ref={titleRef} className="block text-white font-extrabold" style={{ fontSize: 'clamp(2.5rem, 4vw, 4rem)', lineHeight: 0.95 }}>
-                  IHYAUS_SUNNAH
+                  IHYAUSSUNNAH
                 </span>
                 <motion.span
                   ref={foundationRef}

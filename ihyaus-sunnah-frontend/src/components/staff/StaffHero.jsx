@@ -7,22 +7,35 @@ const staffVerse = {
   arabic: "وَلْتَكُن مِّنكُمْ أُمَّةٌ يَدْعُونَ إِلَى الْخَيْرِ",
   translation: "Let there be from you a community inviting to all that is good.",
   reference: "Surah Ali Imran 3:104",
-}
+};
 
 const StaffHero = () => {
   return (
     <section className="relative overflow-hidden">
-      <div
-        className="min-h-[60vh] lg:min-h-[70vh] py-20 lg:py-28 bg-cover bg-center relative flex items-center"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1513258496099-48168024aec0?q=80&w=2000&auto=format&fit=crop')",
-        }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/95 via-primary/80 to-primary-dark/90" />
+      <div className="min-h-[40vh] lg:min-h-[50vh] py-20 lg:py-28 relative flex items-center overflow-hidden">
+        
+        {/* Background Video */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/videos/staff-hero.mp4" type="video/mp4" />
+        </video>
 
+        {/* Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/85 via-primary/70 to-primary-dark/80" />
+
+        {/* Optional Dark Overlay for Better Text Visibility */}
+        <div className="absolute inset-0 bg-black/20" />
+
+        {/* Content */}
         <div className="relative z-10 container-custom w-full flex items-center">
           <div className="max-w-4xl text-white">
+            
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -45,16 +58,19 @@ const StaffHero = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="text-xl text-gray-200 leading-relaxed max-w-3xl mb-8"
+              className="text-xl text-gray-200 leading-relaxed max-w-3xl"
             >
               Meet the dedicated scholars, teachers, administrators, and
               staff members serving the mission of education, sincerity,
               and community development.
             </motion.p>
 
-            <QuranVersePanel {...staffVerse} className="max-w-3xl" />
+            <QuranVersePanel
+              {...staffVerse}
+              className="max-w-3xl mt-40 mx-auto"
+            />
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-12">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mt-10 mb-0">
               {[
                 { value: "50+", label: "Staff Members" },
                 { value: "6", label: "Departments" },
@@ -66,7 +82,7 @@ const StaffHero = () => {
                   initial={{ opacity: 0, y: 40 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 }}
-                  className="glass-card p-5 rounded-2xl text-center"
+                  className="glass-card p-5 rounded-2xl text-center backdrop-blur-md bg-white/10 border border-white/20 mb-0"
                 >
                   <h3 className="text-3xl font-bold text-secondary-light">
                     {item.value}
@@ -78,6 +94,7 @@ const StaffHero = () => {
                 </motion.div>
               ))}
             </div>
+
           </div>
         </div>
       </div>

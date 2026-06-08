@@ -205,8 +205,7 @@ const ProgramsPage = () => {
               <span className="mt-2 block text-gold">Holistic Development</span>
             </h2>
             <p className="text-lg leading-relaxed text-muted">
-              We combine Islamic education, academic learning, leadership
-              development, public enlightenment, and social responsibility into
+              We combine Islamic education, academic learning, public enlightenment, and social responsibility into
               one integrated mission.
             </p>
           </div>
@@ -416,9 +415,7 @@ const ProgramsPage = () => {
               <span className="block text-yellow-400 mt-2">The Classroom</span>
             </h2>
             <p className="text-lg md:text-2xl text-gray-200 leading-relaxed mb-12">
-              Through donations and community support, we assist orphans and
-              vulnerable families, organize public lectures, and provide
-              meaningful educational opportunities that transform society.
+              Through what the school generates, we organize public lectures, and provide meaningful educational opportunities that help transform society. Through this efforts, we are able to expand and sustain our impact.
             </p>
             <Link to="/donate">
               <button className="btn-primary">Donate & Support</button>

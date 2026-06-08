@@ -300,7 +300,7 @@ const TrusteeLeadershipSection = ({ section, directorMembers, seniorMembers }) =
         </h2>
 
         <p className="mx-auto mt-4 max-w-3xl text-neutral-400">
-          This section shows the five trustees by their active leadership responsibilities: the Director stands alone, key department heads follow, and the remaining senior staff trustees complete the board leadership team.
+         This section presents the five trustees according to their leadership roles: the Director stands at the top, followed by key department heads, with the remaining senior staff trustees completing the board leadership team.
         </p>
 
         <p className="mt-3 text-sm font-semibold uppercase tracking-[0.16em] text-brand-400">
@@ -569,7 +569,7 @@ const StaffDirectoryPage = () => {
       icon: <FaUsers />,
 
       eyebrow:
-        "Emerging staff and assistants",
+        "Emerging staff members",
     },
   ]
 
@@ -689,19 +689,19 @@ const StaffDirectoryPage = () => {
           >
 
             <span className="section-subtitle">
-              Our Workforce
+              Our Dedicated Team
             </span>
 
             <h2 className="section-title">
-              Dedicated & Professionally Trained Staff
+              Professionally Trained Staff
             </h2>
 
             <p className="text-gray-700 text-lg leading-relaxed">
-              The staff of the institution represent a carefully developed workforce built upon discipline, knowledge, mentorship, and service. Every member of staff is nurtured through structured guidance and professional development under the supervision of the senior leadership and experienced scholars of the foundation.
+             Our staff are carefully developed through discipline, knowledge, mentorship, and service. Each member is guided through structured training and professional development under the supervision of senior leadership and experienced scholars of the foundation
             </p>
 
             <p className="text-gray-600 leading-relaxed">
-              This internal system of mentorship ensures consistency in administration, Islamic education, student engagement, and community service. Through this approach, the institution continues to cultivate a united team committed to excellence, sincerity, professionalism, and the preservation of authentic Islamic values.
+             This internal system of mentorship ensures consistency in administration, Islamic education, student engagement, and community service. As the staff are products of the foundation, they are deeply familiar with its norms, values, and mission, which fosters sincerity, unity, and a strong sense of responsibility. Through this approach, the foundation continues to develop a united team committed to excellence, sincerity, professionalism, and the preservation of authentic Islamic values.
             </p>
 
           </motion.div>
