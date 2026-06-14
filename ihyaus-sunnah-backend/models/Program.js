@@ -22,7 +22,20 @@ const previewVideoSchema = new mongoose.Schema(
     thumbnail: String,
     title: String,
     duration: String,
+    provider: {
+      type: String,
+      enum: ["external", "telegram"],
+      default: "external",
+    },
     url: String,
+    mediaId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Media",
+    },
+    telegramFileId: String,
+    telegramMessageId: String,
+    telegramChatId: String,
+    telegramThumbnailFileId: String,
   },
   { _id: false }
 );

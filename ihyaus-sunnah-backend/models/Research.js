@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+
 const researchCategories = [
   "دراسات القرآن",
   "دراسات الحديث",
@@ -13,6 +14,7 @@ const researchCategories = [
   "المرأة والأسرة",
   "تنمية الشباب",
 ];
+
 
 const researchTypes = [
   "بحث التخرج",
@@ -52,6 +54,13 @@ const researchSchema = new mongoose.Schema(
     pdfUrl: { type: String, trim: true },
     pdfFileName: { type: String, trim: true },
     pdfKey: { type: String, trim: true },
+    provider: { type: String, enum: ["local", "telegram"], default: "local" },
+    telegramFileId: { type: String, trim: true },
+    telegramMessageId: Number,
+    telegramChatId: String,
+    telegramMimeType: String,
+    telegramFileName: String,
+    telegramFileSize: Number,
     imageUrl: { type: String, trim: true },
     imageFileName: { type: String, trim: true },
     imageKey: { type: String, trim: true },

@@ -16,12 +16,7 @@ import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 
 
 const StaffListPage = () => {
-  const { staff, removeStaff, refreshStaff } = useStaffAPI();
-
-  // Only refresh staff on initial mount
-  useEffect(() => {
-    refreshStaff();
-  }, []);
+  const { staff, loading, error, removeStaff } = useStaffAPI();
 
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("All")
@@ -130,6 +125,31 @@ const StaffListPage = () => {
       </div>
 
       {/* STAFF GRID */}
+      {loading && (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-soft py-20 text-center">
+          <FaUsers className="mx-auto text-6xl text-gray-300 mb-5" />
+          <h3 className="text-3xl font-bold text-primary">
+            Loading Staff
+          </h3>
+          <p className="text-gray-500 mt-3">
+            Fetching staff records from the database.
+          </p>
+        </div>
+      )}
+
+      {!loading && error && (
+        <div className="bg-white rounded-3xl border border-red-100 shadow-soft py-20 px-6 text-center">
+          <FaUsers className="mx-auto text-6xl text-red-200 mb-5" />
+          <h3 className="text-3xl font-bold text-primary">
+            Staff Could Not Be Loaded
+          </h3>
+          <p className="text-gray-500 mt-3">
+            {error}
+          </p>
+        </div>
+      )}
+
+      {!loading && !error && (
       <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-8">
 
         {filteredStaff.map((member, index) => (
@@ -229,9 +249,10 @@ const StaffListPage = () => {
         ))}
 
       </div>
+      )}
 
       {/* EMPTY STATE */}
-      {filteredStaff.length === 0 && (
+      {!loading && !error && filteredStaff.length === 0 && (
         <div className="bg-white rounded-3xl border border-gray-100 shadow-soft py-24 text-center">
           <FaUsers className="mx-auto text-6xl text-gray-300 mb-5" />
 

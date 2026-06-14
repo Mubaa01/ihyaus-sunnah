@@ -24,6 +24,7 @@ import useProgramsAPI from "../../../hooks/useProgramsAPI"
 // TODO: Replace all program mock logic with real API
 
 import SecretKeyModal from "../../../components/admin/SecretKeyModal"
+import MediaLibrarySelectorModal from "../../../components/admin/MediaLibrarySelectorModal"
 
 const categoriesList = [
   "Tahfeez",
@@ -96,6 +97,8 @@ const ProgramFormPage = () => {
   const [newSection, setNewSection] = useState("")
   const [newGalleryImage, setNewGalleryImage] = useState("")
   const [saving, setSaving] = useState(false)
+  const [mediaLibraryOpen, setMediaLibraryOpen] = useState(false)
+  const [selectedVideoCategory, setSelectedVideoCategory] = useState(null)
 
   // TODO: Fetch program by ID from backend API for edit mode
   useEffect(() => {
@@ -522,6 +525,26 @@ const ProgramFormPage = () => {
     reader.readAsDataURL(file)
   }
 
+  const handleMediaLibrarySelect = (videos) => {
+    if (selectedVideoCategory !== null) {
+      setFormData((prev) => {
+        const newCategories = [...prev.categories]
+        newCategories[selectedVideoCategory].previewVideos = [
+          ...(newCategories[selectedVideoCategory].previewVideos || []),
+          ...videos,
+        ].slice(0, 3) // Enforce max 3 videos
+        return { ...prev, categories: newCategories }
+      })
+    }
+    setSelectedVideoCategory(null)
+    setMediaLibraryOpen(false)
+  }
+
+  const handleOpenMediaLibrary = (catIndex) => {
+    setSelectedVideoCategory(catIndex)
+    setMediaLibraryOpen(true)
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault()
     setShowModal(true)
@@ -592,6 +615,15 @@ const ProgramFormPage = () => {
       animate={{ opacity: 1, y: 0 }}
       className="mx-auto max-w-7xl"
     >
+      <MediaLibrarySelectorModal
+        isOpen={mediaLibraryOpen}
+        onClose={() => {
+          setMediaLibraryOpen(false)
+          setSelectedVideoCategory(null)
+        }}
+        onSelect={handleMediaLibrarySelect}
+        maxSelection={3}
+      />
       <div className="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-premium">
 
         {/* HEADER */}
@@ -1010,118 +1042,131 @@ const ProgramFormPage = () => {
 
                 {/* Preview Videos */}
                 <div className="border-t pt-4">
-                  <h5 className="font-semibold text-primary mb-3">Preview Videos (max 3)</h5>
-                  {(category.previewVideos || []).map((video, vidIndex) => {
-                    const previewKey = `cat-${catIndex}-vid-${vidIndex}`
-                    return (
-                      <div key={vidIndex} className="mb-3 space-y-3 rounded-lg border border-neutral-200 bg-white p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-gray-700">Video {vidIndex + 1}</span>
-                          <button
-                            type="button"
-                            onClick={() => removeVideo(catIndex, vidIndex)}
-                            className="text-[#B91C1C] hover:text-[#7F1D1D]"
-                          >
-                            ×
-                          </button>
-                        </div>
-                        
-                        <div className="grid md:grid-cols-2 gap-3">
-                          <Input
-                            label="Video Title"
-                            value={video.title || ''}
-                            onChange={(e) => updateVideo(catIndex, vidIndex, 'title', e.target.value)}
-                          />
-                          <Input
-                            label="Duration"
-                            placeholder="e.g., 12:45"
-                            value={video.duration || ''}
-                            onChange={(e) => updateVideo(catIndex, vidIndex, 'duration', e.target.value)}
-                          />
-                        </div>
-
-                        {/* Thumbnail Upload */}
-                        <div className="border-t pt-3">
-                          <label className="font-semibold text-primary block mb-2 text-sm">
-                            Upload Thumbnail
-                          </label>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => handleThumbnailUpload(catIndex, vidIndex, e)}
-                            className="hidden"
-                            id={`thumbnail-upload-${catIndex}-${vidIndex}`}
-                          />
-                          <label
-                            htmlFor={`thumbnail-upload-${catIndex}-${vidIndex}`}
-                            className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary transition-colors"
-                          >
-                            <FaUpload className="text-gray-400" />
-                            <span className="text-gray-600 text-sm">Choose thumbnail image</span>
-                          </label>
-                          {thumbnailPreviews[previewKey] && (
-                            <div className="mt-2 relative">
-                              <img
-                                src={thumbnailPreviews[previewKey]}
-                                alt="Thumbnail preview"
-                                className="w-full h-24 object-cover rounded-xl border"
-                              />
-                              <p className="text-xs text-green-600 mt-1">✓ Thumbnail uploaded</p>
-                            </div>
-                          )}
-                          <Input
-                            label="Or enter Thumbnail URL"
-                            value={video.thumbnail || ''}
-                            onChange={(e) => updateVideo(catIndex, vidIndex, 'thumbnail', e.target.value)}
-                            placeholder="https://example.com/thumbnail.jpg"
-                          />
-                        </div>
-
-                        {/* Video Upload */}
-                        <div className="border-t pt-3">
-                          <label className="font-semibold text-primary block mb-2 text-sm">
-                            Upload Video
-                          </label>
-                          <input
-                            type="file"
-                            accept="video/*"
-                            onChange={(e) => handleVideoUpload(catIndex, vidIndex, e)}
-                            className="hidden"
-                            id={`video-upload-${catIndex}-${vidIndex}`}
-                          />
-                          <label
-                            htmlFor={`video-upload-${catIndex}-${vidIndex}`}
-                            className="flex items-center gap-3 px-4 py-3 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-primary transition-colors"
-                          >
-                            <FaUpload className="text-gray-400" />
-                            <span className="text-gray-600 text-sm">Choose video file (max 100MB)</span>
-                          </label>
-                          {videoPreviews[previewKey] && (
-                            <p className="text-xs text-green-600 mt-2">✓ Video uploaded</p>
-                          )}
-                          <Input
-                            label="Or enter Video URL/Embed Link"
-                            value={video.url || ''}
-                            onChange={(e) => updateVideo(catIndex, vidIndex, 'url', e.target.value)}
-                            placeholder="https://youtube.com/embed/..."
-                          />
-                        </div>
-                      </div>
-                    )
-                  })}
-
-                  {(category.previewVideos || []).length < 3 && (
+                  <div className="flex items-center justify-between mb-4">
+                    <h5 className="font-semibold text-primary">Preview Videos (max 3)</h5>
                     <button
                       type="button"
-                      onClick={() => addVideo(catIndex)}
-                      className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-white transition hover:bg-secondary/90"
+                      onClick={() => handleOpenMediaLibrary(catIndex)}
+                      className="inline-flex items-center gap-2 rounded-lg bg-gold px-4 py-2 text-sm font-semibold text-white transition hover:bg-gold/90"
                     >
-                      <FaPlus /> Add Video
+                      <FaPlus /> Add from Media Library
                     </button>
-                  )}
-                </div>
+                  </div>
 
-                {/* Learning Outcomes */}
+                  {/* Media Library Videos Grid */}
+                  {(category.previewVideos || []).length > 0 && (
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+                      {(category.previewVideos || []).map((video, vidIndex) => (
+                        <motion.div
+                          key={vidIndex}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="relative rounded-lg overflow-hidden border border-neutral-200 shadow-sm hover:shadow-md transition group"
+                        >
+                          {/* Thumbnail */}
+                          <div className="relative w-full aspect-video bg-neutral-200">
+                            {video.thumbnail ? (
+                              <img
+                                src={video.thumbnail}
+                                alt={video.title}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-neutral-300">
+                                <FaImage size={24} className="text-neutral-400" />
+                              </div>
+                            )}
+                            
+                            {/* Provider Badge */}
+                            <div className="absolute top-2 right-2">
+                              <span className={`px-2 py-1 rounded text-xs font-semibold ${
+                                video.provider === "telegram"
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-gray-700 text-white"
+                              }`}>
+                                {video.provider === "telegram" ? "📱 TG" : "🔗 URL"}
+                              </span>
+                            </div>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => removeVideo(catIndex, vidIndex)}
+                              className="absolute inset-0 bg-red-500/90 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition"
+                            >
+                              <span className="text-xl">Delete</span>
+                            </button>
+                          </div>
+
+                          {/* Video Info */}
+                          <div className="p-3 bg-white">
+                            <p className="font-semibold text-sm line-clamp-2">{video.title}</p>
+                            <p className="text-xs text-muted">{video.duration}</p>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Manual Video Add (Collapsible) */}
+                  <details className="border-t pt-4">
+                    <summary className="cursor-pointer text-sm font-semibold text-secondary hover:text-primary transition">
+                      + Add Video Manually (Advanced)
+                    </summary>
+                    <div className="mt-4 space-y-4">
+                      {(category.previewVideos || []).map((video, vidIndex) => {
+                        const previewKey = `cat-${catIndex}-vid-${vidIndex}`
+                        return (
+                          <div key={vidIndex} className="space-y-3 rounded-lg border border-neutral-200 bg-white p-4">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-gray-700">Video {vidIndex + 1}</span>
+                            </div>
+                            
+                            <div className="grid md:grid-cols-2 gap-3">
+                              <Input
+                                label="Video Title"
+                                value={video.title || ''}
+                                onChange={(e) => updateVideo(catIndex, vidIndex, 'title', e.target.value)}
+                              />
+                              <Input
+                                label="Duration"
+                                placeholder="e.g., 12:45"
+                                value={video.duration || ''}
+                                onChange={(e) => updateVideo(catIndex, vidIndex, 'duration', e.target.value)}
+                              />
+                            </div>
+
+                            <Input
+                              label="Thumbnail URL"
+                              value={video.thumbnail || ''}
+                              onChange={(e) => updateVideo(catIndex, vidIndex, 'thumbnail', e.target.value)}
+                              placeholder="https://example.com/thumbnail.jpg"
+                            />
+
+                            {video.provider === "external" && (
+                              <Input
+                                label="Video URL/Embed Link"
+                                value={video.url || ''}
+                                onChange={(e) => updateVideo(catIndex, vidIndex, 'url', e.target.value)}
+                                placeholder="https://youtube.com/embed/..."
+                              />
+                            )}
+                          </div>
+                        )
+                      })}
+
+                      {(category.previewVideos || []).length < 3 && (
+                        <button
+                          type="button"
+                          onClick={() => addVideo(catIndex)}
+                          className="inline-flex items-center gap-2 rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-white transition hover:bg-secondary/90"
+                        >
+                          <FaPlus /> Add Video
+                        </button>
+                      )}
+                    </div>
+                  </details>
+                </div>
                 <div className="border-t pt-4">
                   <h5 className="font-semibold text-primary mb-3">Learning Outcomes</h5>
                   <div className="space-y-2 mb-3">

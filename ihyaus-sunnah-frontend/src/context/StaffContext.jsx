@@ -1,6 +1,6 @@
 // src/context/StaffContext.jsx
 
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { staffAPI } from "../services/api";
 import {
   dispatchAdminDataUpdate,
@@ -14,29 +14,40 @@ export const StaffProvider = ({ children }) => {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const refreshRequestId = useRef(0);
 
   const refreshStaff = async () => {
+    const requestId = refreshRequestId.current + 1;
+    refreshRequestId.current = requestId;
+
     try {
       setLoading(true);
       const response = await staffAPI.getAll();
+      const responseData = Array.isArray(response) ? response : response?.data;
       
       if (!response) {
         throw new Error("No response from server");
       }
       
-      if (!response.data) {
+      if (!Array.isArray(responseData)) {
         console.warn("Invalid response structure from /staff:", response);
-        throw new Error("Invalid response format: missing data field");
+        throw new Error("Invalid response format: staff list was not returned");
       }
+
+      if (requestId !== refreshRequestId.current) return;
       
-      setStaff(Array.isArray(response.data) ? response.data : []);
+      setStaff(responseData);
       setError(null);
     } catch (err) {
+      if (requestId !== refreshRequestId.current) return;
+
       console.error("Error fetching staff:", err);
       setError(err.message || "Failed to load staff data");
-      setStaff([]);
+      setStaff((currentStaff) => currentStaff);
     } finally {
-      setLoading(false);
+      if (requestId === refreshRequestId.current) {
+        setLoading(false);
+      }
     }
   };
 

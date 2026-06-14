@@ -116,7 +116,7 @@ const MediaFormPage = () => {
     if (!file) return
 
     // Validate file type based on media type
-    const isVideo = formData.type === 'video' || formData.type === 'short-video'
+    const isVideo = formData.type === 'video' || formData.type === 'short'
     const isAudio = formData.type === 'audio'
     const isImage = field === 'thumbnail'
 

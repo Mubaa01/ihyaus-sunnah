@@ -57,13 +57,26 @@ const HeroSection = () => {
     <section className="relative min-h-[76vh] overflow-hidden mt-0">
       {/* Background + overlays (preserve original color tokens) */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <motion.img
-          src="ihyau.jpg"
-          alt="Islamic architecture representing Ihyaus Sunnah Foundation"
-          className="h-full w-full object-cover"
-          initial={{ scale: 1 }}
-          animate={{ scale: 1.06 }}
-          transition={{ duration: 18, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }}
+        <div className="absolute inset-y-0 right-0 w-full max-w-[48%] overflow-hidden">
+          <motion.img
+            src="/ihyau.svg"
+            alt="Islamic architecture representing Ihyaus Sunnah Foundation"
+            className="h-full w-full object-cover object-right-top"
+            initial={{ scale: 0.94 }}
+            animate={{ scale: 0.96 }}
+            transition={{ duration: 18, ease: "easeOut", repeat: Infinity, repeatType: "reverse" }}
+          />
+        </div>
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: "url('/ihyau.svg')",
+            backgroundPosition: 'center bottom',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: '18rem',
+            opacity: 0.12,
+          }}
+          aria-hidden="true"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-primaryDark via-primary/90 to-primary/45" />
         <div className="absolute inset-0 bg-gradient-to-t from-primaryDark/80 via-transparent to-primaryDark/20" />

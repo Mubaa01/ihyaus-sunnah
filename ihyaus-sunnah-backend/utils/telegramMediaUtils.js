@@ -34,6 +34,38 @@ export const parseTelegramCaption = (caption = "") => {
   };
 };
 
+// New: Parse Program Video Caption
+// Format:
+// program_video
+// title: Introduction to Quran
+// program: Quranic Studies
+// category: Basic Level
+// duration: 12:45
+// description: Overview of Quranic principles
+export const parseProgramVideoCaption = (caption = "") => {
+  const metadata = {};
+
+  caption
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .forEach((line) => {
+      const match = line.match(/^([A-Za-z ]+):\s*(.*)$/);
+      if (!match) return;
+
+      const key = match[1].trim().toLowerCase().replace(/\s+/g, "");
+      metadata[key] = match[2].trim();
+    });
+
+  return {
+    title: metadata.title,
+    program: metadata.program,
+    category: metadata.category,
+    duration: metadata.duration || "0:00",
+    description: metadata.description || "",
+  };
+};
+
 export const getTelegramMediaPayload = (message = {}) => {
   if (message.video) {
     return {

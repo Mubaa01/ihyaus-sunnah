@@ -400,6 +400,8 @@ const StaffDirectoryPage = () => {
 
   const {
     staff,
+    loading,
+    error,
   } = useStaffAPI()
 
   const [search, setSearch] =
@@ -819,18 +821,40 @@ const StaffDirectoryPage = () => {
           {/* STAFF HIERARCHY */}
           <div className="space-y-24">
 
-            {boardSection && showTrusteeSection && (
-              <TrusteeLeadershipSection
-                section={boardSection}
-                directorMembers={grouped.director}
-                seniorMembers={uniqueMembers([
-                  ...grouped.senior,
-                  ...grouped.board,
-                ])}
-              />
+            {loading && (
+              <div className="rounded-[28px] border border-brand-100 bg-white p-10 text-center shadow-soft">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-brand-400">
+                  Loading staff profiles
+                </p>
+                <p className="mt-3 text-neutral-500">
+                  Please wait while the staff data is fetched from the database.
+                </p>
+              </div>
             )}
 
-            {visibleOperationalSections.map(
+            {!loading && error && (
+              <div className="rounded-[28px] border border-red-100 bg-white p-10 text-center shadow-soft">
+                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-red-500">
+                  Staff could not be loaded
+                </p>
+                <p className="mt-3 text-neutral-500">
+                  {error}
+                </p>
+              </div>
+            )}
+
+            {!loading && !error && boardSection && showTrusteeSection && (
+                <TrusteeLeadershipSection
+                  section={boardSection}
+                  directorMembers={grouped.director}
+                  seniorMembers={uniqueMembers([
+                    ...grouped.senior,
+                    ...grouped.board,
+                  ])}
+                />
+              )}
+
+            {!loading && !error && visibleOperationalSections.map(
               (
                 section,
                 sectionIndex

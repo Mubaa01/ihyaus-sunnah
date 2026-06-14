@@ -3,6 +3,8 @@ import {
   createResearch,
   getResearchById,
   getAllResearch,
+  getTelegramResearchUrl,
+  ingestTelegramResearch,
   updateResearch,
   deleteResearch
 } from "../controllers/researchController.js";
@@ -13,6 +15,9 @@ const router = express.Router();
 
 // GET is public
 router.get("/", getAllResearch);
+router.get("/telegram/webhook", (req, res) => res.status(405).json({ success: false, message: "Use POST for Telegram webhooks" }));
+router.post("/telegram/webhook", ingestTelegramResearch);
+router.get("/:id/telegram-url", getTelegramResearchUrl);
 router.get("/:id", getResearchById);
 
 // POST, PATCH, DELETE require auth

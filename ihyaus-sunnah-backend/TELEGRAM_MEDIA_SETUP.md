@@ -100,4 +100,10 @@ The frontend does not store or expose the bot token. For Telegram media, it call
 GET /api/media/:id/telegram-url
 ```
 
+Research documents ingested via Telegram can be retrieved through:
+
+```text
+GET /api/research/:id/telegram-url
+```
+
 The backend asks Telegram for a fresh temporary file URL and returns it to the player.

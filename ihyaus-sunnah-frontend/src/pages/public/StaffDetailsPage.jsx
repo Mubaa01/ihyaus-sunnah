@@ -29,7 +29,7 @@ import useStaffAPI from "../../hooks/useStaffAPI"
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI"
 
 const StaffDetailsPage = () => {
-  const { staff } = useStaffAPI()
+  const { staff, loading, error } = useStaffAPI()
   const { research } = useStudentResearchAPI()
   const { id } = useParams()
   const location = useLocation()
@@ -128,6 +128,42 @@ const StaffDetailsPage = () => {
   // =========================
   // NOT FOUND
   // =========================
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cream">
+        <div className="text-center">
+          <h2 className="text-4xl font-bold text-primary mb-4">
+            Loading Staff Profile
+          </h2>
+          <p className="text-gray-500">
+            Please wait while the profile is fetched from the database.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cream">
+        <div className="text-center max-w-xl px-6">
+          <h2 className="text-4xl font-bold text-primary mb-4">
+            Staff Could Not Be Loaded
+          </h2>
+          <p className="text-gray-500 mb-6">
+            {error}
+          </p>
+          <Link
+            to={backUrl}
+            className="btn-primary inline-flex"
+          >
+            {backLabel}
+          </Link>
+        </div>
+      </div>
+    )
+  }
 
   if (!member) {
     return (
@@ -490,6 +526,7 @@ const StaffDetailsPage = () => {
                                 href={item.pdfUrl}
                                 target="_blank"
                                 rel="noreferrer"
+                                download={item.pdfFileName || `${item.title || "research"}.pdf`}
                                 className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primaryLight transition"
                               >
                                 <FiDownload />

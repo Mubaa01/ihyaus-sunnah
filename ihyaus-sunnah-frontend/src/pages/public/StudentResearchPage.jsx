@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import {
   FiBookOpen,
   FiDownload,
+  FiExternalLink,
   FiFileText,
   FiFilter,
   FiRefreshCw,
@@ -11,6 +12,7 @@ import {
   FiUsers,
 } from "react-icons/fi"
 
+import { researchAPI } from "../../services/api"
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI"
 import QuranVersePanel from "../../components/common/QuranVersePanel"
 import {
@@ -20,6 +22,8 @@ import {
   researchTypes,
 } from "../../constants/researchOptions"
 import { getResearchImageUrl, getResearchPdfUrl } from "../../utils/researchPdfStorage"
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api"
 
 const defaultFilters = {
   category: "",
@@ -57,6 +61,7 @@ const StudentResearchPage = () => {
   const [filters, setFilters] = useState(defaultFilters)
   const [pdfLinks, setPdfLinks] = useState({})
   const [imageLinks, setImageLinks] = useState({})
+  const [telegramLinks, setTelegramLinks] = useState({})
 
   const { research, loading, error } = useStudentResearchAPI()
 
@@ -84,6 +89,7 @@ const StudentResearchPage = () => {
     const loadFileLinks = async () => {
       const pdfUrls = {}
       const imgUrls = {}
+      const telegramUrls = {}
 
       await Promise.all(
         filteredResearch.map(async (item) => {
@@ -96,11 +102,22 @@ const StudentResearchPage = () => {
             const url = await getResearchImageUrl(item.imageKey)
             if (url) imgUrls[item.id] = url
           }
+
+          if (item.provider === "telegram" && !item.pdfUrl && !item.pdfKey) {
+            try {
+              const response = await researchAPI.getTelegramUrl(item.id)
+              const url = response.data?.url
+              if (url) telegramUrls[item.id] = url
+            } catch (error) {
+              // ignore failures for now, the item may still render from a saved pdfUrl
+            }
+          }
         })
       )
 
       setPdfLinks(pdfUrls)
       setImageLinks(imgUrls)
+      setTelegramLinks(telegramUrls)
     }
 
     loadFileLinks()
@@ -313,7 +330,23 @@ const StudentResearchPage = () => {
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {filteredResearch.map((item, index) => {
                 const imageSrc = item.imageUrl || imageLinks[item.id]
-                const pdfSrc = item.pdfUrl || pdfLinks[item.id]
+                const pdfUrl = item.pdfUrl
+                  ? item.pdfUrl.startsWith("/api/")
+                    ? `${API_BASE_URL}${item.pdfUrl}`
+                    : item.pdfUrl
+                  : ""
+                const pdfSrc =
+                  pdfUrl ||
+                  pdfLinks[item.id] ||
+                  telegramLinks[item.id] ||
+                  ""
+                const pdfFileName =
+                  item.pdfFileName ||
+                  `${item.title?.replace(/\s+/g, "-") || "research"}.pdf`
+                const isTelegramNonPdf =
+                  item.provider === "telegram" &&
+                  item.telegramMimeType &&
+                  item.telegramMimeType !== "application/pdf"
 
                 // =========================================
                 // PREMIUM RESEARCH CARD (UPGRADED)
@@ -552,41 +585,61 @@ const StudentResearchPage = () => {
                           </div>
                         </div>
 
-                        {/* ACTION */}
+                                {/* ACTION */}
                         {pdfSrc ? (
-                          <a
-                            href={pdfSrc}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="
-                              group/button relative inline-flex items-center gap-3
-                              overflow-hidden
-                              rounded-2xl
-                              bg-primary
-                              px-5 py-3
-                              text-sm font-semibold text-white
-                              shadow-lg shadow-primary/20
-                              transition-all duration-300
-                              hover:-translate-y-0.5
-                              hover:bg-secondary
-                              hover:shadow-xl hover:shadow-secondary/20
-                            "
-                          >
-                            <span className="relative z-10 flex items-center gap-2">
-                              <FiDownload />
-                              Read PDF
-                            </span>
-
-                            <div
+                          <div className="grid gap-3 sm:grid-cols-[auto_auto]">
+                            <a
+                              href={pdfSrc}
+                              target="_blank"
+                              rel="noreferrer"
                               className="
-                                absolute inset-0
-                                translate-y-full
-                                bg-white/10
-                                transition duration-500
-                                group-hover/button:translate-y-0
+                                group/button relative inline-flex items-center gap-3
+                                overflow-hidden
+                                rounded-2xl
+                                bg-primary
+                                px-5 py-3
+                                text-sm font-semibold text-white
+                                shadow-lg shadow-primary/20
+                                transition-all duration-300
+                                hover:-translate-y-0.5
+                                hover:bg-secondary
+                                hover:shadow-xl hover:shadow-secondary/20
                               "
-                            />
-                          </a>
+                            >
+                              <span className="relative z-10 flex items-center gap-2">
+                                {isTelegramNonPdf ? <FiExternalLink /> : <FiDownload />}
+                                {isTelegramNonPdf ? "Open Document" : "Read PDF"}
+                              </span>
+
+                              <div
+                                className="
+                                  absolute inset-0
+                                  translate-y-full
+                                  bg-white/10
+                                  transition duration-500
+                                  group-hover/button:translate-y-0
+                                "
+                              />
+                            </a>
+
+                            <a
+                              href={pdfSrc}
+                              download={pdfFileName}
+                              className="
+                                inline-flex items-center justify-center gap-2
+                                rounded-2xl
+                                border border-primary/20
+                                bg-white
+                                px-5 py-3
+                                text-sm font-semibold text-primary
+                                transition duration-300
+                                hover:bg-primary/5
+                              "
+                            >
+                              <FiDownload />
+                              Download
+                            </a>
+                          </div>
                         ) : (
                           <span
                             className="

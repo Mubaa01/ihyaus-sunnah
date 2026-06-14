@@ -32,17 +32,18 @@ export const createStaff = async (req, res) => {
 
 export const getAllStaff = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 50;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
     const skip = (page - 1) * limit;
 
-    const staff = await Staff.find()
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
-
-    const total = await Staff.countDocuments();
+    const [staff, total] = await Promise.all([
+      Staff.find()
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Staff.countDocuments()
+    ]);
 
     res.json({
       success: true,
@@ -56,9 +57,11 @@ export const getAllStaff = async (req, res) => {
 
 export const getFilteredStaff = async (req, res) => {
   try {
-    const { role, name, section, page = 1, limit = 50 } = req.query;
+    const { role, name, section } = req.query;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100);
     const filter = {};
-    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const skip = (page - 1) * limit;
 
     if (role) filter.role = role;
     if (section) filter.sections = section;
@@ -66,12 +69,13 @@ export const getFilteredStaff = async (req, res) => {
       filter.name = { $regex: name, $options: "i" };
     }
 
-    const staff = await Staff.find(filter)
-      .skip(skip)
-      .limit(parseInt(limit))
-      .lean();
-    
-    const total = await Staff.countDocuments(filter);
+    const [staff, total] = await Promise.all([
+      Staff.find(filter)
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Staff.countDocuments(filter)
+    ]);
     
     // Sort by role order manually if needed or via aggregation
     const sortedStaff = staff.sort((a, b) => {
@@ -81,7 +85,7 @@ export const getFilteredStaff = async (req, res) => {
     res.json({
       success: true,
       data: sortedStaff,
-      pagination: { page: parseInt(page), limit: parseInt(limit), total, pages: Math.ceil(total / parseInt(limit)) }
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
     });
   } catch (error) {
     res.status(500).json({ message: error.message });

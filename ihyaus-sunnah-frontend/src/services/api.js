@@ -38,8 +38,8 @@ export const completedMajlisAPI = {
 // Central API service for all backend communication
 
 const API_BASE_URL =
-  import.meta.env.VITE_API_URL ||
-  "http://localhost:4000/api";
+  (import.meta.env.VITE_API_URL ||
+  "http://localhost:4000/api").trim().replace(/\/+$/, "");
 
 const getAuthHeaders = () => {
   const token = window.localStorage?.getItem("token");
@@ -54,7 +54,7 @@ const apiCall = async (
 ) => {
   const url = `${API_BASE_URL}${endpoint}`;
   const controller = new AbortController();
-  const timeoutId = window.setTimeout(() => controller.abort(), 30000);
+  const timeoutId = window.setTimeout(() => controller.abort(), 60000);
 
   const defaultOptions = {
     headers: {
@@ -98,7 +98,7 @@ const apiCall = async (
     window.clearTimeout(timeoutId);
 
     if (error.name === "AbortError") {
-      throw new Error("Backend request timed out. Please make sure the API server and database are running.");
+      throw new Error("Backend request timed out. The API may be cold-starting or the database may be slow to respond.");
     }
 
     if (error instanceof TypeError) {
@@ -331,6 +331,9 @@ export const researchAPI = {
 
   getById: (id) =>
     apiCall(`/research/${id}`),
+
+  getTelegramUrl: (id) =>
+    apiCall(`/research/${id}/telegram-url`),
 
   create: (data, secretKey) =>
     apiCall("/research", {
