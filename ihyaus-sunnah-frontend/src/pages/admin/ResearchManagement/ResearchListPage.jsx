@@ -11,6 +11,12 @@ import {
 } from "../../../constants/researchOptions"
 import useStudentResearchAPI from "../../../hooks/useStudentResearchAPI"
 import { getResearchImageUrl } from "../../../utils/researchPdfStorage"
+import { researchAPI } from "../../../services/api"
+
+const isTelegramResearch = (item) =>
+  item?.provider === "telegram" ||
+  item?.telegramFileId ||
+  item?.pdfUrl?.includes("/telegram-url")
 
 const includesSearch = (item, search) => {
   const term = search.trim().toLowerCase()
@@ -30,6 +36,7 @@ const ResearchListPage = () => {
   const [selectedId, setSelectedId] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
   const [imageLinks, setImageLinks] = useState({})
+  const [telegramLinks, setTelegramLinks] = useState({})
 
   const filteredResearch = useMemo(() => {
     return research.filter((item) => {
@@ -40,8 +47,9 @@ const ResearchListPage = () => {
   }, [categoryFilter, research, search, statusFilter])
 
   useEffect(() => {
-    const loadLocalImages = async () => {
+    const loadFileLinks = async () => {
       const urls = {}
+      const telegramUrls = {}
 
       await Promise.all(
         filteredResearch.map(async (item) => {
@@ -49,13 +57,25 @@ const ResearchListPage = () => {
             const url = await getResearchImageUrl(item.imageKey)
             if (url) urls[item.id] = url
           }
+
+          if (isTelegramResearch(item)) {
+            try {
+              const response = await researchAPI.getTelegramUrl(item.id || item._id)
+              if (response.data?.url) {
+                telegramUrls[item.id || item._id] = response.data.url
+              }
+            } catch (error) {
+              // Leave the PDF link unavailable if Telegram cannot issue a fresh URL.
+            }
+          }
         })
       )
 
       setImageLinks(urls)
+      setTelegramLinks(telegramUrls)
     }
 
-    loadLocalImages()
+    loadFileLinks()
   }, [filteredResearch])
 
   const handleDeleteClick = (id) => {
@@ -214,9 +234,9 @@ const ResearchListPage = () => {
               </div>
 
               <div className="flex flex-col gap-3 border-t border-gray-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                {item.pdfUrl ? (
+                {(telegramLinks[item.id || item._id] || (!isTelegramResearch(item) && item.pdfUrl)) ? (
                   <a
-                    href={item.pdfUrl}
+                    href={telegramLinks[item.id || item._id] || item.pdfUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 rounded-full border border-secondary/20 bg-secondary/5 px-4 py-2 text-sm text-secondary transition hover:bg-secondary/10"

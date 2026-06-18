@@ -23,7 +23,22 @@ import {
 } from "../../constants/researchOptions"
 import { getResearchImageUrl, getResearchPdfUrl } from "../../utils/researchPdfStorage"
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api"
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:4000/api")
+  .trim()
+  .replace(/\/+$/, "")
+const API_ORIGIN = API_BASE_URL.replace(/\/api$/, "")
+
+const resolveStoredPdfUrl = (url) => {
+  if (!url) return ""
+  if (url.startsWith("/api/")) return `${API_ORIGIN}${url}`
+  if (url.startsWith("/")) return `${API_BASE_URL}${url}`
+  return url
+}
+
+const isTelegramResolverUrl = (item) =>
+  item?.provider === "telegram" ||
+  item?.telegramFileId ||
+  item?.pdfUrl?.includes("/telegram-url")
 
 const defaultFilters = {
   category: "",
@@ -93,6 +108,18 @@ const StudentResearchPage = () => {
 
       await Promise.all(
         filteredResearch.map(async (item) => {
+          if (isTelegramResolverUrl(item)) {
+            try {
+              const response = await researchAPI.getTelegramUrl(item.id)
+              const url = response.data?.url
+              if (url) telegramUrls[item.id] = url
+            } catch (error) {
+              // The card will show "No PDF" if the temporary Telegram URL cannot be resolved.
+            }
+
+            return
+          }
+
           if (item.pdfKey && !item.pdfUrl) {
             const url = await getResearchPdfUrl(item.pdfKey)
             if (url) pdfUrls[item.id] = url
@@ -101,16 +128,6 @@ const StudentResearchPage = () => {
           if (item.imageKey && !item.imageUrl) {
             const url = await getResearchImageUrl(item.imageKey)
             if (url) imgUrls[item.id] = url
-          }
-
-          if (item.provider === "telegram" && !item.pdfUrl && !item.pdfKey) {
-            try {
-              const response = await researchAPI.getTelegramUrl(item.id)
-              const url = response.data?.url
-              if (url) telegramUrls[item.id] = url
-            } catch (error) {
-              // ignore failures for now, the item may still render from a saved pdfUrl
-            }
           }
         })
       )
@@ -330,15 +347,13 @@ const StudentResearchPage = () => {
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {filteredResearch.map((item, index) => {
                 const imageSrc = item.imageUrl || imageLinks[item.id]
-                const pdfUrl = item.pdfUrl
-                  ? item.pdfUrl.startsWith("/api/")
-                    ? `${API_BASE_URL}${item.pdfUrl}`
-                    : item.pdfUrl
-                  : ""
+                const pdfUrl = isTelegramResolverUrl(item)
+                  ? ""
+                  : resolveStoredPdfUrl(item.pdfUrl)
                 const pdfSrc =
+                  telegramLinks[item.id] ||
                   pdfUrl ||
                   pdfLinks[item.id] ||
-                  telegramLinks[item.id] ||
                   ""
                 const pdfFileName =
                   item.pdfFileName ||

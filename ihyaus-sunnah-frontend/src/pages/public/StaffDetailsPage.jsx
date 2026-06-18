@@ -1,5 +1,6 @@
 // src/pages/public/StaffDetailsPage.jsx
 
+import { useEffect, useMemo, useState } from "react"
 import {
   Link,
   useLocation,
@@ -27,23 +28,59 @@ import {
 
 import useStaffAPI from "../../hooks/useStaffAPI"
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI"
+import { researchAPI } from "../../services/api"
+
+const isTelegramResearch = (item) =>
+  item?.provider === "telegram" ||
+  item?.telegramFileId ||
+  item?.pdfUrl?.includes("/telegram-url")
 
 const StaffDetailsPage = () => {
   const { staff, loading, error } = useStaffAPI()
   const { research } = useStudentResearchAPI()
   const { id } = useParams()
   const location = useLocation()
+  const [telegramResearchLinks, setTelegramResearchLinks] = useState({})
 
   const member = staff.find(
     (item) => item._id?.toString() === id
   )
 
-  const staffResearch = research.filter(
-    (item) =>
-      item.status === "published" &&
-      (item.staffId?._id?.toString() === id ||
-        item.staffId?.toString?.() === id)
+  const staffResearch = useMemo(
+    () =>
+      research.filter(
+        (item) =>
+          item.status === "published" &&
+          (item.staffId?._id?.toString() === id ||
+            item.staffId?.toString?.() === id)
+      ),
+    [id, research]
   )
+
+  useEffect(() => {
+    const loadTelegramLinks = async () => {
+      const links = {}
+
+      await Promise.all(
+        staffResearch.map(async (item) => {
+          if (!isTelegramResearch(item)) return
+
+          try {
+            const response = await researchAPI.getTelegramUrl(item.id || item._id)
+            if (response.data?.url) {
+              links[item.id || item._id] = response.data.url
+            }
+          } catch (error) {
+            // The profile still renders; the PDF action is hidden if a URL cannot be resolved.
+          }
+        })
+      )
+
+      setTelegramResearchLinks(links)
+    }
+
+    loadTelegramLinks()
+  }, [staffResearch])
 
   // =========================
   // ROUTING
@@ -521,9 +558,9 @@ const StaffDetailsPage = () => {
                               <p>{formatDate(item.createdAt)}</p>
                             </div>
 
-                            {item.pdfUrl && (
+                            {(telegramResearchLinks[item.id || item._id] || (!isTelegramResearch(item) && item.pdfUrl)) && (
                               <a
-                                href={item.pdfUrl}
+                                href={telegramResearchLinks[item.id || item._id] || item.pdfUrl}
                                 target="_blank"
                                 rel="noreferrer"
                                 download={item.pdfFileName || `${item.title || "research"}.pdf`}
