@@ -46,6 +46,50 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const normalizeErrorMessage = (data, status) => {
+  const rawMessage =
+    data?.message ||
+    data?.error ||
+    (typeof data === "string" ? data : "");
+
+  const message = rawMessage.trim();
+
+  if (!message) {
+    return status === 400
+      ? "Please check your input and try again."
+      : `Something went wrong (${status}). Please try again.`;
+  }
+
+  if (/required|must be provided|is required|validation/i.test(message)) {
+    const fieldMatch = message.match(/Path `?([^`']+)`? is required/i);
+
+    if (fieldMatch?.[1]) {
+      const fieldLabel = fieldMatch[1].replace(/([A-Z])/g, " $1").trim();
+      return `Please fill in the ${fieldLabel.toLowerCase()} field before saving.`;
+    }
+
+    return "Please complete all required fields before saving.";
+  }
+
+  if (/duplicate|already exists|unique|e11000/i.test(message)) {
+    return "This information already exists. Please choose a different value.";
+  }
+
+  if (/invalid email|email.*valid|must be a valid email/i.test(message)) {
+    return "Please enter a valid email address.";
+  }
+
+  if (/invalid password|incorrect password|wrong password/i.test(message)) {
+    return "The password you entered is incorrect. Please try again.";
+  }
+
+  if (/secret key|unauthorized|not authenticated|token/i.test(message)) {
+    return "Your session needs to be refreshed. Please sign in again.";
+  }
+
+  return message;
+};
+
 // ==================== API CALL HELPER ====================
 
 const apiCall = async (
@@ -88,8 +132,7 @@ const apiCall = async (
 
     if (!response.ok) {
       throw new Error(
-        data.message ||
-        `API error: ${response.status}`
+        normalizeErrorMessage(data, response.status)
       );
     }
 
