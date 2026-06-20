@@ -77,6 +77,7 @@ const StudentResearchPage = () => {
   const [pdfLinks, setPdfLinks] = useState({})
   const [imageLinks, setImageLinks] = useState({})
   const [telegramLinks, setTelegramLinks] = useState({})
+  const [resolvingTelegramIds, setResolvingTelegramIds] = useState({})
 
   const { research, loading, error } = useStudentResearchAPI()
 
@@ -105,16 +106,38 @@ const StudentResearchPage = () => {
       const pdfUrls = {}
       const imgUrls = {}
       const telegramUrls = {}
+      const resolvingIds = {}
+
+      filteredResearch.forEach((item) => {
+        if (isTelegramResolverUrl(item)) {
+          resolvingIds[item.id || item._id] = true
+        }
+      })
+
+      setResolvingTelegramIds(resolvingIds)
 
       await Promise.all(
         filteredResearch.map(async (item) => {
+          const itemId = item.id || item._id
+
           if (isTelegramResolverUrl(item)) {
             try {
-              const response = await researchAPI.getTelegramUrl(item.id)
-              const url = response.data?.url
-              if (url) telegramUrls[item.id] = url
+              const response = await researchAPI.getTelegramUrl(itemId)
+              const resolvedUrl =
+                response?.data?.url ||
+                response?.url ||
+                response?.data?.data?.url ||
+                ""
+
+              if (resolvedUrl) {
+                telegramUrls[itemId] = resolvedUrl
+              } else if (item.pdfUrl) {
+                telegramUrls[itemId] = `${resolveStoredPdfUrl(item.pdfUrl)}?redirect=1`
+              }
             } catch (error) {
-              // The card will show "No PDF" if the temporary Telegram URL cannot be resolved.
+              if (item.pdfUrl) {
+                telegramUrls[itemId] = `${resolveStoredPdfUrl(item.pdfUrl)}?redirect=1`
+              }
             }
 
             return
@@ -135,6 +158,7 @@ const StudentResearchPage = () => {
       setPdfLinks(pdfUrls)
       setImageLinks(imgUrls)
       setTelegramLinks(telegramUrls)
+      setResolvingTelegramIds({})
     }
 
     loadFileLinks()
@@ -354,15 +378,20 @@ const StudentResearchPage = () => {
           {!loading && !error && filteredResearch.length > 0 && (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {filteredResearch.map((item, index) => {
-                const imageSrc = item.imageUrl || imageLinks[item.id]
+                const itemId = item.id || item._id
+                const imageSrc = item.imageUrl || imageLinks[itemId]
                 const pdfUrl = isTelegramResolverUrl(item)
                   ? ""
                   : resolveStoredPdfUrl(item.pdfUrl)
                 const pdfSrc =
-                  telegramLinks[item.id] ||
+                  telegramLinks[itemId] ||
                   pdfUrl ||
-                  pdfLinks[item.id] ||
+                  pdfLinks[itemId] ||
                   ""
+                const isResolvingPdf =
+                  isTelegramResolverUrl(item) &&
+                  resolvingTelegramIds[itemId] &&
+                  !pdfSrc
                 const pdfFileName =
                   item.pdfFileName ||
                   `${item.title?.replace(/\s+/g, "-") || "research"}.pdf`
@@ -663,6 +692,19 @@ const StudentResearchPage = () => {
                               Download
                             </a>
                           </div>
+                        ) : isResolvingPdf ? (
+                          <span
+                            className="
+                              inline-flex items-center gap-2
+                              rounded-2xl
+                              bg-primary/10
+                              px-5 py-3
+                              text-sm font-semibold text-primary
+                            "
+                          >
+                            <FiRefreshCw className="animate-spin" />
+                            Preparing PDF
+                          </span>
                         ) : (
                           <span
                             className="

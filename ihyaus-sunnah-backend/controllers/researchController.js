@@ -84,8 +84,26 @@ export const getTelegramResearchUrl = async (req, res) => {
       return res.status(404).json({ success: false, message: "Research not found" });
     }
 
-    if (research.provider !== "telegram") {
-      return res.json({ success: true, data: { url: research.pdfUrl, provider: research.provider } });
+    const hasTelegramSource = research.provider === "telegram" || Boolean(research.telegramFileId);
+
+    if (!hasTelegramSource) {
+      return res.json({
+        success: true,
+        data: {
+          url: research.pdfUrl || null,
+          provider: research.provider || "local",
+        },
+      });
+    }
+
+    if (research.pdfUrl && /^(https?:)?\/\//i.test(research.pdfUrl)) {
+      return res.json({
+        success: true,
+        data: {
+          url: research.pdfUrl,
+          provider: research.provider || "local",
+        },
+      });
     }
 
     if (!process.env.TELEGRAM_BOT_TOKEN) {
@@ -97,7 +115,7 @@ export const getTelegramResearchUrl = async (req, res) => {
     }
 
     const response = await fetch(
-      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${research.telegramFileId}`
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${encodeURIComponent(research.telegramFileId)}`
     );
     const payload = await response.json();
 
@@ -109,6 +127,11 @@ export const getTelegramResearchUrl = async (req, res) => {
     }
 
     const url = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`;
+
+    if (req.query.redirect === "1") {
+      return res.redirect(url);
+    }
+
     res.json({
       success: true,
       data: {

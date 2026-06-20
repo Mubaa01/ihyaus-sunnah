@@ -24,6 +24,8 @@ app.use(cors({
 
     if (
       origin === "http://localhost:3000" ||
+      origin === "http://localhost:5173" ||
+      origin === "http://127.0.0.1:5173" ||
       origin === "https://ihyau.netlify.app" ||
       origin.endsWith("--ihyau.netlify.app")
     ) {

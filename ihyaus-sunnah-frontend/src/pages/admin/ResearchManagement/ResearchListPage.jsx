@@ -61,8 +61,14 @@ const ResearchListPage = () => {
           if (isTelegramResearch(item)) {
             try {
               const response = await researchAPI.getTelegramUrl(item.id || item._id)
-              if (response.data?.url) {
-                telegramUrls[item.id || item._id] = response.data.url
+              const resolvedUrl =
+                response?.data?.url ||
+                response?.url ||
+                response?.data?.data?.url ||
+                ""
+
+              if (resolvedUrl) {
+                telegramUrls[item.id || item._id] = resolvedUrl
               }
             } catch (error) {
               // Leave the PDF link unavailable if Telegram cannot issue a fresh URL.
