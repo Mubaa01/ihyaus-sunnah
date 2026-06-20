@@ -40,6 +40,77 @@ const isTelegramResolverUrl = (item) =>
   item?.telegramFileId ||
   item?.pdfUrl?.includes("/telegram-url")
 
+const getTelegramPdfProxyUrl = (item, { download = false } = {}) => {
+  if (!isTelegramResolverUrl(item)) return ""
+
+  const itemId = item.id || item._id
+  if (!itemId) return ""
+
+  const baseUrl = item.pdfUrl?.includes("/telegram-url")
+    ? resolveStoredPdfUrl(item.pdfUrl).replace(/\/telegram-url$/, "/pdf")
+    : `${API_BASE_URL}/research/${itemId}/pdf`
+
+  return download ? `${baseUrl}?download=1` : baseUrl
+}
+
+const getPdfPreviewUrl = (url) => {
+  if (!url) return ""
+  const separator = url.includes("#") ? "&" : "#"
+  return `${url}${separator}page=1&toolbar=0&navpanes=0&scrollbar=0&view=FitH`
+}
+
+const ResearchCoverPreview = ({ imageSrc, pdfSrc, title, isResolving }) => {
+  if (imageSrc) {
+    return (
+      <>
+        <img
+          src={imageSrc}
+          alt={title}
+          className="h-full w-full object-cover transition duration-700 ease-out group-hover:scale-105"
+          loading="lazy"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(238,185,74,0.22),transparent_34%)]" />
+      </>
+    )
+  }
+
+  if (pdfSrc) {
+    return (
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,#0f332d,#f8faf8)]">
+        <div className="absolute inset-y-5 left-1/2 w-[72%] -translate-x-1/2 overflow-hidden rounded-lg border border-white/70 bg-white shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+          <iframe
+            src={getPdfPreviewUrl(pdfSrc)}
+            title={`${title} PDF cover`}
+            className="h-[132%] w-full origin-top scale-[1.03] bg-white"
+            loading="lazy"
+          />
+          <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5" />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+        <div className="absolute left-5 top-5 rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-primary shadow-sm">
+          PDF Cover
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative flex h-full items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#163A33,#2F6F60)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(238,185,74,0.22),transparent_35%)]" />
+      <div className="absolute inset-x-8 bottom-8 h-24 rounded-full bg-white/10 blur-2xl" />
+      <div className="relative z-10 flex flex-col items-center gap-4 text-white">
+        <div className="flex h-20 w-20 items-center justify-center rounded-2xl border border-white/20 bg-white/10 backdrop-blur">
+          {isResolving ? <FiRefreshCw className="animate-spin text-4xl" /> : <FiFileText className="text-5xl" />}
+        </div>
+        <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/75">
+          {isResolving ? "Preparing PDF" : "Research Document"}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 const defaultFilters = {
   category: "",
   type: "",
@@ -384,10 +455,14 @@ const StudentResearchPage = () => {
                   ? ""
                   : resolveStoredPdfUrl(item.pdfUrl)
                 const pdfSrc =
+                  getTelegramPdfProxyUrl(item) ||
                   telegramLinks[itemId] ||
                   pdfUrl ||
                   pdfLinks[itemId] ||
                   ""
+                const downloadSrc =
+                  getTelegramPdfProxyUrl(item, { download: true }) ||
+                  pdfSrc
                 const isResolvingPdf =
                   isTelegramResolverUrl(item) &&
                   resolvingTelegramIds[itemId] &&
@@ -415,7 +490,7 @@ const StudentResearchPage = () => {
                     }}
                     className="
                       group relative flex min-h-[520px] flex-col overflow-hidden
-                      rounded-3xl border border-neutral-200/70
+                      rounded-2xl border border-neutral-200/70
                       bg-white
                       shadow-[0_10px_40px_rgba(0,0,0,0.04)]
                       transition-all duration-500
@@ -425,35 +500,16 @@ const StudentResearchPage = () => {
                     "
                   >
                     {/* TOP IMAGE */}
-                    <div className="relative h-60 overflow-hidden bg-neutral-100">
-                      {imageSrc ? (
-                        <>
-                          {/* IMAGE */}
-                          <img
-                            src={imageSrc}
-                            alt={item.title}
-                            className="
-                              h-full w-full object-cover
-                              transition duration-700 ease-out
-                              group-hover:scale-110
-                            "
-                          />
-
-                          {/* OVERLAYS */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
-
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,215,0,0.18),transparent_30%)]" />
-                        </>
-                      ) : (
-                        <div className="relative flex h-full items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#163A33,#2F6F60)]">
-                          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,215,0,0.18),transparent_35%)]" />
-
-                          <FiFileText className="relative z-10 text-6xl text-white/90" />
-                        </div>
-                      )}
+                    <div className="relative h-72 overflow-hidden bg-neutral-100">
+                      <ResearchCoverPreview
+                        imageSrc={imageSrc}
+                        pdfSrc={pdfSrc}
+                        title={item.title}
+                        isResolving={isResolvingPdf}
+                      />
 
                       {/* STATUS */}
-                      <div className="absolute left-5 top-5">
+                      <div className="absolute right-5 top-5">
                         <span
                           className="
                             inline-flex items-center gap-2
@@ -471,25 +527,29 @@ const StudentResearchPage = () => {
                       </div>
 
                       {/* CATEGORY */}
-                      <div className="absolute bottom-5 left-5">
+                      <div className="absolute bottom-5 left-5 right-5 flex items-end justify-between gap-3">
                         <span
                           className="
-                            rounded-full
+                            max-w-[72%] rounded-full
                             bg-black/50
                             px-4 py-2
                             font-arabic text-sm font-semibold
                             text-white
                             backdrop-blur-sm
+                            truncate
                           "
                           dir="rtl"
                         >
                           {item.researchCategory}
                         </span>
+                        <span className="rounded-full bg-white/90 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-primary">
+                          {pdfSrc ? "PDF Ready" : "Metadata"}
+                        </span>
                       </div>
                     </div>
 
                     {/* CONTENT */}
-                    <div className="flex flex-1 flex-col p-7">
+                    <div className="flex flex-1 flex-col p-6">
                       {/* TYPE */}
                       <div className="mb-4 flex items-center justify-between gap-3">
                         <span
@@ -512,7 +572,7 @@ const StudentResearchPage = () => {
                       {/* TITLE */}
                       <h3
                         className="
-                          text-2xl font-bold leading-tight tracking-tight
+                          text-[1.35rem] font-bold leading-tight tracking-tight
                           text-primary
                           transition duration-300
                           group-hover:text-secondary
@@ -583,7 +643,7 @@ const StudentResearchPage = () => {
                       <p
                         className="
                           mt-6 flex-1
-                          text-[15px] leading-8
+                          text-[14px] leading-7
                           text-gray-600
                           line-clamp-4
                         "
@@ -619,7 +679,7 @@ const StudentResearchPage = () => {
                       )}
 
                       {/* FOOTER */}
-                      <div className="mt-7 flex items-center justify-between gap-4 border-t border-neutral-100 pt-5">
+                      <div className="mt-7 flex flex-col gap-5 border-t border-neutral-100 pt-5">
                         {/* META */}
                         <div className="flex items-center gap-3">
                           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/5 text-primary">
@@ -639,7 +699,7 @@ const StudentResearchPage = () => {
 
                                 {/* ACTION */}
                         {pdfSrc ? (
-                          <div className="grid gap-3 sm:grid-cols-[auto_auto]">
+                          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
                             <a
                               href={pdfSrc}
                               target="_blank"
@@ -649,7 +709,7 @@ const StudentResearchPage = () => {
                                 overflow-hidden
                                 rounded-2xl
                                 bg-primary
-                                px-5 py-3
+                                px-5 py-3.5
                                 text-sm font-semibold text-white
                                 shadow-lg shadow-primary/20
                                 transition-all duration-300
@@ -675,14 +735,14 @@ const StudentResearchPage = () => {
                             </a>
 
                             <a
-                              href={pdfSrc}
+                              href={downloadSrc}
                               download={pdfFileName}
                               className="
                                 inline-flex items-center justify-center gap-2
                                 rounded-2xl
                                 border border-primary/20
                                 bg-white
-                                px-5 py-3
+                                px-5 py-3.5
                                 text-sm font-semibold text-primary
                                 transition duration-300
                                 hover:bg-primary/5

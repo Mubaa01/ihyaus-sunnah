@@ -3,6 +3,7 @@ import {
   createResearch,
   getResearchById,
   getAllResearch,
+  getTelegramResearchPdf,
   getTelegramResearchUrl,
   ingestTelegramResearch,
   updateResearch,
@@ -17,6 +18,7 @@ const router = express.Router();
 router.get("/", getAllResearch);
 router.get("/telegram/webhook", (req, res) => res.status(405).json({ success: false, message: "Use POST for Telegram webhooks" }));
 router.post("/telegram/webhook", ingestTelegramResearch);
+router.get("/:id/pdf", getTelegramResearchPdf);
 router.get("/:id/telegram-url", getTelegramResearchUrl);
 router.get("/:id", getResearchById);
 

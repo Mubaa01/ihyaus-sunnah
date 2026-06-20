@@ -145,6 +145,73 @@ export const getTelegramResearchUrl = async (req, res) => {
   }
 };
 
+export const getTelegramResearchPdf = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: "Invalid research ID" });
+    }
+
+    const research = await Research.findById(id);
+    if (!research) {
+      return res.status(404).json({ success: false, message: "Research not found" });
+    }
+
+    if (research.provider !== "telegram") {
+      if (!research.pdfUrl) {
+        return res.status(404).json({ success: false, message: "PDF not found" });
+      }
+
+      return res.redirect(research.pdfUrl);
+    }
+
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      return res.status(500).json({ success: false, message: "Telegram bot token is not configured" });
+    }
+
+    if (!research.telegramFileId) {
+      return res.status(404).json({ success: false, message: "Telegram file reference is missing" });
+    }
+
+    const response = await fetch(
+      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${research.telegramFileId}`
+    );
+    const payload = await response.json();
+
+    if (!payload.ok || !payload.result?.file_path) {
+      return res.status(502).json({
+        success: false,
+        message: payload.description || "Unable to get Telegram file URL",
+      });
+    }
+
+    const fileUrl = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`;
+    const fileResponse = await fetch(fileUrl);
+
+    if (!fileResponse.ok) {
+      return res.status(502).json({
+        success: false,
+        message: "Unable to download Telegram PDF",
+      });
+    }
+
+    const fileName =
+      research.pdfFileName ||
+      research.telegramFileName ||
+      `${research.title || "research"}.pdf`;
+    const disposition = req.query.download === "1" ? "attachment" : "inline";
+    const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
+
+    res.setHeader("Content-Type", research.telegramMimeType || "application/pdf");
+    res.setHeader("Content-Disposition", `${disposition}; filename="${encodeURIComponent(fileName)}"`);
+    res.setHeader("Content-Length", fileBuffer.length);
+    res.send(fileBuffer);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const ingestTelegramResearch = async (req, res) => {
   try {
     const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
