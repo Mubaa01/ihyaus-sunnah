@@ -4,6 +4,7 @@ import { Link } from "react-router-dom"
 import {
   FiBookOpen,
   FiDownload,
+  FiEye,
   FiExternalLink,
   FiFileText,
   FiFilter,
@@ -111,6 +112,53 @@ const ResearchCoverPreview = ({ imageSrc, pdfSrc, title, isResolving }) => {
   )
 }
 
+const ResearchPdfReader = ({ document, onClose }) => {
+  if (!document) return null
+
+  return (
+    <div className="fixed inset-0 z-[80] bg-black/75 p-3 backdrop-blur-sm md:p-6">
+      <div className="mx-auto flex h-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+        <div className="flex flex-col gap-4 border-b border-neutral-200 p-4 md:flex-row md:items-center md:justify-between">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-secondary">
+              PDF Reader
+            </p>
+            <h3 className="truncate text-lg font-bold text-primary md:text-2xl">
+              {document.title}
+            </h3>
+          </div>
+
+          <div className="flex shrink-0 gap-3">
+            <a
+              href={document.downloadSrc}
+              download={document.fileName}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-primary/20 px-4 text-sm font-semibold text-primary transition hover:bg-primary/5"
+            >
+              <FiDownload />
+              Download
+            </a>
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-white transition hover:bg-secondary"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+
+        <div className="min-h-0 flex-1 bg-neutral-100">
+          <iframe
+            src={getPdfPreviewUrl(document.pdfSrc)}
+            title={`${document.title} reader`}
+            className="h-full w-full bg-white"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const defaultFilters = {
   category: "",
   type: "",
@@ -149,6 +197,7 @@ const StudentResearchPage = () => {
   const [imageLinks, setImageLinks] = useState({})
   const [telegramLinks, setTelegramLinks] = useState({})
   const [resolvingTelegramIds, setResolvingTelegramIds] = useState({})
+  const [activePdf, setActivePdf] = useState(null)
 
   const { research, loading, error } = useStudentResearchAPI()
 
@@ -699,17 +748,23 @@ const StudentResearchPage = () => {
 
                                 {/* ACTION */}
                         {pdfSrc ? (
-                          <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-                            <a
-                              href={pdfSrc}
-                              target="_blank"
-                              rel="noreferrer"
+                          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(0,1fr)_auto]">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setActivePdf({
+                                  title: item.title,
+                                  pdfSrc,
+                                  downloadSrc,
+                                  fileName: pdfFileName,
+                                })
+                              }
                               className="
-                                group/button relative inline-flex items-center gap-3
+                                group/button relative inline-flex min-h-12 items-center justify-center gap-3
                                 overflow-hidden
                                 rounded-2xl
                                 bg-primary
-                                px-5 py-3.5
+                                px-5 py-3
                                 text-sm font-semibold text-white
                                 shadow-lg shadow-primary/20
                                 transition-all duration-300
@@ -719,7 +774,7 @@ const StudentResearchPage = () => {
                               "
                             >
                               <span className="relative z-10 flex items-center gap-2">
-                                {isTelegramNonPdf ? <FiExternalLink /> : <FiDownload />}
+                                {isTelegramNonPdf ? <FiExternalLink /> : <FiEye />}
                                 {isTelegramNonPdf ? "Open Document" : "Read PDF"}
                               </span>
 
@@ -732,17 +787,17 @@ const StudentResearchPage = () => {
                                   group-hover/button:translate-y-0
                                 "
                               />
-                            </a>
+                            </button>
 
                             <a
                               href={downloadSrc}
                               download={pdfFileName}
                               className="
-                                inline-flex items-center justify-center gap-2
+                                inline-flex min-h-12 items-center justify-center gap-2
                                 rounded-2xl
                                 border border-primary/20
                                 bg-white
-                                px-5 py-3.5
+                                px-5 py-3
                                 text-sm font-semibold text-primary
                                 transition duration-300
                                 hover:bg-primary/5
@@ -799,6 +854,11 @@ const StudentResearchPage = () => {
           )}
         </div>
       </section>
+
+      <ResearchPdfReader
+        document={activePdf}
+        onClose={() => setActivePdf(null)}
+      />
     </div>
   )
 }

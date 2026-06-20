@@ -200,12 +200,18 @@ export const getTelegramResearchPdf = async (req, res) => {
       research.pdfFileName ||
       research.telegramFileName ||
       `${research.title || "research"}.pdf`;
+    const asciiFileName = fileName.replace(/[^\x20-\x7E]/g, "_").replace(/"/g, "'");
     const disposition = req.query.download === "1" ? "attachment" : "inline";
     const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
 
-    res.setHeader("Content-Type", research.telegramMimeType || "application/pdf");
-    res.setHeader("Content-Disposition", `${disposition}; filename="${encodeURIComponent(fileName)}"`);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `${disposition}; filename="${asciiFileName}"; filename*=UTF-8''${encodeURIComponent(fileName)}`
+    );
     res.setHeader("Content-Length", fileBuffer.length);
+    res.setHeader("Cache-Control", "private, max-age=300");
+    res.setHeader("X-Content-Type-Options", "nosniff");
     res.send(fileBuffer);
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
