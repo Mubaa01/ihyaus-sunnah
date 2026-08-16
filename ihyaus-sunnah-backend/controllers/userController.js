@@ -1,7 +1,7 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt";
 
-const getPublicUserFields = "-password -resetPasswordToken -resetPasswordExpiresAt -secretKey";
+const getPublicUserFields = "-password -resetPasswordToken -resetPasswordExpiresAt";
 
 export const getCurrentUser = async (req, res) => {
   try {

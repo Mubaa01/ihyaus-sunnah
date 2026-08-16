@@ -45,9 +45,9 @@ const useCompletedMajlisAPI = () => {
   // =========================
   // CREATE
   // =========================
-  const addCompleted = async (data, secretKey) => {
+  const addCompleted = async (data) => {
     try {
-      const response = await completedMajlisAPI.create(data, secretKey);
+      const response = await completedMajlisAPI.create(data);
 
       await refreshCompleted();
       dispatchAdminDataUpdate({ completedMajlis: true });
@@ -62,9 +62,9 @@ const useCompletedMajlisAPI = () => {
   // =========================
   // UPDATE
   // =========================
-  const editCompleted = async (id, data, secretKey) => {
+  const editCompleted = async (id, data) => {
     try {
-      const response = await completedMajlisAPI.update(id, data, secretKey);
+      const response = await completedMajlisAPI.update(id, data);
 
       await refreshCompleted();
       dispatchAdminDataUpdate({ completedMajlis: true });
@@ -79,9 +79,9 @@ const useCompletedMajlisAPI = () => {
   // =========================
   // DELETE
   // =========================
-  const removeCompleted = async (id, secretKey) => {
+  const removeCompleted = async (id) => {
     try {
-      await completedMajlisAPI.delete(id, secretKey);
+      await completedMajlisAPI.delete(id);
 
       await refreshCompleted();
       dispatchAdminDataUpdate({ completedMajlis: true });

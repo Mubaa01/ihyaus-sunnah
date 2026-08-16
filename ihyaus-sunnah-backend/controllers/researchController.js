@@ -1,6 +1,8 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose";
 import { Research, researchCategories, researchTypes } from "../models/Research.js";
 import { saveTelegramMessageAsResearch } from "../services/telegramResearchService.js";
+
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const buildResearchFilter = ({ category, type, programId, status, search }) => {
   const filter = {};
@@ -10,7 +12,7 @@ const buildResearchFilter = ({ category, type, programId, status, search }) => {
   if (programId) filter.programId = programId;
   if (status) filter.status = status;
   if (search) {
-    const regex = { $regex: search, $options: "i" };
+    const regex = { $regex: escapeRegExp(search), $options: "i" };
     filter.$or = [
       { title: regex },
       { summary: regex },
@@ -114,19 +116,7 @@ export const getTelegramResearchUrl = async (req, res) => {
       return res.status(404).json({ success: false, message: "Telegram file reference is missing" });
     }
 
-    const response = await fetch(
-      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${encodeURIComponent(research.telegramFileId)}`
-    );
-    const payload = await response.json();
-
-    if (!payload.ok || !payload.result?.file_path) {
-      return res.status(502).json({
-        success: false,
-        message: payload.description || "Unable to get Telegram file URL",
-      });
-    }
-
-    const url = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`;
+    const url = `${req.protocol}://${req.get("host")}/api/research/${research._id}/pdf`;
 
     if (req.query.redirect === "1") {
       return res.redirect(url);
@@ -137,7 +127,7 @@ export const getTelegramResearchUrl = async (req, res) => {
       data: {
         url,
         provider: "telegram",
-        expiresInHint: "Telegram file URLs are temporary. Request a fresh URL before download.",
+        proxied: true,
       },
     });
   } catch (error) {
@@ -223,7 +213,11 @@ export const ingestTelegramResearch = async (req, res) => {
     const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
     const receivedSecret = req.headers["x-telegram-bot-api-secret-token"];
 
-    if (expectedSecret && receivedSecret !== expectedSecret) {
+    if (!expectedSecret) {
+      return res.status(503).json({ success: false, message: "Telegram webhook secret is not configured" });
+    }
+
+    if (receivedSecret !== expectedSecret) {
       return res.status(401).json({ success: false, message: "Invalid Telegram webhook secret" });
     }
 

@@ -9,7 +9,7 @@ import {
 } from "../controllers/completedMajlisController.js";
 
 import { authenticate } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -27,21 +27,21 @@ router.get("/:id", getSingleCompletedMajlis);
 router.post(
   "/",
   authenticate,
-  verifyCrudOperation,
+  authorizeCrud,
   createCompletedMajlis
 );
 
 router.patch(
   "/:id",
   authenticate,
-  verifyCrudOperation,
+  authorizeCrud,
   updateCompletedMajlis
 );
 
 router.delete(
   "/:id",
   authenticate,
-  verifyCrudOperation,
+  authorizeCrud,
   deleteCompletedMajlis
 );
 

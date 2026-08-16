@@ -46,9 +46,9 @@ const useMajlisAPI = () => {
   // =========================
   // CREATE
   // =========================
-  const addMajlis = async (data, secretKey) => {
+  const addMajlis = async (data) => {
     try {
-      const response = await majlisAPI.create(data, secretKey);
+      const response = await majlisAPI.create(data);
 
       await logAdminActivity({
         type: "majlis",
@@ -69,9 +69,9 @@ const useMajlisAPI = () => {
   // =========================
   // UPDATE
   // =========================
-  const editMajlis = async (id, data, secretKey) => {
+  const editMajlis = async (id, data) => {
     try {
-      const response = await majlisAPI.update(id, data, secretKey);
+      const response = await majlisAPI.update(id, data);
 
       await logAdminActivity({
         type: "majlis",
@@ -93,10 +93,10 @@ const useMajlisAPI = () => {
 
   // DELETE
   // =========================
-  const removeMajlis = async (id, secretKey) => {
+  const removeMajlis = async (id) => {
     try {
       const existing = majlis.find((item) => item._id === id || item.id === id);
-      await majlisAPI.delete(id, secretKey);
+      await majlisAPI.delete(id);
       await logAdminActivity({
         type: "majlis",
         action: "Deleted majlis",

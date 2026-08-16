@@ -58,9 +58,9 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     new Set(mediaItems.map((item) => item.mediaCategory).filter(Boolean))
   ).sort();
 
-  const addMedia = async (data, secretKey) => {
+  const addMedia = async (data) => {
     try {
-      const response = await mediaAPI.create(data, secretKey);
+      const response = await mediaAPI.create(data);
       await logAdminActivity({
         type: "media",
         action: "Uploaded media",
@@ -76,9 +76,9 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     }
   };
 
-  const editMedia = async (id, data, secretKey) => {
+  const editMedia = async (id, data) => {
     try {
-      const response = await mediaAPI.update(id, data, secretKey);
+      const response = await mediaAPI.update(id, data);
       await logAdminActivity({
         type: "media",
         action: "Updated media",
@@ -94,10 +94,10 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     }
   };
 
-  const removeMedia = async (id, secretKey) => {
+  const removeMedia = async (id) => {
     try {
       const existing = mediaItems.find((item) => item._id === id || item.id === id);
-      await mediaAPI.delete(id, secretKey);
+      await mediaAPI.delete(id);
       await logAdminActivity({
         type: "media",
         action: "Deleted media",
@@ -112,9 +112,9 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     }
   };
 
-  const addPlaylist = async (data, secretKey) => {
+  const addPlaylist = async (data) => {
     try {
-      const response = await playlistsAPI.create(data, secretKey);
+      const response = await playlistsAPI.create(data);
       await logAdminActivity({
         type: "media",
         action: "Created playlist",
@@ -130,9 +130,9 @@ const useMediaLibraryAPI = (initialFilters = {}) => {
     }
   };
 
-  const editPlaylist = async (id, data, secretKey) => {
+  const editPlaylist = async (id, data) => {
     try {
-      const response = await playlistsAPI.update(id, data, secretKey);
+      const response = await playlistsAPI.update(id, data);
       await logAdminActivity({
         type: "media",
         action: "Updated playlist",

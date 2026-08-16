@@ -9,7 +9,7 @@ import {
   deleteUser
 } from "../controllers/userController.js";
 import { authenticate, authorize } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -28,12 +28,12 @@ router.patch("/me/profile", updateCurrentUser);
 router.get("/:id", getUserById);
 
 // Update user role (UPDATE - requires secret key)
-router.patch("/:id/role", verifyCrudOperation, updateUserRole);
+router.patch("/:id/role", authorizeCrud, updateUserRole);
 
 // Toggle user active status (UPDATE - requires secret key)
-router.patch("/:id/active", verifyCrudOperation, toggleUserActive);
+router.patch("/:id/active", authorizeCrud, toggleUserActive);
 
 // Delete user (DELETE - requires secret key)
-router.delete("/:id", verifyCrudOperation, deleteUser);
+router.delete("/:id", authorizeCrud, deleteUser);
 
 export default router;

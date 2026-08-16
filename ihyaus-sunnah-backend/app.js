@@ -17,24 +17,42 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import completedMajlisRoutes from "./routes/completedMajlisRoutes.js";
 
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
+
+const configuredOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+const isAllowedOrigin = (origin) => {
+  if (!origin) return true;
+  if (!isProduction) return true;
+
+  try {
+    const url = new URL(origin);
+    const isLocalDevelopment =
+      url.protocol === "http:" &&
+      ["localhost", "127.0.0.1", "[::1]"].includes(url.hostname);
+
+    return (
+      isLocalDevelopment ||
+      origin === "https://ihyau.netlify.app" ||
+      origin.endsWith("--ihyau.netlify.app") ||
+      configuredOrigins.includes(origin)
+    );
+  } catch {
+    return false;
+  }
+};
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-
-    if (
-      origin === "http://localhost:3000" ||
-      origin === "http://localhost:5173" ||
-      origin === "http://127.0.0.1:5173" ||
-      origin === "https://ihyau.netlify.app" ||
-      origin.endsWith("--ihyau.netlify.app")
-    ) {
-      return callback(null, true);
-    }
-
-    callback(new Error("Not allowed by CORS"));
+    return isAllowedOrigin(origin)
+      ? callback(null, true)
+      : callback(new Error(`Origin ${origin} is not allowed by CORS`));
   },
-  credentials: true
+  credentials: true,
+  optionsSuccessStatus: 204,
 }));
 
 
@@ -55,5 +73,15 @@ app.use("/api/majlis", majlisRoutes);
 app.use("/api/activities", activityRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/completed-majlis", completedMajlisRoutes);
+
+// GLOBAL ERROR HANDLING MIDDLEWARE
+app.use((err, req, res, _next) => {
+  console.error("Unhandled App Error:", err);
+  const status = err.status || err.statusCode || 500;
+  return res.status(status).json({
+    success: false,
+    message: err.message || "Internal server error",
+  });
+});
 
 export default app;

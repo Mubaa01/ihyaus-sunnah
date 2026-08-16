@@ -55,6 +55,8 @@ export const getAllStaff = async (req, res) => {
   }
 };
 
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const getFilteredStaff = async (req, res) => {
   try {
     const { role, name, section } = req.query;
@@ -66,7 +68,7 @@ export const getFilteredStaff = async (req, res) => {
     if (role) filter.role = role;
     if (section) filter.sections = section;
     if (name) {
-      filter.name = { $regex: name, $options: "i" };
+      filter.name = { $regex: escapeRegExp(name), $options: "i" };
     }
 
     const [staff, total] = await Promise.all([

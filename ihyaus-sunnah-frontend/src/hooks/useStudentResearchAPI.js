@@ -52,8 +52,8 @@ const useStudentResearchAPI = (initialFilters = {}) => {
     return normalizeResearch(response.data)
   }
 
-  const addResearch = async (data, secretKey) => {
-    const response = await researchAPI.create(data, secretKey)
+  const addResearch = async (data) => {
+    const response = await researchAPI.create(data);
     await logAdminActivity({
       type: "research",
       action: "Published research",
@@ -65,8 +65,8 @@ const useStudentResearchAPI = (initialFilters = {}) => {
     return response
   }
 
-  const editResearch = async (id, data, secretKey) => {
-    const response = await researchAPI.update(id, data, secretKey)
+  const editResearch = async (id, data) => {
+    const response = await researchAPI.update(id, data)
     await logAdminActivity({
       type: "research",
       action: "Updated research",
@@ -78,9 +78,9 @@ const useStudentResearchAPI = (initialFilters = {}) => {
     return response
   }
 
-  const removeResearch = async (id, secretKey) => {
+  const removeResearch = async (id) => {
     const existing = research.find((item) => item._id === id || item.id === id)
-    await researchAPI.delete(id, secretKey)
+    await researchAPI.delete(id)
     await logAdminActivity({
       type: "research",
       action: "Deleted research",

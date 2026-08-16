@@ -9,7 +9,7 @@ import {
 } from "../controllers/majlisController.js";
 
 import { authenticate } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -24,10 +24,10 @@ router.get("/:id", getSingleMajlis);
 // =========================
 // PROTECTED ROUTES (ADMIN)
 // =========================
-router.post("/", authenticate, verifyCrudOperation, createMajlis);
+router.post("/", authenticate, authorizeCrud, createMajlis);
 
-router.patch("/:id", authenticate, verifyCrudOperation, updateMajlis);
+router.patch("/:id", authenticate, authorizeCrud, updateMajlis);
 
-router.delete("/:id", authenticate, verifyCrudOperation, deleteMajlis);
+router.delete("/:id", authenticate, authorizeCrud, deleteMajlis);
 
 export default router;

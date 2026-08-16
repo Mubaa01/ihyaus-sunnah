@@ -10,7 +10,7 @@ import {
   deleteResearch
 } from "../controllers/researchController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -23,8 +23,8 @@ router.get("/:id/telegram-url", getTelegramResearchUrl);
 router.get("/:id", getResearchById);
 
 // POST, PATCH, DELETE require auth
-router.post("/", authenticate, verifyCrudOperation, createResearch);
-router.patch("/:id", authenticate, verifyCrudOperation, updateResearch);
-router.delete("/:id", authenticate, verifyCrudOperation, deleteResearch);
+router.post("/", authenticate, authorizeCrud, createResearch);
+router.patch("/:id", authenticate, authorizeCrud, updateResearch);
+router.delete("/:id", authenticate, authorizeCrud, deleteResearch);
 
 export default router;

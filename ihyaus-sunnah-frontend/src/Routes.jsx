@@ -1,41 +1,39 @@
 import { Routes, Route } from 'react-router-dom'
-import PublicLayout from './src/components/layout/PublicLayout'
-import AdminLayout from './src/components/layout/AdminLayout'
+import PublicLayout from './components/layout/PublicLayout'
+import AdminLayout from './components/layout/AdminLayout'
 
 // Public Pages
-import HomePage from './src/pages/public/HomePage'
-import AboutPage from './src/pages/public/AboutPage'
-import ProgramsPage from './src/pages/public/ProgramsPage'
-import ProgramDetailsPage from './src/pages/public/ProgramDetailsPage'
-import StudentResearchPage from './src/pages/public/StudentResearchPage'
-import MediaLibraryPage from './src/pages/public/MediaLibraryPage'
-import StaffDirectoryPage from './src/pages/public/StaffDirectoryPage'
-//import OrganizationPage from './src/pages/public/OrganizationPage'
-import MajlisSchedulePage from './src/pages/public/MajlisSchedulePage'
-import MajlisDetailsPage from './src/pages/public/MajlisDetailsPage'
-import DonatePage from './src/pages/public/DonatePage'
-import StaffDetailsPage from './src/pages/public/StaffDetailsPage'
-
+import HomePage from './pages/public/HomePage'
+import AboutPage from './pages/public/AboutPage'
+import ProgramsPage from './pages/public/ProgramsPage'
+import ProgramDetailsPage from './pages/public/ProgramDetailsPage'
+import StudentResearchPage from './pages/public/StudentResearchPage'
+import MediaLibraryPage from './pages/public/MediaLibraryPage'
+import StaffDirectoryPage from './pages/public/StaffDirectoryPage'
+import MajlisSchedulePage from './pages/public/MajlisSchedulePage'
+import MajlisDetailsPage from './pages/public/MajlisDetailsPage'
+import DonatePage from './pages/public/DonatePage'
+import StaffDetailsPage from './pages/public/StaffDetailsPage'
 
 // Admin Pages
-import LoginPage from './src/pages/admin/LoginPage'
-import StaffListPage from './src/pages/admin/StaffManagement/StaffListPage'
-import StaffFormPage from './src/pages/admin/StaffManagement/StaffFormPage'
-import ProgramListPage from './src/pages/admin/ProgramManagement/ProgramListPage'
-import ProgramFormPage from './src/pages/admin/ProgramManagement/ProgramFormPage'
-import MediaListPage from './src/pages/admin/MediaLibraryManagement/MediaListPage'
-import MediaFormPage from './src/pages/admin/MediaLibraryManagement/MediaFormPage'
-import PlaylistListPage from './src/pages/admin/MediaLibraryManagement/PlaylistListPage'
-import PlaylistFormPage from './src/pages/admin/MediaLibraryManagement/PlaylistFormPage'
-import MajlisManagementPage from './src/pages/admin/MajlisManagement/MajlisManagementPage'
-import ActivitiesPage from './src/pages/admin/Activities/ActivitiesPage'
-import NotificationsPage from './src/pages/admin/Notifications/NotificationsPage'
-import SettingsPage from './src/pages/admin/Settings/SettingsPage'
-import AdminProfilePage from './src/pages/admin/Profile/AdminProfilePage'
-import ResearchListPage from './src/pages/admin/ResearchManagement/ResearchListPage'
-import ResearchFormPage from './src/pages/admin/ResearchManagement/ResearchFormPage'
-import DashboardHome from './src/pages/admin/Dashboard/DashboardHome'
-import PrivateRoute from './src/components/common/PrivateRoute'
+import LoginPage from './pages/admin/LoginPage'
+import StaffListPage from './pages/admin/StaffManagement/StaffListPage'
+import StaffFormPage from './pages/admin/StaffManagement/StaffFormPage'
+import ProgramListPage from './pages/admin/ProgramManagement/ProgramListPage'
+import ProgramFormPage from './pages/admin/ProgramManagement/ProgramFormPage'
+import MediaListPage from './pages/admin/MediaLibraryManagement/MediaListPage'
+import MediaFormPage from './pages/admin/MediaLibraryManagement/MediaFormPage'
+import PlaylistListPage from './pages/admin/MediaLibraryManagement/PlaylistListPage'
+import PlaylistFormPage from './pages/admin/MediaLibraryManagement/PlaylistFormPage'
+import MajlisManagementPage from './pages/admin/MajlisManagement/MajlisManagementPage'
+import ActivitiesPage from './pages/admin/Activities/ActivitiesPage'
+import NotificationsPage from './pages/admin/Notifications/NotificationsPage'
+import SettingsPage from './pages/admin/Settings/SettingsPage'
+import AdminProfilePage from './pages/admin/Profile/AdminProfilePage'
+import ResearchListPage from './pages/admin/ResearchManagement/ResearchListPage'
+import ResearchFormPage from './pages/admin/ResearchManagement/ResearchFormPage'
+import DashboardHome from './pages/admin/Dashboard/DashboardHome'
+import PrivateRoute from './components/common/PrivateRoute'
 
 function AppRoutes() {
   return (
@@ -50,13 +48,11 @@ function AppRoutes() {
         <Route path="/media-library" element={<MediaLibraryPage />} />
         <Route path="/media-library/audio/:trusteeId" element={<MediaLibraryPage />} />
         <Route path="/staff" element={<StaffDirectoryPage />} />
-        {/* <Route path="/organization" element={<OrganizationPage />} /> */}
         <Route path="/lectures" element={<MajlisSchedulePage />} />
         <Route path="/lectures/:id" element={<MajlisDetailsPage />} />
         <Route path="/donate" element={<DonatePage />} />
         <Route path="/staff/:id" element={<StaffDetailsPage />} />
         <Route path="/staff/profile/:id" element={<StaffDetailsPage />} />
-
       </Route>
 
       {/* Login Route */}

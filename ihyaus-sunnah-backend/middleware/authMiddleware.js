@@ -1,10 +1,11 @@
 import jwt from "jsonwebtoken";
+import User from "../models/user.js";
 
 /**
  * Authenticate middleware - Verify JWT token
  * Adds user data to req.user if token is valid
  */
-export const authenticate = (req, res, next) => {
+export const authenticate = async (req, res, next) => {
   try {
     // Get token from Authorization header (Bearer token) or from cookies
     const token =
@@ -20,8 +21,20 @@ export const authenticate = (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    // Attach user info to request
-    req.user = decoded;
+    const user = await User.findById(decoded.userId).select("role isActive");
+
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized - Account is unavailable or inactive"
+      });
+    }
+
+    // Always use the current database role instead of the stale JWT role.
+    req.user = {
+      userId: user._id.toString(),
+      role: user.role
+    };
     next();
   } catch (error) {
     return res.status(401).json({

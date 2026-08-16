@@ -9,7 +9,7 @@ import {
   deleteAllStaff
 } from "../controllers/staffController.js";
 import { authenticate, authorize } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -22,11 +22,11 @@ router.get("/:id", getStaffById);
 router.use(authenticate);
 
 // POST, PATCH, DELETE routes require director or admin role AND secret key
-router.post("/", verifyCrudOperation, createStaff);
-router.patch("/:id", verifyCrudOperation, updateStaff);
+router.post("/", authorizeCrud, createStaff);
+router.patch("/:id", authorizeCrud, updateStaff);
 
 // DELETE routes require director role and secret key
-router.delete("/:id", verifyCrudOperation, deleteStaff);
-router.delete("/", verifyCrudOperation, deleteAllStaff);
+router.delete("/:id", authorizeCrud, deleteStaff);
+router.delete("/", authorizeCrud, deleteAllStaff);
 
 export default router;

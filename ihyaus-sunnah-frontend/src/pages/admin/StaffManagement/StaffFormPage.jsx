@@ -14,10 +14,6 @@ import {
 
 import useStaffAPI from "../../../hooks/useStaffAPI"
 
-// Removed mock data import
-
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
-
 const sectionsList = [
   "Administration",
   "Community",
@@ -47,7 +43,6 @@ const StaffFormPage = () => {
   const { id } = useParams()
   const { staff, addStaff, editStaff } = useStaffAPI()
 
-  const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
   const [saving, setSaving] = useState(false)
 
@@ -114,27 +109,23 @@ const StaffFormPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    setShowModal(true)
-  }
-
-
-  const confirmSave = async (secretKey) => {
-    setSaving(true)
-
-    try {
-      if (id) {
-        await editStaff(id, formData, secretKey)
-      } else {
-        await addStaff(formData, secretKey)
-      }
-    } finally {
-      setSaving(false)
+    if (!window.confirm("Are you sure you want to save this staff member?")) {
+      return
     }
-  }
-
-  const handleSaveSuccess = () => {
-    setShowModal(false)
-    navigate("/admin/staff")
+    setSaving(true)
+    const runSave = async () => {
+      try {
+        if (id) {
+          await editStaff(id, formData)
+        } else {
+          await addStaff(formData)
+        }
+        navigate("/admin/staff")
+      } finally {
+        setSaving(false)
+      }
+    }
+    runSave()
   }
 
   return (
@@ -321,15 +312,6 @@ const StaffFormPage = () => {
 
         </form>
       </div>
-
-      {/* MODAL */}
-      <SecretKeyModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={confirmSave}
-        onSuccess={handleSaveSuccess}
-        loading={saving}
-      />
     </motion.div>
   )
 }

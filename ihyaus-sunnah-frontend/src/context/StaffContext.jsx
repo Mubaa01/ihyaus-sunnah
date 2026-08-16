@@ -70,9 +70,9 @@ export const StaffProvider = ({ children }) => {
     };
   }, [staff]);
 
-  const addStaff = async (data, secretKey) => {
+  const addStaff = async (data) => {
     try {
-      const response = await staffAPI.create(data, secretKey);
+      const response = await staffAPI.create(data);
       await logAdminActivity({
         type: "staff",
         action: "Added staff member",
@@ -87,9 +87,9 @@ export const StaffProvider = ({ children }) => {
     }
   };
 
-  const editStaff = async (id, data, secretKey) => {
+  const editStaff = async (id, data) => {
     try {
-      const response = await staffAPI.update(id, data, secretKey);
+      const response = await staffAPI.update(id, data);
       await logAdminActivity({
         type: "staff",
         action: "Updated staff member",
@@ -104,10 +104,10 @@ export const StaffProvider = ({ children }) => {
     }
   };
 
-  const removeStaff = async (id, secretKey) => {
+  const removeStaff = async (id) => {
     try {
       const existing = staff.find((item) => item._id === id);
-      await staffAPI.delete(id, secretKey);
+      await staffAPI.delete(id);
       await logAdminActivity({
         type: "staff",
         action: "Removed staff member",

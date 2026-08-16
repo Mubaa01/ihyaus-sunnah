@@ -23,7 +23,6 @@ import useProgramsAPI from "../../../hooks/useProgramsAPI"
 
 // TODO: Replace all program mock logic with real API
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 import MediaLibrarySelectorModal from "../../../components/admin/MediaLibrarySelectorModal"
 
 const categoriesList = [
@@ -81,7 +80,6 @@ const ProgramFormPage = () => {
   const { id } = useParams()
   const { programs, addProgram, editProgram } = useProgramsAPI()
 
-  const [showModal, setShowModal] = useState(false)
   const [formData, setFormData] = useState(emptyForm)
   const [imagePreviews, setImagePreviews] = useState({
     thumbnail: "",
@@ -547,9 +545,9 @@ const ProgramFormPage = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    setShowModal(true)
-  }
-  const confirmSave = async (secretKey) => {
+    if (!window.confirm("Are you sure you want to save this program?")) {
+      return
+    }
     setSaving(true)
 
     const generatedSlug = !id
@@ -564,20 +562,19 @@ const ProgramFormPage = () => {
       slug: generatedSlug,
     }
 
-    try {
-      if (id) {
-        await editProgram(id, dataToSave, secretKey)
-      } else {
-        await addProgram(dataToSave, secretKey)
+    const runSave = async () => {
+      try {
+        if (id) {
+          await editProgram(id, dataToSave)
+        } else {
+          await addProgram(dataToSave)
+        }
+        navigate("/admin/programs")
+      } finally {
+        setSaving(false)
       }
-    } finally {
-      setSaving(false)
     }
-  }
-
-  const handleSaveSuccess = () => {
-    setShowModal(false)
-    navigate("/admin/programs")
+    runSave()
   }
 
 
@@ -1325,15 +1322,6 @@ const ProgramFormPage = () => {
 
         </form>
       </div>
-
-      {/* MODAL */}
-      <SecretKeyModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={confirmSave}
-        onSuccess={handleSaveSuccess}
-        loading={saving}
-      />
     </motion.div>
   )
 }

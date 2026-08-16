@@ -37,14 +37,6 @@ const userSchema = new mongoose.Schema(
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
 
-    // Secret key for CRUD operations (only for admin/director)
-    secretKey: {
-      type: String,
-      select: false // hide by default
-    },
-    secretKeyExpiresAt: Date,
-    secretKeyLastGeneratedAt: Date,
-
     lastLoginAt: Date
   },
   { timestamps: true }

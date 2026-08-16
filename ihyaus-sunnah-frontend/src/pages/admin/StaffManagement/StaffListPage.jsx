@@ -12,16 +12,12 @@ import {
 
 import useStaffAPI from "../../../hooks/useStaffAPI"
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
-
 
 const StaffListPage = () => {
   const { staff, loading, error, removeStaff } = useStaffAPI();
 
   const [search, setSearch] = useState("")
   const [roleFilter, setRoleFilter] = useState("All")
-  const [showModal, setShowModal] = useState(false)
-  const [selectedId, setSelectedId] = useState(null)
 
   // ROLE LABEL MAPPER (same hierarchy logic used across app)
   const getRoleLabel = (role) => {
@@ -57,13 +53,9 @@ const StaffListPage = () => {
   }, [staff, search, roleFilter])
 
   const handleDeleteClick = (id) => {
-    setSelectedId(id)
-    setShowModal(true)
-  }
-
-  const confirmDelete = (secretKey) => {
-    removeStaff(selectedId, secretKey)
-    setShowModal(false)
+    if (window.confirm("Are you sure you want to delete this staff member?")) {
+      removeStaff(id)
+    }
   }
 
   return (
@@ -266,13 +258,20 @@ const StaffListPage = () => {
         </div>
       )}
 
-      {/* MODAL */}
-      <SecretKeyModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={confirmDelete}
-      />
+      {/* EMPTY STATE */}
+      {!loading && !error && filteredStaff.length === 0 && (
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-soft py-24 text-center">
+          <FaUsers className="mx-auto text-6xl text-gray-300 mb-5" />
 
+          <h3 className="text-3xl font-bold text-primary">
+            No Staff Found
+          </h3>
+
+          <p className="text-gray-500 mt-3">
+            Try adjusting your filters or search.
+          </p>
+        </div>
+      )}
     </div>
   )
 }

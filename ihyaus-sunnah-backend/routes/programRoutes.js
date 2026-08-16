@@ -7,7 +7,7 @@ import {
   deleteProgram
 } from "../controllers/programController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -16,8 +16,8 @@ router.get("/", getAllPrograms);
 router.get("/:slug", getProgramBySlug);
 
 // Protected routes (POST, PATCH, DELETE)
-router.post("/", authenticate, verifyCrudOperation, createProgram);
-router.patch("/:id", authenticate, verifyCrudOperation, updateProgram);
-router.delete("/:id", authenticate, verifyCrudOperation, deleteProgram);
+router.post("/", authenticate, authorizeCrud, createProgram);
+router.patch("/:id", authenticate, authorizeCrud, updateProgram);
+router.delete("/:id", authenticate, authorizeCrud, deleteProgram);
 
 export default router;

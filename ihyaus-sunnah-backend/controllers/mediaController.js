@@ -1,6 +1,42 @@
 import { Media } from "../models/Media.js";
 import { Playlist } from "../models/Playlist.js";
 import { saveTelegramMessageAsMedia } from "../services/telegramMediaService.js";
+import { Readable } from "node:stream";
+
+const proxyTelegramFile = async (req, res, fileId, contentType) => {
+  const metadataResponse = await fetch(
+    `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${encodeURIComponent(fileId)}`
+  );
+  const metadata = await metadataResponse.json();
+
+  if (!metadata.ok || !metadata.result?.file_path) {
+    return res.status(502).json({ success: false, message: metadata.description || "Unable to get Telegram file" });
+  }
+
+  const headers = {};
+  if (req.headers.range) headers.Range = req.headers.range;
+
+  const fileResponse = await fetch(
+    `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${metadata.result.file_path}`,
+    { headers }
+  );
+
+  if (!fileResponse.ok && fileResponse.status !== 206) {
+    return res.status(502).json({ success: false, message: "Unable to download Telegram file" });
+  }
+
+  res.status(fileResponse.status);
+  for (const header of ["content-type", "content-length", "content-range", "accept-ranges"]) {
+    const value = fileResponse.headers.get(header);
+    if (value) res.setHeader(header, value);
+  }
+  if (contentType && !res.getHeader("content-type")) res.setHeader("Content-Type", contentType);
+  res.setHeader("Cache-Control", "private, max-age=300");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  Readable.fromWeb(fileResponse.body).pipe(res);
+};
+
+const escapeRegExp = (string) => string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const createMedia = async (req, res) => {
   try {
@@ -21,10 +57,11 @@ export const getAllMedia = async (req, res) => {
     if (playlistId) filter.playlistId = playlistId;
     if (visibility) filter.visibility = visibility;
     if (search) {
+      const escaped = escapeRegExp(search);
       filter.$or = [
-        { title: { $regex: search, $options: "i" } },
-        { description: { $regex: search, $options: "i" } },
-        { tags: { $in: [new RegExp(search, "i")] } }
+        { title: { $regex: escaped, $options: "i" } },
+        { description: { $regex: escaped, $options: "i" } },
+        { tags: { $in: [new RegExp(escaped, "i")] } }
       ];
     }
 
@@ -55,30 +92,34 @@ export const getTelegramMediaUrl = async (req, res) => {
       });
     }
 
-    const response = await fetch(
-      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${media.telegramFileId}`
-    );
-    const payload = await response.json();
-
-    if (!payload.ok || !payload.result?.file_path) {
-      return res.status(502).json({
-        success: false,
-        message: payload.description || "Unable to get Telegram file URL",
-      });
-    }
-
-    const url = `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`;
+    const url = `${req.protocol}://${req.get("host")}/api/media/${media._id}/telegram-file`;
 
     res.json({
       success: true,
       data: {
         url,
         provider: "telegram",
-        expiresInHint: "Telegram file URLs are temporary. Request a fresh URL before playback.",
+        proxied: true,
       },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+export const getTelegramMediaFile = async (req, res) => {
+  try {
+    const media = await Media.findById(req.params.id);
+    if (!media) return res.status(404).json({ success: false, message: "Media not found" });
+    if (media.provider !== "telegram" || !media.telegramFileId) {
+      return res.status(404).json({ success: false, message: "Telegram file not found" });
+    }
+    if (!process.env.TELEGRAM_BOT_TOKEN) {
+      return res.status(500).json({ success: false, message: "Telegram bot token is not configured" });
+    }
+    return proxyTelegramFile(req, res, media.telegramFileId);
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -106,21 +147,7 @@ export const getTelegramThumbnail = async (req, res) => {
       });
     }
 
-    const response = await fetch(
-      `https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/getFile?file_id=${media.telegramThumbnailFileId}`
-    );
-    const payload = await response.json();
-
-    if (!payload.ok || !payload.result?.file_path) {
-      return res.status(502).json({
-        success: false,
-        message: payload.description || "Unable to get Telegram thumbnail",
-      });
-    }
-
-    res.redirect(
-      `https://api.telegram.org/file/bot${process.env.TELEGRAM_BOT_TOKEN}/${payload.result.file_path}`
-    );
+    return proxyTelegramFile(req, res, media.telegramThumbnailFileId, "image/jpeg");
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -173,7 +200,11 @@ export const ingestTelegramMedia = async (req, res) => {
     const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET;
     const receivedSecret = req.headers["x-telegram-bot-api-secret-token"];
 
-    if (expectedSecret && receivedSecret !== expectedSecret) {
+    if (!expectedSecret) {
+      return res.status(503).json({ success: false, message: "Telegram webhook secret is not configured" });
+    }
+
+    if (receivedSecret !== expectedSecret) {
       return res.status(401).json({ success: false, message: "Invalid Telegram webhook secret" });
     }
 

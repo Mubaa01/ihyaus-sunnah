@@ -166,8 +166,8 @@ const useProgramsAPI = () => {
     [programs]
   );
 
-  const addProgram = async (data, secretKey) => {
-    const res = await programsAPI.create(data, secretKey);
+  const addProgram = async (data) => {
+    const res = await programsAPI.create(data);
     await logAdminActivity({
       type: "program",
       action: "Created program",
@@ -179,8 +179,8 @@ const useProgramsAPI = () => {
     return res;
   };
 
-  const editProgram = async (id, data, secretKey) => {
-    const res = await programsAPI.update(id, data, secretKey);
+  const editProgram = async (id, data) => {
+    const res = await programsAPI.update(id, data);
     await logAdminActivity({
       type: "program",
       action: "Updated program",
@@ -192,9 +192,9 @@ const useProgramsAPI = () => {
     return res;
   };
 
-  const removeProgram = async (id, secretKey) => {
+  const removeProgram = async (id) => {
     const existing = programs.find((program) => program._id === id || program.id === id);
-    await programsAPI.delete(id, secretKey);
+    await programsAPI.delete(id);
     await logAdminActivity({
       type: "program",
       action: "Deleted program",

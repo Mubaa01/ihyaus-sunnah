@@ -3,6 +3,7 @@ import {
   createMedia,
   getAllMedia,
   getTelegramMediaUrl,
+  getTelegramMediaFile,
   getTelegramThumbnail,
   getTelegramThumbnailUrl,
   ingestTelegramMedia,
@@ -13,7 +14,7 @@ import {
   getPlaylists
 } from "../controllers/mediaController.js";
 import { authenticate } from "../middleware/authMiddleware.js";
-import { verifyCrudOperation } from "../middleware/secretKeyMiddleware.js";
+import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
@@ -21,17 +22,18 @@ const router = express.Router();
 router.get("/", getAllMedia);
 router.get("/playlists", getPlaylists);
 router.get("/:id/telegram-url", getTelegramMediaUrl);
+router.get("/:id/telegram-file", getTelegramMediaFile);
 router.get("/:id/telegram-thumbnail", getTelegramThumbnail);
 router.get("/:id/telegram-thumbnail-url", getTelegramThumbnailUrl);
 router.post("/telegram/webhook", ingestTelegramMedia);
 
 // Media routes - POST, PATCH, DELETE require auth
-router.post("/", authenticate, verifyCrudOperation, createMedia);
-router.patch("/:id", authenticate, verifyCrudOperation, updateMedia);
-router.delete("/:id", authenticate, verifyCrudOperation, deleteMedia);
+router.post("/", authenticate, authorizeCrud, createMedia);
+router.patch("/:id", authenticate, authorizeCrud, updateMedia);
+router.delete("/:id", authenticate, authorizeCrud, deleteMedia);
 
 // Playlist routes - POST requires auth
-router.post("/playlists", authenticate, verifyCrudOperation, createPlaylist);
-router.patch("/playlists/:id", authenticate, verifyCrudOperation, updatePlaylist);
+router.post("/playlists", authenticate, authorizeCrud, createPlaylist);
+router.patch("/playlists/:id", authenticate, authorizeCrud, updatePlaylist);
 
 export default router;

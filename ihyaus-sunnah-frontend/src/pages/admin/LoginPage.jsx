@@ -8,22 +8,27 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
 
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSubmitting(true);
     try {
-      const data = await authAPI.login(email, password);
+      const data = await authAPI.login(email.trim().toLowerCase(), password);
       // Save token to localStorage
       if (data.token) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('adminUser', JSON.stringify(data.user));
         navigate('/admin');
       } else {
         setError('Login failed: No token received.');
       }
     } catch (err) {
       setError(err.message || 'Login failed.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -78,9 +83,10 @@ const LoginPage = () => {
 
           <button
             type="submit"
-            className="btn-primary w-full py-3 text-base font-semibold"
+            disabled={submitting}
+            className="btn-primary w-full py-3 text-base font-semibold disabled:cursor-not-allowed disabled:opacity-60"
           >
-            Sign in
+            {submitting ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
       </div>

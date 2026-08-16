@@ -16,16 +16,12 @@ import {
 
 import useProgramsAPI from "../../../hooks/useProgramsAPI"
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
-
 const ProgramListPage = () => {
   const { programs, removeProgram } = useProgramsAPI()
 
   const [search, setSearch] = useState("")
   const [categoryFilter, setCategoryFilter] = useState("All")
   const [statusFilter, setStatusFilter] = useState("All")
-  const [showModal, setShowModal] = useState(false)
-  const [selectedId, setSelectedId] = useState(null)
 
   const filteredPrograms = useMemo(() => {
     return programs.filter((program) => {
@@ -45,13 +41,9 @@ const ProgramListPage = () => {
   }, [programs, search, categoryFilter, statusFilter])
 
   const handleDeleteClick = (id) => {
-    setSelectedId(id)
-    setShowModal(true)
-  }
-
-  const confirmDelete = (secretKey) => {
-    removeProgram(selectedId, secretKey)
-    setShowModal(false)
+    if (window.confirm("Are you sure you want to delete this program?")) {
+      removeProgram(id)
+    }
   }
 
   // Get unique categories for filter
@@ -243,14 +235,6 @@ const ProgramListPage = () => {
           </p>
         </div>
       )}
-
-      {/* MODAL */}
-      <SecretKeyModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={confirmDelete}
-      />
-
     </div>
   )
 }

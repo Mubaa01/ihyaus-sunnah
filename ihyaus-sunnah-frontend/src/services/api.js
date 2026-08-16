@@ -1,45 +1,10 @@
-// ==================== COMPLETED MAJLIS API ====================
-
-export const completedMajlisAPI = {
-  getAll: (filters = {}) => {
-    const params = new URLSearchParams(filters).toString();
-    return apiCall(`/completed-majlis?${params}`);
-  },
-
-  create: (data, secretKey) =>
-    apiCall("/completed-majlis", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-secret-key": secretKey,
-      },
-      body: JSON.stringify(data),
-    }),
-
-  update: (id, data, secretKey) =>
-    apiCall(`/completed-majlis/${id}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-secret-key": secretKey,
-      },
-      body: JSON.stringify(data),
-    }),
-
-  delete: (id, secretKey) =>
-    apiCall(`/completed-majlis/${id}`, {
-      method: "DELETE",
-      headers: {
-        "x-secret-key": secretKey,
-      },
-    }),
-};
 // src/services/api.js
 // Central API service for all backend communication
 
 const API_BASE_URL =
-  (import.meta.env.VITE_API_URL ||
-  "http://localhost:4000/api").trim().replace(/\/+$/, "");
+  (import.meta.env.VITE_API_URL || "http://localhost:4000/api")
+    .trim()
+    .replace(/\/+$/, "");
 
 const getAuthHeaders = () => {
   const token = window.localStorage?.getItem("token");
@@ -79,6 +44,10 @@ const normalizeErrorMessage = (data, status) => {
     return "Please enter a valid email address.";
   }
 
+  if (/invalid email or password/i.test(message)) {
+    return "The email address or password is incorrect.";
+  }
+
   if (/invalid password|incorrect password|wrong password/i.test(message)) {
     return "The password you entered is incorrect. Please try again.";
   }
@@ -92,48 +61,56 @@ const normalizeErrorMessage = (data, status) => {
 
 // ==================== API CALL HELPER ====================
 
-const apiCall = async (
-  endpoint,
-  options = {}
-) => {
-  const url = `${API_BASE_URL}${endpoint}`;
+const apiCall = async (endpoint, options = {}) => {
+  const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 60000);
 
   const defaultOptions = {
     headers: {
-      "Content-Type": "application/json",
       ...getAuthHeaders(),
     },
-
     credentials: "include",
     signal: controller.signal,
   };
 
-  // FIXED HEADER MERGING
   const mergedOptions = {
     ...defaultOptions,
     ...options,
-
     headers: {
       ...defaultOptions.headers,
       ...options.headers,
     },
   };
 
+  if (
+    mergedOptions.body &&
+    !mergedOptions.headers["Content-Type"] &&
+    !(mergedOptions.body instanceof FormData)
+  ) {
+    mergedOptions.headers["Content-Type"] = "application/json";
+  }
+
   try {
     const response = await fetch(url, mergedOptions);
     const contentType = response.headers.get("content-type") || "";
-    const data = contentType.includes("application/json")
-      ? await response.json()
-      : { message: await response.text() };
+    const responseText = await response.text();
+    let data = { message: responseText };
+    if (responseText && contentType.includes("application/json")) {
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = { message: responseText };
+      }
+    }
 
     window.clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(
-        normalizeErrorMessage(data, response.status)
-      );
+      const requestError = new Error(normalizeErrorMessage(data, response.status));
+      requestError.status = response.status;
+      requestError.data = data;
+      throw requestError;
     }
 
     return data;
@@ -141,15 +118,45 @@ const apiCall = async (
     window.clearTimeout(timeoutId);
 
     if (error.name === "AbortError") {
-      throw new Error("Backend request timed out. The API may be cold-starting or the database may be slow to respond.");
+      throw new Error(
+        "Backend request timed out. The API may be cold-starting or the database may be slow to respond."
+      );
     }
 
     if (error instanceof TypeError) {
-      throw new Error("Backend is not reachable. Please start the API server on port 4000 and check MongoDB.");
+      throw new Error(
+        `Network/CORS error calling ${url}. Check that the backend is running and the frontend origin is allowed.`
+      );
     }
 
     throw error;
   }
+};
+
+// ==================== COMPLETED MAJLIS API ====================
+
+export const completedMajlisAPI = {
+  getAll: (filters = {}) => {
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/completed-majlis?${params}`);
+  },
+
+  create: (data) =>
+    apiCall("/completed-majlis", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+
+  update: (id, data) =>
+    apiCall(`/completed-majlis/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id) =>
+    apiCall(`/completed-majlis/${id}`, {
+      method: "DELETE",
+    }),
 };
 
 // ==================== STAFF API ====================
@@ -157,94 +164,32 @@ const apiCall = async (
 export const staffAPI = {
   getAll: () => apiCall("/staff"),
 
-  getById: (id) =>
-    apiCall(`/staff/${id}`),
+  getById: (id) => apiCall(`/staff/${id}`),
 
   getFiltered: (filters) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
-    return apiCall(
-      `/staff/filter?${params}`
-    );
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/staff/filter?${params}`);
   },
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/staff", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/staff/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/staff/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 };
 
 // ==================== PROGRAMS API ====================
-
-// export const programsAPI = {
-//   getAll: (filters = {}) => {
-//     const params =
-//       new URLSearchParams(filters).toString();
-
-//     return apiCall(`/programs?${params}`);
-//   },
-
-//   getBySlug: (slug) =>
-//     apiCall(`/programs/${slug}`),
-
-//   create: (data, secretKey) =>
-//     apiCall("/programs", {
-//       method: "POST",
-
-//       headers: {
-//         "x-secret-key": secretKey,
-//       },
-
-//       body: JSON.stringify(data),
-//     }),
-
-//   update: (id, data, secretKey) =>
-//     apiCall(`/programs/${id}`, {
-//       method: "PATCH",
-
-//       headers: {
-//         "x-secret-key": secretKey,
-//       },
-
-//       body: JSON.stringify(data),
-//     }),
-
-//   delete: (id, secretKey) =>
-//     apiCall(`/programs/${id}`, {
-//       method: "DELETE",
-
-//       headers: {
-//         "x-secret-key": secretKey,
-//       },
-//     }),
-// };
 
 export const programsAPI = {
   getAll: (filters = {}) => {
@@ -254,110 +199,69 @@ export const programsAPI = {
 
   getBySlug: (slug) => apiCall(`/programs/${slug}`),
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/programs", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-secret-key": secretKey,
-      },
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/programs/${id}`, {
       method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        "x-secret-key": secretKey,
-      },
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/programs/${id}`, {
       method: "DELETE",
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 };
+
 // ==================== MEDIA API ====================
 
 export const mediaAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
+    const params = new URLSearchParams(filters).toString();
     return apiCall(`/media?${params}`);
   },
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/media", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/media/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/media/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 
-  getTelegramUrl: (id) =>
-    apiCall(`/media/${id}/telegram-url`),
+  getTelegramUrl: (id) => apiCall(`/media/${id}/telegram-url`),
 };
 
 // ==================== PLAYLISTS API ====================
 
 export const playlistsAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
-    return apiCall(
-      `/media/playlists?${params}`
-    );
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/media/playlists?${params}`);
   },
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/media/playlists", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/media/playlists/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 };
@@ -366,47 +270,29 @@ export const playlistsAPI = {
 
 export const researchAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
+    const params = new URLSearchParams(filters).toString();
     return apiCall(`/research?${params}`);
   },
 
-  getById: (id) =>
-    apiCall(`/research/${id}`),
+  getById: (id) => apiCall(`/research/${id}`),
 
-  getTelegramUrl: (id) =>
-    apiCall(`/research/${id}/telegram-url`),
+  getTelegramUrl: (id) => apiCall(`/research/${id}/telegram-url`),
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/research", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/research/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/research/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 };
 
@@ -414,44 +300,27 @@ export const researchAPI = {
 
 export const majlisAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
+    const params = new URLSearchParams(filters).toString();
     return apiCall(`/majlis?${params}`);
   },
 
-  getById: (id) =>
-    apiCall(`/majlis/${id}`),
+  getById: (id) => apiCall(`/majlis/${id}`),
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/majlis", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/majlis/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/majlis/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 };
 
@@ -459,43 +328,25 @@ export const majlisAPI = {
 
 export const completedSeriesAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
-    return apiCall(
-      `/completed-series?${params}`
-    );
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/completed-series?${params}`);
   },
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/completed-series", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/completed-series/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/completed-series/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 };
 
@@ -503,30 +354,18 @@ export const completedSeriesAPI = {
 
 export const notificationsAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
-    return apiCall(
-      `/notifications?${params}`
-    );
+    const params = new URLSearchParams(filters).toString();
+    return apiCall(`/notifications?${params}`);
   },
 
-  markAsRead: (id, secretKey) =>
+  markAsRead: (id) =>
     apiCall(`/notifications/${id}/read`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/notifications/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 };
 
@@ -534,41 +373,25 @@ export const notificationsAPI = {
 
 export const activitiesAPI = {
   getAll: (filters = {}) => {
-    const params =
-      new URLSearchParams(filters).toString();
-
+    const params = new URLSearchParams(filters).toString();
     return apiCall(`/activities?${params}`);
   },
 
-  create: (data, secretKey) =>
+  create: (data) =>
     apiCall("/activities", {
       method: "POST",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  update: (id, data, secretKey) =>
+  update: (id, data) =>
     apiCall(`/activities/${id}`, {
       method: "PATCH",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
-
       body: JSON.stringify(data),
     }),
 
-  delete: (id, secretKey) =>
+  delete: (id) =>
     apiCall(`/activities/${id}`, {
       method: "DELETE",
-
-      headers: {
-        "x-secret-key": secretKey,
-      },
     }),
 
   deleteAll: () =>
@@ -583,11 +406,7 @@ export const authAPI = {
   login: (email, password) =>
     apiCall("/auth/login", {
       method: "POST",
-
-      body: JSON.stringify({
-        email,
-        password,
-      }),
+      body: JSON.stringify({ email, password }),
     }),
 
   logout: () =>
@@ -595,30 +414,7 @@ export const authAPI = {
       method: "POST",
     }),
 
-  generateSecretKey: (password) =>
-    apiCall(
-      "/auth/generate-secret-key",
-      {
-        method: "POST",
-
-        body: JSON.stringify({
-          password,
-        }),
-      }
-    ),
-
-  setCustomSecretKey: ({
-    password,
-    secretKey,
-  }) =>
-    apiCall("/auth/set-secret-key", {
-      method: "POST",
-
-      body: JSON.stringify({
-        password,
-        secretKey,
-      }),
-    }),
+  getSession: () => apiCall("/auth/session"),
 };
 
 // ==================== CURRENT USER API ====================
