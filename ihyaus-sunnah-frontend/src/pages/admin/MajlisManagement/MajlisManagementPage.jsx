@@ -20,7 +20,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import useMajlisAPI from "../../../hooks/useMajlisAPI";
 import useCompletedMajlisAPI from "../../../hooks/useCompletedMajlisAPI";
-import SecretKeyModal from "../../../components/admin/SecretKeyModal";
+import ConfirmDialog from "../../../components/admin/ConfirmDialog";
 import MajlisForm from "./MajlisForm";
 
 const MajlisManagementPage = () => {
@@ -34,6 +34,8 @@ const MajlisManagementPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState(null);
   const [deleteType, setDeleteType] = useState(null); // "active" or "completed"
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
   
   // For Completed Majlis modal
   const [selectedCompleted, setSelectedCompleted] = useState(null);
@@ -67,25 +69,38 @@ const MajlisManagementPage = () => {
   const handleDeleteClick = (id, type) => {
     setItemToDelete(id);
     setDeleteType(type);
+    setDeleteError("");
     setShowDeleteModal(true);
   };
 
-  const confirmDelete = async (secretKey) => {
-    if (deleteType === "active") {
-      await removeMajlis(itemToDelete, secretKey);
-    } else if (deleteType === "completed") {
-      await removeCompleted(itemToDelete, secretKey);
-    }
+  const closeDeleteModal = () => {
     setShowDeleteModal(false);
     setItemToDelete(null);
     setDeleteType(null);
   };
 
-  const handleSaveMajlis = async (id, data, secretKey) => {
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    setDeleteError("");
+    try {
+      if (deleteType === "active") {
+        await removeMajlis(itemToDelete);
+      } else if (deleteType === "completed") {
+        await removeCompleted(itemToDelete);
+      }
+      closeDeleteModal();
+    } catch (err) {
+      setDeleteError(err.message || "Failed to delete majlis session.");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleSaveMajlis = async (id, data) => {
     if (id) {
-      await editMajlis(id, data, secretKey);
+      await editMajlis(id, data);
     } else {
-      await addMajlis(data, secretKey);
+      await addMajlis(data);
     }
     setIsFormOpen(false);
     setSelectedMajlis(null);
@@ -531,10 +546,15 @@ const MajlisManagementPage = () => {
         )}
       </AnimatePresence>
 
-      {/* SECRET KEY MODAL for Delete Confirmation - Matching Staff Page */}
-      <SecretKeyModal
+      {/* DELETE CONFIRMATION */}
+      <ConfirmDialog
         isOpen={showDeleteModal}
-        onClose={() => setShowDeleteModal(false)}
+        message={
+          deleteError ||
+          "Are you sure you want to delete this majlis session? This action cannot be undone."
+        }
+        busy={isDeleting}
+        onCancel={closeDeleteModal}
         onConfirm={confirmDelete}
       />
 

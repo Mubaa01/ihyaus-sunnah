@@ -28,18 +28,18 @@ const useCompletedSeries = () => {
 
   const getSeriesData = (id) => series.find((s) => s._id === id) || null;
 
-  const createSeries = async (newSeries, secretKey) => {
-    await completedSeriesAPI.create(newSeries, secretKey);
+  const createSeries = async (newSeries) => {
+    await completedSeriesAPI.create(newSeries);
     await refresh();
   };
 
-  const updateSeriesData = async (id, updates, secretKey) => {
-    await completedSeriesAPI.update(id, updates, secretKey);
+  const updateSeriesData = async (id, updates) => {
+    await completedSeriesAPI.update(id, updates);
     await refresh();
   };
 
-  const deleteSeriesData = async (id, secretKey) => {
-    await completedSeriesAPI.delete(id, secretKey);
+  const deleteSeriesData = async (id) => {
+    await completedSeriesAPI.delete(id);
     await refresh();
   };
 

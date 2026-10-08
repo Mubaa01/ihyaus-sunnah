@@ -57,64 +57,6 @@
 //     [programs]
 //   );
 
-//   const addProgram = async (data, secretKey) => {
-//     try {
-//       const response = await programsAPI.create(data, secretKey);
-//       // TODO: Optionally log activity to backend if needed
-//       await refreshPrograms();
-//       dispatchAdminDataUpdate({ programs: true });
-//       return response;
-//     } catch (err) {
-//       console.error("Failed to add program:", err);
-//       throw err;
-//     }
-//   };
-
-//   const editProgram = async (id, data, secretKey) => {
-//     try {
-//       const response = await programsAPI.update(id, data, secretKey);
-//       // TODO: Optionally log activity to backend if needed
-//       await refreshPrograms();
-//       dispatchAdminDataUpdate({ programs: true });
-//       return response;
-//     } catch (err) {
-//       console.error("Failed to edit program:", err);
-//       throw err;
-//     }
-//   };
-
-//   const removeProgram = async (id, secretKey) => {
-//     try {
-//       const existing = programs.find((item) => item._id === id);
-//       await programsAPI.delete(id, secretKey);
-//       // TODO: Optionally log activity to backend if needed
-//       await refreshPrograms();
-//       dispatchAdminDataUpdate({ programs: true });
-//     } catch (err) {
-//       console.error("Failed to remove program:", err);
-//       throw err;
-//     }
-//   };
-
-//   return {
-//     programs,
-//     setPrograms,
-//     loading,
-//     error,
-
-//     featuredPrograms,
-//     activePrograms,
-//     categories,
-
-//     addProgram,
-//     editProgram,
-//     removeProgram,
-//     refreshPrograms,
-//   };
-// };
-
-// export default useProgramsAPI;
-
 
 import { useEffect, useMemo, useState } from "react";
 import { programsAPI } from "../services/api";

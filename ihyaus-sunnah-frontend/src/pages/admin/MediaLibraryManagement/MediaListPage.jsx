@@ -18,8 +18,7 @@ import {
 
 import useStaffAPI from "../../../hooks/useStaffAPI"
 import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI"
-
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
+import ConfirmDialog from "../../../components/admin/ConfirmDialog"
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api"
 
@@ -40,16 +39,31 @@ const MediaListPage = () => {
   const [visibilityFilter, setVisibilityFilter] = useState("All")
   const [showModal, setShowModal] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
 
   const handleDeleteClick = (id) => {
+    setDeleteError("")
     setSelectedId(id)
     setShowModal(true)
   }
 
-  const confirmDelete = async (secretKey) => {
-    await removeMedia(selectedId, secretKey)
+  const closeDeleteModal = () => {
     setShowModal(false)
     setSelectedId(null)
+  }
+
+  const confirmDelete = async () => {
+    setIsDeleting(true)
+    setDeleteError("")
+    try {
+      await removeMedia(selectedId)
+      closeDeleteModal()
+    } catch (err) {
+      setDeleteError(err.message || "Failed to delete media item.")
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   const getId = (item) => item?._id || item?.id
@@ -378,10 +392,14 @@ const MediaListPage = () => {
         </div>
       )}
 
-      {/* MODAL */}
-      <SecretKeyModal
+            <ConfirmDialog
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        message={
+          deleteError ||
+          "Are you sure you want to delete this media item? This action cannot be undone."
+        }
+        busy={isDeleting}
+        onCancel={closeDeleteModal}
         onConfirm={confirmDelete}
       />
 

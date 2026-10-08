@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FaFilePdf, FaImage, FaSave, FaUpload } from "react-icons/fa"
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
 import {
   researchCategories,
   researchStatusOptions,
@@ -55,7 +54,6 @@ const ResearchFormPage = () => {
 
   const [formData, setFormData] = useState(defaultForm)
   const [previewImage, setPreviewImage] = useState("")
-  const [showModal, setShowModal] = useState(false)
   const [loading, setLoading] = useState(Boolean(id))
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState("")
@@ -164,12 +162,12 @@ const ResearchFormPage = () => {
     }
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setShowModal(true)
+    await handleSave()
   }
 
-  const confirmSave = async (secretKey) => {
+  const handleSave = async () => {
     setSaving(true)
     setError("")
 
@@ -203,21 +201,17 @@ const ResearchFormPage = () => {
       }
 
       if (id) {
-        await editResearch(id, payload, secretKey)
+        await editResearch(id, payload)
       } else {
-        await addResearch(payload, secretKey)
+        await addResearch(payload)
       }
+
+      navigate("/admin/research")
     } catch (err) {
       setError(err.message || "Failed to save research")
-      throw err
     } finally {
       setSaving(false)
     }
-  }
-
-  const handleSaveSuccess = () => {
-    setShowModal(false)
-    navigate("/admin/research")
   }
 
   if (loading) {
@@ -484,20 +478,16 @@ const ResearchFormPage = () => {
             <button type="button" onClick={() => navigate("/admin/research")} className="btn-dark-outline">
               Cancel
             </button>
-            <button type="submit" className="btn-primary inline-flex items-center gap-2">
-              <FaSave /> {id ? "Save Updates" : "Publish Research"}
+            <button
+              type="submit"
+              disabled={saving}
+              className="btn-primary inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaSave /> {saving ? "Saving..." : id ? "Save Updates" : "Publish Research"}
             </button>
           </div>
         </form>
       </div>
-
-      <SecretKeyModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={confirmSave}
-        onSuccess={handleSaveSuccess}
-        loading={saving}
-      />
     </motion.div>
   )
 }

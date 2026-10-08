@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { FaEdit, FaFilePdf, FaPlus, FaSearch, FaTrash } from "react-icons/fa"
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
+import ConfirmDialog from "../../../components/admin/ConfirmDialog"
 import {
   getResearchStatusLabel,
   researchCategories,
@@ -35,6 +35,7 @@ const ResearchListPage = () => {
   const [showModal, setShowModal] = useState(false)
   const [selectedId, setSelectedId] = useState(null)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState("")
   const [imageLinks, setImageLinks] = useState({})
   const [telegramLinks, setTelegramLinks] = useState({})
 
@@ -85,16 +86,20 @@ const ResearchListPage = () => {
   }, [filteredResearch])
 
   const handleDeleteClick = (id) => {
+    setDeleteError("")
     setSelectedId(id)
     setShowModal(true)
   }
 
-  const confirmDelete = async (secretKey) => {
+  const confirmDelete = async () => {
     setIsDeleting(true)
+    setDeleteError("")
     try {
-      await removeResearch(selectedId, secretKey)
+      await removeResearch(selectedId)
       setShowModal(false)
       setSelectedId(null)
+    } catch (err) {
+      setDeleteError(err.message || "Failed to delete research item")
     } finally {
       setIsDeleting(false)
     }
@@ -274,11 +279,18 @@ const ResearchListPage = () => {
         ))}
       </div>
 
-      <SecretKeyModal
+      <ConfirmDialog
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        message={
+          deleteError ||
+          "Are you sure you want to delete this research item? This action cannot be undone."
+        }
+        busy={isDeleting}
+        onCancel={() => {
+          setShowModal(false)
+          setSelectedId(null)
+        }}
         onConfirm={confirmDelete}
-        loading={isDeleting}
       />
     </div>
   )

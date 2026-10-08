@@ -11,8 +11,6 @@ import {
   FaGlobe,
 } from "react-icons/fa";
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal";
-
 const initialFormState = {
   id: null,
   title: "",
@@ -138,12 +136,12 @@ const MajlisForm = ({ open, onClose, onSave, initialData }) => {
   const [form, setForm] = useState(initialFormState);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSecretModal, setShowSecretModal] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   useEffect(() => {
     setForm(initialData ? toFormState(initialData) : initialFormState);
     setErrors({});
-    setShowSecretModal(false);
+    setSubmitError("");
   }, [initialData, open]);
 
   const handleChange = (e) => {
@@ -170,28 +168,20 @@ const MajlisForm = ({ open, onClose, onSave, initialData }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      setShowSecretModal(true);
-    }
-  };
+    if (!validateForm()) return;
 
-  const confirmSave = async (secretKey) => {
     setIsSubmitting(true);
+    setSubmitError("");
     try {
-      await onSave(form.id, toPayload(form), secretKey);
+      await onSave(form.id, toPayload(form));
     } catch (error) {
       console.error("Error saving majlis:", error);
-      throw error;
+      setSubmitError(error.message || "Failed to save majlis.");
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  const handleSaveSuccess = () => {
-    setShowSecretModal(false);
-    onClose();
   };
 
   if (!open) return null;
@@ -462,7 +452,13 @@ const MajlisForm = ({ open, onClose, onSave, initialData }) => {
                 <Checkbox label="Published" name="published" checked={form.published} onChange={handleChange} />
               </div>
 
-              <div className="flex gap-4 pt-6 border-t border-gray-200">
+              {submitError && (
+              <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+                {submitError}
+              </div>
+            )}
+
+            <div className="flex gap-4 pt-6 border-t border-gray-200">
                 <button
                   type="button"
                   onClick={onClose}
@@ -480,14 +476,6 @@ const MajlisForm = ({ open, onClose, onSave, initialData }) => {
               </div>
             </form>
           </motion.div>
-
-          <SecretKeyModal
-            isOpen={showSecretModal}
-            onClose={() => setShowSecretModal(false)}
-            onConfirm={confirmSave}
-            onSuccess={handleSaveSuccess}
-            loading={isSubmitting}
-          />
         </motion.div>
       )}
     </AnimatePresence>

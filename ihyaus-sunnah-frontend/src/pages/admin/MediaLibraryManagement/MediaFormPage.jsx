@@ -18,8 +18,6 @@ import {
 import useStaffAPI from "../../../hooks/useStaffAPI"
 import useMediaLibraryAPI from "../../../hooks/useMediaLibraryAPI"
 
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
-
 const emptyForm = {
   title: "",
   description: "",
@@ -39,8 +37,8 @@ const MediaFormPage = () => {
   const { staff } = useStaffAPI()
   const { mediaItems, playlists, categories, addMedia, editMedia } = useMediaLibraryAPI({})
 
-  const [showModal, setShowModal] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState("")
   const [formData, setFormData] = useState(emptyForm)
   const [newTag, setNewTag] = useState("")
   const [filteredPlaylists, setFilteredPlaylists] = useState([])
@@ -153,13 +151,11 @@ const MediaFormPage = () => {
     reader.readAsDataURL(file)
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    setShowModal(true)
-  }
 
-  const confirmSave = async (secretKey) => {
     setSaving(true)
+    setSaveError("")
 
     const processedData = {
       ...formData,
@@ -169,18 +165,16 @@ const MediaFormPage = () => {
 
     try {
       if (id) {
-        await editMedia(id, processedData, secretKey)
+        await editMedia(id, processedData)
       } else {
-        await addMedia(processedData, secretKey)
+        await addMedia(processedData)
       }
+      navigate("/admin/media")
+    } catch (err) {
+      setSaveError(err.message || "Failed to save media item.")
     } finally {
       setSaving(false)
     }
-  }
-
-  const handleSaveSuccess = () => {
-    setShowModal(false)
-    navigate("/admin/media")
   }
 
   return (
@@ -452,22 +446,21 @@ const MediaFormPage = () => {
               Cancel
             </button>
 
-            <button type="submit" className="btn-primary">
-              {id ? "Update Media" : "Upload Media"}
+                        {saveError && (
+              <p className="text-sm font-semibold text-red-600">{saveError}</p>
+            )}
+
+            <button
+              type="submit"
+              disabled={saving}
+              className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? "Saving..." : id ? "Update Media" : "Upload Media"}
             </button>
           </div>
 
         </form>
       </div>
-
-      {/* MODAL */}
-      <SecretKeyModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onConfirm={confirmSave}
-        onSuccess={handleSaveSuccess}
-        loading={saving}
-      />
     </motion.div>
   )
 }

@@ -20,8 +20,7 @@ import {
 } from "../../../utils/adminDataSync"
 
 import useStaffAPI from "../../../hooks/useStaffAPI"
-
-import SecretKeyModal from "../../../components/admin/SecretKeyModal"
+import ConfirmDialog from "../../../components/admin/ConfirmDialog"
 
 const PlaylistListPage = () => {
   const { staff } = useStaffAPI()
@@ -41,9 +40,14 @@ const PlaylistListPage = () => {
     setShowModal(true)
   }
 
+  const closeDeleteModal = () => {
+    setShowModal(false)
+    setSelectedId(null)
+  }
+
   // TODO: Implement playlist delete with backend API
   const confirmDelete = () => {
-    setShowModal(false)
+    closeDeleteModal()
     setRefreshKey((prev) => prev + 1)
   }
 
@@ -260,10 +264,14 @@ const PlaylistListPage = () => {
         </div>
       )}
 
-      {/* MODAL */}
-      <SecretKeyModal
+            <ConfirmDialog
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        message="Are you sure you want to delete this playlist? This action cannot be undone."
+        busy={false}
+        onCancel={() => {
+          setShowModal(false)
+          setSelectedId(null)
+        }}
         onConfirm={confirmDelete}
       />
 

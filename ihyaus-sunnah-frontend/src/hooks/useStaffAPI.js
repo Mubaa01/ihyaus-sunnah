@@ -1,5 +1,4 @@
-// src/hooks/useStaffAPI.js
-// Updated hook using real API instead of mock data
+
 
 import { useStaffContext } from "../context/StaffContext";
 
