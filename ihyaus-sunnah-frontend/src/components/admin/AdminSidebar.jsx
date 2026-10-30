@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   FaBell,
@@ -23,7 +23,7 @@ import useNotificationsAPI from "../../hooks/useNotificationsAPI";
 import useProgramsAPI from "../../hooks/useProgramsAPI";
 import useStaffAPI from "../../hooks/useStaffAPI";
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI";
-import { authAPI } from "../../services/api";
+import { currentUserAPI } from "../../services/api";
 
 const handleLogout = async (navigate) => {
   try {
@@ -43,6 +43,10 @@ const AdminSidebar = ({
   setIsCollapsed,
 }) => {
   const navigate = useNavigate();
+  const [adminUser, setAdminUser] = useState(null);
+  useEffect(() => {
+    currentUserAPI.getProfile().then((r) => setAdminUser(r?.data || r?.user || r)).catch(() => {});
+  }, []);
   const { staff = [] } = useStaffAPI();
   const { programs = [] } = useProgramsAPI();
   const { researchItems = [] } = useStudentResearchAPI({});
@@ -59,12 +63,6 @@ const AdminSidebar = ({
         path: "/admin/activities",
         icon: <FaClock />,
         badge: activities.length || null,
-      },
-      {
-        name: "Notifications",
-        path: "/admin/notifications",
-        icon: <FaBell />,
-        badge: unreadCount || null,
       },
       {
         name: "Staff",
@@ -236,19 +234,25 @@ const AdminSidebar = ({
               isCollapsed ? "justify-center" : "gap-3"
             }`}
           >
-            <img
-              src="https://i.pravatar.cc/100"
-              alt="Admin user"
-              className="h-9 w-9 rounded-lg object-cover"
-            />
+            {adminUser?.avatar ? (
+              <img
+                src={adminUser.avatar}
+                alt="Admin user"
+                className="h-9 w-9 rounded-lg object-cover"
+              />
+            ) : (
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-white">
+                <FaUser />
+              </div>
+            )}
             {!isCollapsed && (
               <>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-primary">
-                    Admin User
+                    {adminUser?.name ? `Admin ${adminUser.name}` : "Admin User"}
                   </p>
                   <p className="truncate text-xs text-neutral-400">
-                    Super Administrator
+                    {adminUser?.role || "Super Administrator"}
                   </p>
                 </div>
                 <button

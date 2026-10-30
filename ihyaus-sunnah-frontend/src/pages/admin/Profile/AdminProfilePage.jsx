@@ -3,9 +3,10 @@ import toast from "react-hot-toast";
 import { currentUserAPI } from "../../../services/api";
 
 const AdminProfilePage = () => {
-  const [profile, setProfile] = useState({ name: "", email: "", role: "" });
+  const [profile, setProfile] = useState({ name: "", role: "", avatar: "" });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
 
   useEffect(() => {
     currentUserAPI.getProfile()
@@ -14,13 +15,22 @@ const AdminProfilePage = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setProfile((c) => ({ ...c, avatar: reader.result }));
+    reader.readAsDataURL(file);
+    setAvatarFile(file);
+  };
+
   const saveProfile = async (event) => {
     event.preventDefault();
     setSaving(true);
     try {
       const response = await currentUserAPI.updateProfile({
         name: profile.name,
-        email: profile.email,
+        avatar: profile.avatar,
       });
       setProfile((current) => ({ ...current, ...(response.data || response.user || {}) }));
       toast.success("Profile updated successfully");
@@ -41,6 +51,17 @@ const AdminProfilePage = () => {
       </div>
 
       <form onSubmit={saveProfile} className="space-y-5 rounded-3xl border border-gray-100 bg-white p-8 shadow-soft">
+        <div className="flex items-center gap-4">
+          {profile.avatar ? (
+            <img src={profile.avatar} alt="avatar" className="h-16 w-16 rounded-full object-cover" />
+          ) : (
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white text-xl font-bold">
+              {profile.name?.[0] || "A"}
+            </div>
+          )}
+          <input type="file" accept="image/*" onChange={handleFileChange} />
+        </div>
+
         <label className="block text-sm font-semibold text-gray-700">
           Name
           <input
@@ -51,16 +72,10 @@ const AdminProfilePage = () => {
           />
         </label>
 
-        <label className="block text-sm font-semibold text-gray-700">
-          Email
-          <input
-            className="input-primary mt-2 w-full"
-            type="email"
-            value={profile.email || ""}
-            onChange={(event) => setProfile((current) => ({ ...current, email: event.target.value }))}
-            required
-          />
-        </label>
+        <div className="rounded-2xl bg-gray-50 p-4">
+          <span className="text-sm text-gray-500">Display name</span>
+          <p className="mt-1 font-semibold capitalize text-primary">Admin {profile.name || ""}</p>
+        </div>
 
         <div className="rounded-2xl bg-gray-50 p-4">
           <span className="text-sm text-gray-500">Current role</span>

@@ -21,11 +21,11 @@ router.get("/:id", getStaffById);
 // All other routes require authentication
 router.use(authenticate);
 
-// POST, PATCH, DELETE routes require director or admin role AND secret key
+// POST, PATCH routes require director or admin role
 router.post("/", authorizeCrud, createStaff);
 router.patch("/:id", authorizeCrud, updateStaff);
 
-// DELETE routes require director role and secret key
+// DELETE routes require director or admin role
 router.delete("/:id", authorizeCrud, deleteStaff);
 router.delete("/", authorizeCrud, deleteAllStaff);
 

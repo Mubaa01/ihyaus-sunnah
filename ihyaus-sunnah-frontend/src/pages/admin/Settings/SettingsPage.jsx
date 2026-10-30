@@ -1,55 +1,86 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import toast from "react-hot-toast";
 import {
   FaArrowRight,
-  FaBell,
-  FaBookOpen,
   FaCheckCircle,
-  FaCogs,
+  FaExclamationCircle,
   FaExternalLinkAlt,
-  FaImages,
-  FaKey,
+  FaInfoCircle,
   FaShieldAlt,
   FaUserCircle,
 } from "react-icons/fa";
+import { currentUserAPI } from "../../../services/api";
 
-const profile = {
-  name: "Admin User",
-  email: "admin@example.com",
-  role: "Super Administrator",
+// Roles that can access the admin console (matches backend authorization).
+const CONSOLE_ROLES = ["admin", "director"];
+
+const roleLabels = {
+  director: "Director",
+  admin: "Administrator",
+  staff: "Staff",
 };
 
-const primarySettings = [
-  {
-    title: "Profile",
-    description: "Update account identity, role display, and contact details.",
-    icon: <FaUserCircle />,
-    path: "/admin/profile",
-    action: "Open profile",
-  },
-  {
-    title: "Secret key policy",
-    description: "Reset generated keys or set a custom 4-digit confirmation PIN.",
-    icon: <FaKey />,
-    path: "/admin/profile",
-    action: "Manage key",
-  },
-  {
-    title: "Notifications",
-    description: "Review admin alerts, unread updates, and operational notices.",
-    icon: <FaBell />,
-    path: "/admin/notifications",
-    action: "View alerts",
-  },
-];
+const roleDescriptions = {
+  director: "Has full console access, including account management.",
+  admin: "Has full console access to website content.",
+  staff: "Does not have access to the admin console.",
+};
 
-const systemLinks = [
-  { label: "Dashboard", path: "/admin", icon: <FaCogs /> },
-  { label: "Programs", path: "/admin/programs", icon: <FaBookOpen /> },
-  { label: "Media library", path: "/admin/media", icon: <FaImages /> },
-  { label: "Public website", path: "/", icon: <FaExternalLinkAlt /> },
-];
+const formatDateTime = (value) => {
+  if (!value) return "Not recorded";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Not recorded";
+  return date.toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  });
+};
 
 const SettingsPage = () => {
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    currentUserAPI
+      .getProfile()
+      .then((response) => {
+        if (!active) return;
+        setProfile(response?.data || response?.user || null);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setLoadError(error.message || "Unable to load account details.");
+        toast.error(error.message || "Unable to load account details.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const displayName = profile?.name?.trim() || "Unnamed account";
+  const displayEmail = profile?.email?.trim() || "No email on file";
+  const role = profile?.role || "";
+  const roleLabel = roleLabels[role] || (role ? role : "Unknown");
+  const roleDescription =
+    roleDescriptions[role] || "Role is not recognised by the console.";
+  const isActive = profile?.isActive === true;
+  const hasConsoleAccess = CONSOLE_ROLES.includes(role);
+  const updatedAt = formatDateTime(profile?.updatedAt);
+  const createdAt = formatDateTime(profile?.createdAt);
+
+  const statusTitle = isActive ? "Active" : "Inactive";
+  const statusDescription = isActive
+    ? "Admin account is available."
+    : "This account is disabled and cannot sign in.";
+
   return (
     <div className="space-y-6">
       <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm lg:p-6">
@@ -62,8 +93,7 @@ const SettingsPage = () => {
               Admin Settings
             </h1>
             <p className="mt-2 max-w-2xl text-sm text-neutral-500 sm:text-base">
-              Configure admin identity, security, notifications, and key system
-              destinations from one organized workspace.
+              Review your account identity, access level, and session status.
             </p>
           </div>
 
@@ -78,28 +108,30 @@ const SettingsPage = () => {
 
       <div className="grid gap-6 xl:grid-cols-[1fr_360px]">
         <main className="space-y-6">
-          <section className="grid gap-4 md:grid-cols-3">
-            {primarySettings.map((item) => (
-              <Link
-                key={item.title}
-                to={item.path}
-                className="group rounded-lg border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-primary/30 hover:shadow-card"
-              >
-                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary text-xl text-white">
-                  {item.icon}
+          <section className="rounded-lg border border-neutral-200 bg-white p-5 shadow-sm transition hover:border-primary/30 hover:shadow-card">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-4">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary text-xl text-white">
+                  <FaUserCircle />
                 </div>
-                <h2 className="mt-5 text-lg font-semibold text-primary">
-                  {item.title}
-                </h2>
-                <p className="mt-2 text-sm text-neutral-500">
-                  {item.description}
-                </p>
-                <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary">
-                  {item.action}
-                  <FaArrowRight className="text-xs transition-transform group-hover:translate-x-1" />
-                </span>
+                <div>
+                  <h2 className="text-lg font-semibold text-primary">
+                    Profile
+                  </h2>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    Update the name and photo shown on your admin account.
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                to="/admin/profile"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-neutral-200 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-neutral-50"
+              >
+                Open profile
+                <FaArrowRight className="text-xs" />
               </Link>
-            ))}
+            </div>
           </section>
 
           <section className="rounded-lg border border-neutral-200 bg-white shadow-sm">
@@ -112,74 +144,166 @@ const SettingsPage = () => {
               </p>
             </div>
 
-            <div className="grid gap-4 p-5 md:grid-cols-3">
-              <div className="rounded-lg bg-neutral-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                  <FaUserCircle className="text-secondary" /> Account
-                </div>
-                <p className="mt-3 font-semibold text-primary">{profile.name}</p>
-                <p className="mt-1 text-sm text-neutral-500">{profile.email}</p>
+            {loading ? (
+              <div className="p-5 text-sm text-neutral-500">
+                Loading account details...
               </div>
-              <div className="rounded-lg bg-green-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-green-800">
-                  <FaCheckCircle /> Status
-                </div>
-                <p className="mt-3 font-semibold text-green-800">Active</p>
-                <p className="mt-1 text-sm text-green-700">
-                  Admin account is available.
-                </p>
+            ) : loadError ? (
+              <div className="m-5 rounded-lg border border-red-200 bg-neutral-50 p-4 text-sm text-red-700">
+                {loadError}
               </div>
-              <div className="rounded-lg bg-brand-50 p-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                  <FaShieldAlt /> Role
+            ) : (
+              <div className="grid gap-4 p-5 md:grid-cols-3">
+                <div className="rounded-lg bg-neutral-50 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                    <FaUserCircle className="text-secondary" /> Account
+                  </div>
+                  <p className="mt-3 font-semibold text-primary">
+                    {displayName}
+                  </p>
+                  <p className="mt-1 break-words text-sm text-neutral-500">
+                    {displayEmail}
+                  </p>
+                  <p className="mt-3 text-xs text-neutral-500">
+                    Last sign-in: {formatDateTime(profile?.lastLoginAt)}
+                  </p>
                 </div>
-                <p className="mt-3 font-semibold text-primary">{profile.role}</p>
-                <p className="mt-1 text-sm text-neutral-500">
-                  Has full console access.
-                </p>
+
+                <div
+                  className={`rounded-lg p-4 ${
+                    isActive ? "bg-brand-50" : "bg-yellow-100"
+                  }`}
+                >
+                  <div
+                    className={`flex items-center gap-2 text-sm font-semibold ${
+                      isActive ? "text-primary" : "text-yellow-300"
+                    }`}
+                  >
+                    {isActive ? <FaCheckCircle /> : <FaExclamationCircle />}{" "}
+                    Status
+                  </div>
+                  <p
+                    className={`mt-3 font-semibold ${
+                      isActive ? "text-primary" : "text-yellow-300"
+                    }`}
+                  >
+                    {statusTitle}
+                  </p>
+                  <p className="mt-1 text-sm text-neutral-600">
+                    {statusDescription}
+                  </p>
+                </div>
+
+                <div
+                  className={`rounded-lg p-4 ${
+                    hasConsoleAccess ? "bg-brand-50" : "bg-yellow-100"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 text-sm font-semibold text-primary">
+                    <FaShieldAlt /> Role
+                  </div>
+                  <p className="mt-3 font-semibold text-primary">
+                    {roleLabel}
+                  </p>
+                  <p className="mt-1 text-sm text-neutral-600">
+                    {roleDescription}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </section>
+
+          {!loading && !loadError && profile && (
+            <section className="rounded-lg border border-neutral-200 bg-white shadow-sm">
+              <div className="border-b border-neutral-200 p-5">
+                <h2 className="text-xl font-semibold text-primary">
+                  Account details
+                </h2>
+                <p className="mt-1 text-sm text-neutral-500">
+                  Read-only record information for this account.
+                </p>
+              </div>
+
+              <dl className="divide-y divide-neutral-200">
+                {[
+                  { term: "Account ID", detail: profile._id || "Not available" },
+                  { term: "Created", detail: createdAt },
+                  { term: "Last updated", detail: updatedAt },
+                ].map((row) => (
+                  <div
+                    key={row.term}
+                    className="flex flex-col gap-1 p-5 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <dt className="text-sm font-semibold text-primary">
+                      {row.term}
+                    </dt>
+                    <dd className="break-all text-sm text-neutral-500">
+                      {row.detail}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
         </main>
 
         <aside className="space-y-6">
           <section className="rounded-lg border border-neutral-200 bg-white shadow-sm">
             <div className="border-b border-neutral-200 p-5">
-              <h2 className="text-xl font-semibold text-primary">System links</h2>
+              <h2 className="text-xl font-semibold text-primary">
+                Session
+              </h2>
               <p className="mt-1 text-sm text-neutral-500">
-                Jump to high-use admin areas.
+                Current sign-in state for this console.
               </p>
             </div>
 
-            <div className="grid gap-2 p-3">
-              {systemLinks.map((item) => (
-                <Link
-                  key={item.label}
-                  to={item.path}
-                  className="group flex items-center gap-3 rounded-lg p-3 transition-colors hover:bg-brand-50"
-                >
-                  <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-100 text-primary">
-                    {item.icon}
-                  </span>
-                  <span className="min-w-0 flex-1 font-semibold text-primary">
-                    {item.label}
-                  </span>
-                  <FaArrowRight className="text-xs text-neutral-400 transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                </Link>
-              ))}
+            <div className="space-y-4 p-5">
+              <div className="flex items-start gap-3">
+                <FaShieldAlt className="mt-1 text-secondary" />
+                <div>
+                  <p className="text-sm font-semibold text-primary">
+                    {loading
+                      ? "Checking session..."
+                      : isActive && hasConsoleAccess
+                      ? "Authenticated"
+                      : "Limited access"}
+                  </p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    {loading
+                      ? "Retrieving your current admin session."
+                      : isActive && hasConsoleAccess
+                      ? "You are signed in with access to the admin console."
+                      : "This account cannot use the admin console."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <FaInfoCircle className="mt-1 text-secondary" />
+                <div>
+                  <p className="text-sm font-semibold text-primary">
+                    Session expiry
+                  </p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    Sign-in sessions expire automatically. You will be asked to
+                    sign in again once yours ends.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
-          <section className="rounded-lg border border-green-100 bg-green-50 p-5">
+          <section className="rounded-lg border border-neutral-200 bg-neutral-50 p-5">
             <div className="flex items-start gap-3">
-              <FaShieldAlt className="mt-1 text-green-700" />
+              <FaShieldAlt className="mt-1 text-secondary" />
               <div>
-                <h2 className="font-semibold text-green-800">
-                  Recommended setup
+                <h2 className="font-semibold text-primary">
+                  Keeping the account secure
                 </h2>
-                <p className="mt-1 text-sm text-green-700">
-                  Keep profile details current and rotate the secret key when
-                  admin access changes hands.
+                <p className="mt-1 text-sm text-neutral-600">
+                  Keep your profile details current and review access whenever
+                  the people managing this console change.
                 </p>
                 <Link
                   to="/admin/profile"

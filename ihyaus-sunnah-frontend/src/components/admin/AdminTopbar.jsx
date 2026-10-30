@@ -1,8 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   FaAngleRight,
-  FaBars,
   FaBell,
   FaBookOpen,
   FaCog,
@@ -10,6 +9,7 @@ import {
   FaHome,
   FaImages,
   FaSearch,
+  FaShieldAlt,
   FaSignOutAlt,
   FaUser,
 } from "react-icons/fa";
@@ -18,7 +18,7 @@ import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
 import useNotificationsAPI from "../../hooks/useNotificationsAPI";
 import useProgramsAPI from "../../hooks/useProgramsAPI";
 import useStaffAPI from "../../hooks/useStaffAPI";
-import { authAPI } from "../../services/api";
+import { currentUserAPI } from "../../services/api";
 
 const handleLogout = async (navigate, closeMenu) => {
   closeMenu?.();
@@ -53,6 +53,11 @@ const AdminTopbar = ({ setIsOpen }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+
+  const [adminUser, setAdminUser] = useState(null);
+  useEffect(() => {
+    currentUserAPI.getProfile().then((r) => setAdminUser(r?.data || r?.user || r)).catch(() => {});
+  }, []);
 
   const { staff = [] } = useStaffAPI();
   const { programs = [] } = useProgramsAPI();
@@ -161,7 +166,7 @@ const AdminTopbar = ({ setIsOpen }) => {
             className="flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 transition-colors hover:border-primary/30 hover:text-primary lg:hidden"
             aria-label="Open admin navigation"
           >
-            <FaBars />
+            <FaShieldAlt />
           </button>
 
           <div className="min-w-0">
@@ -259,88 +264,29 @@ const AdminTopbar = ({ setIsOpen }) => {
           <div className="relative">
             <button
               type="button"
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="relative flex h-10 w-10 items-center justify-center rounded-lg border border-neutral-200 text-neutral-600 transition-colors hover:border-primary/30 hover:text-primary"
-              aria-label="Open notifications"
-            >
-              <FaBell />
-              {unreadCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-bold text-white">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-
-            <AnimatePresence>
-              {notificationsOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-card"
-                >
-                  <div className="border-b border-neutral-200 p-4">
-                    <h3 className="font-semibold text-primary">Notifications</h3>
-                    <p className="text-sm text-neutral-400">{unreadCount} unread</p>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <div className="p-6 text-center text-sm text-neutral-500">
-                        You are all caught up.
-                      </div>
-                    ) : (
-                      notifications.slice(0, 5).map((notification) => (
-                        <button
-                          key={notification.id}
-                          type="button"
-                          onClick={() => {
-                            setNotificationsOpen(false);
-                            navigate("/admin/notifications");
-                          }}
-                          className={`w-full border-b border-neutral-100 p-4 text-left transition-colors hover:bg-brand-50 ${
-                            notification.read ? "bg-white" : "bg-brand-50/60"
-                          }`}
-                        >
-                          <p className="text-sm font-semibold text-primary">
-                            {notification.title}
-                          </p>
-                          <p className="mt-1 line-clamp-2 text-sm text-neutral-500">
-                            {notification.message}
-                          </p>
-                        </button>
-                      ))
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNotificationsOpen(false);
-                      navigate("/admin/notifications");
-                    }}
-                    className="w-full p-3 text-center text-sm font-semibold text-primary transition-colors hover:bg-brand-50"
-                  >
-                    View all notifications
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <div className="relative">
-            <button
-              type="button"
               onClick={() => setUserMenuOpen(!userMenuOpen)}
               className="flex h-10 items-center gap-2 rounded-lg border border-neutral-200 px-2 transition-colors hover:border-primary/30"
               aria-label="Open account menu"
             >
-              <img
-                src="https://i.pravatar.cc/100"
-                alt="Admin user"
-                className="h-7 w-7 rounded-md object-cover"
-              />
-              <span className="hidden text-sm font-semibold text-primary sm:block">
-                Admin
-              </span>
+              {adminUser?.avatar ? (
+                <img
+                  src={adminUser.avatar}
+                  alt="Admin user"
+                  className="h-7 w-7 rounded-md object-cover"
+                />
+              ) : (
+                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-white">
+                  <FaUser />
+                </span>
+              )}
+              <div className="hidden flex-col text-left sm:flex">
+                <span className="text-sm font-semibold text-primary">
+                  {adminUser?.name ? `Admin ${adminUser.name}` : "Admin"}
+                </span>
+                <span className="text-xs text-neutral-400">
+                  {adminUser?.role || "Super Administrator"}
+                </span>
+              </div>
             </button>
 
             <AnimatePresence>

@@ -8,13 +8,13 @@ dotenv.config();
 
 async function seedAdmin() {
   try {
-    const email = (process.env.SEED_ADMIN_EMAIL || "").trim().toLowerCase();
     const password = process.env.SEED_ADMIN_PASSWORD || "";
     const role = process.env.SEED_ADMIN_ROLE || "admin";
+    const name = process.env.SEED_ADMIN_NAME || (role === "director" ? "Director" : "Admin");
 
-    if (!email || !password) {
+    if (!password) {
       console.error(
-        "Refusing to seed admin. Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD in the environment."
+        "Refusing to seed admin. Set SEED_ADMIN_PASSWORD in the environment."
       );
       process.exit(1);
     }
@@ -33,22 +33,23 @@ async function seedAdmin() {
     console.log("Connected to MongoDB");
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
-    const existing = await User.findOne({ email });
+    const existing = await User.findOne({ role, name });
 
     if (existing) {
       existing.password = hashedPassword;
       existing.role = role;
+      existing.name = name;
       existing.isActive = true;
       await existing.save();
-      console.log(`Updated existing admin account for ${email} (role: ${role}).`);
+      console.log(`Updated existing ${role} account (name: ${name}).`);
     } else {
       const admin = await User.create({
-        email,
+        name,
         password: hashedPassword,
         role,
         isActive: true,
       });
-      console.log(`Created admin account ${email} (id: ${admin._id}, role: ${role}).`);
+      console.log(`Created ${role} account (name: ${name}, id: ${admin._id}).`);
     }
 
     console.log("Password was not printed. Store it in your password manager.");

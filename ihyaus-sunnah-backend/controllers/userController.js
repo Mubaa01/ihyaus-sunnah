@@ -30,7 +30,7 @@ export const getCurrentUser = async (req, res) => {
 export const updateCurrentUser = async (req, res) => {
   try {
     const name = String(req.body.name || "").trim();
-    const email = String(req.body.email || "").trim().toLowerCase();
+    const avatar = String(req.body.avatar || "").trim();
 
     if (!name || name.length < 2) {
       return res.status(400).json({
@@ -39,28 +39,9 @@ export const updateCurrentUser = async (req, res) => {
       });
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({
-        success: false,
-        message: "Enter a valid email address"
-      });
-    }
-
-    const emailOwner = await User.findOne({
-      email,
-      _id: { $ne: req.user.userId }
-    });
-
-    if (emailOwner) {
-      return res.status(409).json({
-        success: false,
-        message: "Email is already in use by another account"
-      });
-    }
-
     const user = await User.findByIdAndUpdate(
       req.user.userId,
-      { name, email },
+      { name, avatar },
       { new: true, runValidators: true }
     ).select(getPublicUserFields);
 

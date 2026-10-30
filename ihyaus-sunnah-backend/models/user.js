@@ -10,8 +10,6 @@ const userSchema = new mongoose.Schema(
 
     email: {
       type: String,
-      required: true,
-      unique: true,
       lowercase: true,
       trim: true
     },
@@ -21,6 +19,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
       select: false // hide password by default
+    },
+
+    avatar: {
+      type: String,
+      trim: true,
+      default: ""
     },
 
     role: {

@@ -17,23 +17,23 @@ const router = express.Router();
 router.use(authenticate);
 router.use(authorize(["director", "admin"]));
 
-// Get all users (READ - no secret key needed)
+// Get all users
 router.get("/", getAllUsers);
 
 // Current authenticated profile
 router.get("/me/profile", getCurrentUser);
 router.patch("/me/profile", updateCurrentUser);
 
-// Get single user (READ - no secret key needed)
+// Get single user
 router.get("/:id", getUserById);
 
-// Update user role (UPDATE - requires secret key)
+// Update user role (requires director or admin role)
 router.patch("/:id/role", authorizeCrud, updateUserRole);
 
-// Toggle user active status (UPDATE - requires secret key)
+// Toggle user active status (requires director or admin role)
 router.patch("/:id/active", authorizeCrud, toggleUserActive);
 
-// Delete user (DELETE - requires secret key)
+// Delete user (requires director or admin role)
 router.delete("/:id", authorizeCrud, deleteUser);
 
 export default router;

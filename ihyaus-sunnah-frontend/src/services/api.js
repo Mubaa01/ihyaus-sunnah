@@ -47,7 +47,7 @@ const normalizeErrorMessage = (data, status) => {
     return "The password you entered is incorrect. Please try again.";
   }
 
-  if (/secret key|unauthorized|not authenticated|token/i.test(message)) {
+  if (/unauthorized|not authenticated|token/i.test(message)) {
     return "Your session needs to be refreshed. Please sign in again.";
   }
 
@@ -397,10 +397,10 @@ export const activitiesAPI = {
 // ==================== AUTH API ====================
 
 export const authAPI = {
-  login: (email, password) =>
+  login: (password) =>
     apiCall("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ password }),
     }),
 
   logout: () =>
