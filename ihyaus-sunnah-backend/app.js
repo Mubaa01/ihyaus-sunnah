@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -18,6 +19,16 @@ import completedMajlisRoutes from "./routes/completedMajlisRoutes.js";
 
 const app = express();
 const isProduction = process.env.NODE_ENV === "production";
+
+if (isProduction) {
+  app.set("trust proxy", 1);
+}
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  })
+);
 
 const configuredOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")

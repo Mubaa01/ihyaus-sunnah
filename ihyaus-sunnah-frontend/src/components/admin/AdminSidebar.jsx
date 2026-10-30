@@ -23,6 +23,18 @@ import useNotificationsAPI from "../../hooks/useNotificationsAPI";
 import useProgramsAPI from "../../hooks/useProgramsAPI";
 import useStaffAPI from "../../hooks/useStaffAPI";
 import useStudentResearchAPI from "../../hooks/useStudentResearchAPI";
+import { authAPI } from "../../services/api";
+
+const handleLogout = async (navigate) => {
+  try {
+    await authAPI.logout();
+  } catch {
+    // Still leave the admin UI even if the cookie clear request fails.
+  }
+  window.localStorage.removeItem("token");
+  window.localStorage.removeItem("adminUser");
+  navigate("/login");
+};
 
 const AdminSidebar = ({
   isOpen,
@@ -241,7 +253,7 @@ const AdminSidebar = ({
                 </div>
                 <button
                   type="button"
-                  onClick={() => navigate("/login")}
+                  onClick={() => handleLogout(navigate)}
                   className="flex h-9 w-9 items-center justify-center rounded-lg text-neutral-500 transition-colors hover:bg-white hover:text-red-600"
                   aria-label="Logout"
                 >

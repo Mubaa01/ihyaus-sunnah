@@ -17,13 +17,14 @@ const LoginPage = () => {
     setSubmitting(true);
     try {
       const data = await authAPI.login(email.trim().toLowerCase(), password);
-      // Save token to localStorage
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('adminUser', JSON.stringify(data.user));
+      // Auth cookie is set by the API (httpOnly). Clear any legacy localStorage tokens.
+      window.localStorage.removeItem('token');
+      window.localStorage.removeItem('adminUser');
+
+      if (data?.success && data?.user) {
         navigate('/admin');
       } else {
-        setError('Login failed: No token received.');
+        setError('Login failed. Please try again.');
       }
     } catch (err) {
       setError(err.message || 'Login failed.');

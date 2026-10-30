@@ -13,18 +13,18 @@ import {
   updatePlaylist,
   getPlaylists
 } from "../controllers/mediaController.js";
-import { authenticate } from "../middleware/authMiddleware.js";
+import { authenticate, optionalAuthenticate } from "../middleware/authMiddleware.js";
 import { authorizeCrud } from "../middleware/crudAuthorization.js";
 
 const router = express.Router();
 
-// Media routes - GET is public
-router.get("/", getAllMedia);
+// Public GETs still run optional auth so admins can access private media.
+router.get("/", optionalAuthenticate, getAllMedia);
 router.get("/playlists", getPlaylists);
-router.get("/:id/telegram-url", getTelegramMediaUrl);
-router.get("/:id/telegram-file", getTelegramMediaFile);
-router.get("/:id/telegram-thumbnail", getTelegramThumbnail);
-router.get("/:id/telegram-thumbnail-url", getTelegramThumbnailUrl);
+router.get("/:id/telegram-url", optionalAuthenticate, getTelegramMediaUrl);
+router.get("/:id/telegram-file", optionalAuthenticate, getTelegramMediaFile);
+router.get("/:id/telegram-thumbnail", optionalAuthenticate, getTelegramThumbnail);
+router.get("/:id/telegram-thumbnail-url", optionalAuthenticate, getTelegramThumbnailUrl);
 router.post("/telegram/webhook", ingestTelegramMedia);
 
 // Media routes - POST, PATCH, DELETE require auth

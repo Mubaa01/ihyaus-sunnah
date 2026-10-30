@@ -18,6 +18,19 @@ import useMediaLibraryAPI from "../../hooks/useMediaLibraryAPI";
 import useNotificationsAPI from "../../hooks/useNotificationsAPI";
 import useProgramsAPI from "../../hooks/useProgramsAPI";
 import useStaffAPI from "../../hooks/useStaffAPI";
+import { authAPI } from "../../services/api";
+
+const handleLogout = async (navigate, closeMenu) => {
+  closeMenu?.();
+  try {
+    await authAPI.logout();
+  } catch {
+    // Continue to login even if logout request fails.
+  }
+  window.localStorage.removeItem("token");
+  window.localStorage.removeItem("adminUser");
+  navigate("/login");
+};
 
 const labelMap = {
   admin: "Dashboard",
@@ -371,10 +384,7 @@ const AdminTopbar = ({ setIsOpen }) => {
                   <div className="my-2 border-t border-neutral-200" />
                   <button
                     type="button"
-                    onClick={() => {
-                      setUserMenuOpen(false);
-                      navigate("/login");
-                    }}
+                    onClick={() => handleLogout(navigate, () => setUserMenuOpen(false))}
                     className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-red-600 transition-colors hover:bg-red-50"
                   >
                     <FaSignOutAlt /> Logout

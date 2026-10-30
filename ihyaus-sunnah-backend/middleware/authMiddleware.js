@@ -1,48 +1,75 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.js";
 
+const getTokenFromRequest = (req) =>
+  req.cookies?.token || req.headers.authorization?.split(" ")[1];
+
+const loadActiveUser = async (token) => {
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  const user = await User.findById(decoded.userId).select("role isActive");
+
+  if (!user || !user.isActive) {
+    return null;
+  }
+
+  return {
+    userId: user._id.toString(),
+    role: user.role,
+  };
+};
+
+export const isAdminUser = (user) =>
+  Boolean(user && ["admin", "director"].includes(user.role));
+
 /**
- * Authenticate middleware - Verify JWT token
- * Adds user data to req.user if token is valid
+ * Authenticate middleware - Verify JWT from cookie (preferred) or Bearer header
  */
 export const authenticate = async (req, res, next) => {
   try {
-    // Get token from Authorization header (Bearer token) or from cookies
-    const token =
-      req.headers.authorization?.split(" ")[1] || req.cookies.token;
+    const token = getTokenFromRequest(req);
 
     if (!token) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized - No token provided"
+        message: "Unauthorized - No token provided",
       });
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    const user = await User.findById(decoded.userId).select("role isActive");
+    const user = await loadActiveUser(token);
 
-    if (!user || !user.isActive) {
+    if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Unauthorized - Account is unavailable or inactive"
+        message: "Unauthorized - Account is unavailable or inactive",
       });
     }
 
-    // Always use the current database role instead of the stale JWT role.
-    req.user = {
-      userId: user._id.toString(),
-      role: user.role
-    };
+    req.user = user;
     next();
-  } catch (error) {
+  } catch {
     return res.status(401).json({
       success: false,
       message: "Unauthorized - Invalid token",
-      error: error.message
     });
   }
+};
+
+/**
+ * Attach user when a valid session exists; never block the request.
+ * Used for public reads that hide private content from anonymous callers.
+ */
+export const optionalAuthenticate = async (req, res, next) => {
+  try {
+    const token = getTokenFromRequest(req);
+    if (!token) return next();
+
+    const user = await loadActiveUser(token);
+    if (user) req.user = user;
+  } catch {
+    // Ignore invalid/expired tokens on optional paths.
+  }
+
+  return next();
 };
 
 /**

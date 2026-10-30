@@ -1,7 +1,17 @@
 import { Media } from "../models/Media.js";
 import { Playlist } from "../models/Playlist.js";
 import { saveTelegramMessageAsMedia } from "../services/telegramMediaService.js";
+import { isAdminUser } from "../middleware/authMiddleware.js";
 import { Readable } from "node:stream";
+
+const canAccessMedia = (media, req) => {
+  if (!media) return false;
+  if (media.visibility !== "private") return true;
+  return isAdminUser(req.user);
+};
+
+const denyPrivateMedia = (res) =>
+  res.status(404).json({ success: false, message: "Media not found" });
 
 const proxyTelegramFile = async (req, res, fileId, contentType) => {
   const metadataResponse = await fetch(
@@ -55,7 +65,15 @@ export const getAllMedia = async (req, res) => {
     if (type) filter.type = type;
     if (staffId) filter.staffId = staffId;
     if (playlistId) filter.playlistId = playlistId;
-    if (visibility) filter.visibility = visibility;
+
+    // Anonymous/public callers always see public media only.
+    // Admins may filter or list all (including private).
+    if (!isAdminUser(req.user)) {
+      filter.visibility = "public";
+    } else if (visibility) {
+      filter.visibility = visibility;
+    }
+
     if (search) {
       const escaped = escapeRegExp(search);
       filter.$or = [
@@ -77,8 +95,8 @@ export const getTelegramMediaUrl = async (req, res) => {
     const { id } = req.params;
     const media = await Media.findById(id);
 
-    if (!media) {
-      return res.status(404).json({ success: false, message: "Media not found" });
+    if (!media || !canAccessMedia(media, req)) {
+      return denyPrivateMedia(res);
     }
 
     if (media.provider !== "telegram") {
@@ -110,7 +128,7 @@ export const getTelegramMediaUrl = async (req, res) => {
 export const getTelegramMediaFile = async (req, res) => {
   try {
     const media = await Media.findById(req.params.id);
-    if (!media) return res.status(404).json({ success: false, message: "Media not found" });
+    if (!media || !canAccessMedia(media, req)) return denyPrivateMedia(res);
     if (media.provider !== "telegram" || !media.telegramFileId) {
       return res.status(404).json({ success: false, message: "Telegram file not found" });
     }
@@ -128,8 +146,8 @@ export const getTelegramThumbnail = async (req, res) => {
     const { id } = req.params;
     const media = await Media.findById(id);
 
-    if (!media) {
-      return res.status(404).json({ success: false, message: "Media not found" });
+    if (!media || !canAccessMedia(media, req)) {
+      return denyPrivateMedia(res);
     }
 
     if (media.thumbnail) {
@@ -158,8 +176,8 @@ export const getTelegramThumbnailUrl = async (req, res) => {
     const { id } = req.params;
     const media = await Media.findById(id);
 
-    if (!media) {
-      return res.status(404).json({ success: false, message: "Media not found" });
+    if (!media || !canAccessMedia(media, req)) {
+      return denyPrivateMedia(res);
     }
 
     const thumbnailUrl = getMediaThumbnailUrl(req, media);

@@ -4,6 +4,7 @@ import crypto from "node:crypto";
 import sgMail from "@sendgrid/mail";
 import { loginSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/authValidator.js";
 import { generateToken, generateResetToken } from "../utils/tokenUtils.js";
+import { clearAuthCookie, getAuthCookieOptions } from "../utils/authCookie.js";
 
 export const login = async (req, res) => {
   try {
@@ -16,8 +17,12 @@ export const login = async (req, res) => {
     const token = generateToken(user._id, user.role);
     user.lastLoginAt = new Date();
     await user.save();
-    res.cookie("token", token, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict", maxAge: 86400000 });
-    return res.json({ success: true, message: "Login successful", token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.cookie("token", token, getAuthCookieOptions());
+    return res.json({
+      success: true,
+      message: "Login successful",
+      user: { id: user._id, name: user.name, email: user.email, role: user.role },
+    });
   } catch (error) {
     console.error("Login failed:", error);
     return res.status(500).json({ success: false, message: "Login failed" });
@@ -35,7 +40,7 @@ export const getSession = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-  res.clearCookie("token", { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "strict" });
+  clearAuthCookie(res);
   return res.json({ success: true, message: "Logged out successfully" });
 };
 

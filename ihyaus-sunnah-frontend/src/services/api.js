@@ -6,11 +6,6 @@ const API_BASE_URL =
     .trim()
     .replace(/\/+$/, "");
 
-const getAuthHeaders = () => {
-  const token = window.localStorage?.getItem("token");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 const normalizeErrorMessage = (data, status) => {
   const rawMessage =
     data?.message ||
@@ -66,10 +61,9 @@ const apiCall = async (endpoint, options = {}) => {
   const controller = new AbortController();
   const timeoutId = window.setTimeout(() => controller.abort(), 60000);
 
+  // Session auth uses httpOnly cookies (credentials: include). Do not store JWTs in localStorage.
   const defaultOptions = {
-    headers: {
-      ...getAuthHeaders(),
-    },
+    headers: {},
     credentials: "include",
     signal: controller.signal,
   };
