@@ -146,8 +146,8 @@ const AdminSidebar = ({
               isCollapsed ? "justify-center" : "gap-3"
             }`}
           >
-            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-lg text-white">
-              <FaShieldAlt />
+            <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-primary text-lg text-white overflow-hidden">
+              <img src="/ihyau.svg" alt="Ihya us Sunnah" className="h-8 w-8 object-contain" />
             </span>
             {!isCollapsed && (
               <span className="min-w-0 text-left">
