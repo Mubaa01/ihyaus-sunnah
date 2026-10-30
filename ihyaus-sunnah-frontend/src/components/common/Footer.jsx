@@ -187,9 +187,20 @@ const Footer = () => {
             All rights reserved.
           </p>
 
-          <p>
-            Education • Sincerity • Community Service
-          </p>
+          <div className="flex items-center gap-4">
+            <p>
+              Education • Sincerity • Community Service
+            </p>
+
+            <span className="hidden md:inline text-white/20">|</span>
+
+            <Link
+              to="/login"
+              className="text-gray-400 hover:text-yellow-400 transition"
+            >
+              Admin Login
+            </Link>
+          </div>
 
         </div>
       </div>

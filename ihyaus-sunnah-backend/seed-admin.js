@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import User from "./models/user.js";
+import { BCRYPT_SALT_ROUNDS } from "./utils/tokenUtils.js";
 
 dotenv.config();
 
@@ -31,7 +32,7 @@ async function seedAdmin() {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_SALT_ROUNDS);
     const existing = await User.findOne({ email });
 
     if (existing) {

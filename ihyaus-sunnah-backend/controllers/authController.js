@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import crypto from "node:crypto";
 import sgMail from "@sendgrid/mail";
 import { loginSchema, changePasswordSchema, forgotPasswordSchema, resetPasswordSchema } from "../validators/authValidator.js";
-import { generateToken, generateResetToken } from "../utils/tokenUtils.js";
+import { generateToken, generateResetToken, BCRYPT_SALT_ROUNDS } from "../utils/tokenUtils.js";
 import { clearAuthCookie, getAuthCookieOptions } from "../utils/authCookie.js";
 
 export const login = async (req, res) => {
@@ -51,7 +51,7 @@ export const changePassword = async (req, res) => {
     const user = await User.findById(req.user.userId).select("+password");
     if (!user) return res.status(404).json({ success: false, message: "User not found" });
     if (!(await bcrypt.compare(result.data.oldPassword, user.password))) return res.status(400).json({ success: false, message: "Old password is incorrect" });
-    user.password = await bcrypt.hash(result.data.newPassword, 10);
+    user.password = await bcrypt.hash(result.data.newPassword, BCRYPT_SALT_ROUNDS);
     await user.save();
     return res.json({ success: true, message: "Password changed successfully" });
   } catch (error) {
@@ -87,7 +87,7 @@ export const resetPassword = async (req, res) => {
     const hashedToken = crypto.createHash("sha256").update(result.data.code).digest("hex");
     const user = await User.findOne({ email: result.data.email, resetPasswordToken: hashedToken, resetPasswordExpiresAt: { $gt: new Date() } });
     if (!user) return res.status(400).json({ success: false, message: "Invalid or expired reset code" });
-    user.password = await bcrypt.hash(result.data.newPassword, 10);
+    user.password = await bcrypt.hash(result.data.newPassword, BCRYPT_SALT_ROUNDS);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiresAt = undefined;
     await user.save();
